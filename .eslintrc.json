@@ -1,0 +1,14 @@
+// {
+//   "extends": "next/core-web-vitals"
+// }
+
+// .eslintrc.json
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "react-hooks/exhaustive-deps": "off",
+    "jsx-a11y/alt-text": "off",
+    "@next/next/no-img-element": "off",
+    "react/no-unescaped-entities": "off"
+  }
+}

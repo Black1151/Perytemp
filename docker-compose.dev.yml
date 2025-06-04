@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: happiness-score
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build:
+      context: .
+    container_name: nextjs
+    environment:
+      DATABASE_URL: postgres://user:password@postgres:5432/happiness-score
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "npm run dev"
+
+volumes:
+  postgres_data:

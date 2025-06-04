@@ -1,0 +1,26 @@
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root,
+html,
+body {
+  -webkit-force-dark: none !important;
+  color-scheme: light !important;
+  -webkit-color-scheme: light !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Even if user's system is in dark mode, force light colors */
+@media (prefers-color-scheme: dark) {
+  :root,
+  html,
+  body {
+    -webkit-force-dark: none !important;
+    color-scheme: light !important;
+    -webkit-color-scheme: light !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+}

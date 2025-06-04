@@ -1,0 +1,133 @@
+.sd-root-modern.sd-root-modern--full-container {
+  height: auto;
+}
+
+.sd-title.sd-element__title {
+  font-weight: var(--sjs-font-questiontitle-weight, 400);
+  color: var(--sjs-general-dim-forecolor);
+}
+
+/* This bit of css centers rating questions */
+
+.sd-rating {
+  width: max-content;
+  overflow: visible;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/*error message background colour*/
+.sd-error {
+  line-height: var(--sjs-font-size, 16px);
+  font-size: var(--sjs-font-size, 16px);
+  font-weight: 400;
+  text-align: left;
+  color: var(--sjs-special-red, var(--red, #e60a3e));
+  background-color: whitesmoke;
+}
+
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--fixed-size
+  .sd-rating__item-text {
+  color: white !important; /*centre number colour selected********/
+}
+
+.sd-rating__item-text.sd-rating__item-text.sd-rating__min-text,
+.sd-rating__item-text.sd-rating__item-text.sd-rating__max-text {
+  color: #f9f9f9;
+  font-size: 14px !important;
+  margin-top: 12px !important;
+}
+
+/*sd-rating readonly*/
+
+.sd-rating__item.sd-rating__item--readonly.sd-rating__item--fixed-size {
+  color: black !important; /*********/
+  border: 1px solid var(--sjs-general-dim-forecolor) !important; /*readonly border colour*/
+}
+
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--fixed-size
+  .sd-rating__item-smiley--readonly.sd-rating__item-smiley--selected {
+  border-color: black !important;
+  color: black !important;
+  background: black !important;
+}
+
+.sd-rating__item.sd-rating__item--readonly.sd-rating__item--fixed-size
+  .sd-rating__item-text {
+  color: var(--sjs-general-dim-forecolor) !important; /*centre number colour*/
+}
+
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--readonly.sd-rating__item--fixed-size {
+  background-color: var(--sjs-general-dim-forecolor) !important;
+  color: white !important;
+}
+
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--readonly.sd-rating__item--fixed-size
+  .sd-rating__item-text {
+  color: white !important;
+}
+
+.sd-rating__item--error {
+  background-color: #e5e5e5;
+}
+
+/*Question title colour*/
+.sd-title.sd-element__title {
+  font-weight: var(--sjs-font-questiontitle-weight, 400);
+  color: var(--sjs-general-dim-forecolor);
+}
+
+/*Question input text colour*/
+.sd-input {
+  /*color: var(--sjs-general-dim-forecolor);*/
+  color: var(--sjs-general-dim-forecolor);
+  box-shadow: 0 0 0 0.5px var(--sjs-general-dim-forecolor);
+}
+
+/*colour of background of required field*/
+.sd-input--error {
+  background-color: #e5e5e5;
+
+  /*background-color: var(--sjs-general-dim-forecolor-light);*/
+}
+
+/*Action Buttons*/
+.sd-action {
+  background: #e5e5e5;
+  color: var(--sjs-general-dim-forecolor);
+}
+
+.sd-action:hover {
+  background-color: var(--sjs-general-dim-forecolor) !important;
+  color: #e5e5e5 !important;
+}
+
+/*Centre Ratings*/
+.sd-rating.sd-rating--labels-bottom fieldset {
+  justify-content: center;
+}
+
+/*Toggle colors*/
+.sd-boolean__thumb {
+  background-color: #e5e5e5;
+  color: var(--sjs-primary-backcolor, var(--primary, #19b394));
+  font-weight: 400;
+}
+
+/*Current tab colour in dyamic panel tabs*/
+.sd-tab-item.sd-tab-item--pressed {
+  color: var(--sjs-general-dim-forecolor);
+}
+
+.sv-list__item.sv-list__item--selected > .sv-list__item-body,
+.sv-list__item.sv-list__item--selected:hover > .sv-list__item-body,
+.sv-list__item.sv-list__item--selected.sv-list__item--focused
+  > .sv-list__item-body,
+.sv-multi-select-list
+  .sv-list__item.sv-list__item--selected.sv-list__item--focused
+  > .sv-list__item-body,
+li:focus .sv-list__item.sv-list__item--selected > .sv-list__item-body {
+  background-color: var(--sjs-primary-backcolor, var(--primary, #19b394));
+  color: var(--sjs-primary-forecolor, var(--primary-foreground, #fff));
+  font-weight: 400;
+}

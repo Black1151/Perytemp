@@ -1,0 +1,16 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+# Install additional dependencies for local development (if needed)
+# RUN npm install --save-dev some-package
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]

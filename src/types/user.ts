@@ -1,0 +1,1 @@
+export type Role = "CU" | "CL" | "CS" | "CA" | "PA" | "EU";

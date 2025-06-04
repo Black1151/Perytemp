@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "Bonfire";
+  src:
+    url("/fonts/Bonfire.otf") format("opentype"),
+    url("/fonts/Bonfire.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+    font-family: "Metropolis";
+    src: url("/fonts/Metropolis-Regular.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+}

@@ -1,0 +1,62 @@
+.sd-dropdown__filter-string-input {
+  color: var(--chakra-colors-primary);
+}
+
+.sd-input:focus {
+  /* color: #ff0070; */
+  color: var(--chakra-colors-primary);
+  box-shadow:
+    var(--sjs-shadow-inner-reset, inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15)),
+    0 0 0 0px var(--sjs-primary-backcolor, var(--primary, #19b394));
+}
+
+.sd-input .sd-dropdown:focus {
+  box-shadow:
+    var(--sjs-shadow-inner-reset, inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15)),
+    0 0 0 0px var(--sjs-primary-backcolor, var(--primary, #19b394));
+}
+
+.sd-input.sd-dropdown:focus-within {
+  box-shadow:
+    var(--sjs-shadow-inner-reset, inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15)),
+    0 0 0 0px var(--sjs-primary-backcolor, var(--primary, #19b394));
+}
+
+.sv-list__item.sv-list__item--selected.sv-list__item--focused
+  > .sv-list__item-body,
+.sv-list__item.sv-list__item--selected:hover > .sv-list__item-body,
+.sv-list__item.sv-list__item--selected > .sv-list__item-body,
+.sv-multi-select-list
+  .sv-list__item.sv-list__item--selected.sv-list__item--focused
+  > .sv-list__item-body,
+li:focus .sv-list__item.sv-list__item--selected > .sv-list__item-body {
+  background-color: var(--chakra-colors-primary);
+  color: #f9f9f9;
+  font-weight: 400;
+}
+
+@media screen and (max-width: 425px) {
+  .sd-input {
+    font-size: 14px !important;
+  }
+
+  .sd-input .sd-text {
+    font-size: 14px !important;
+  }
+
+  .sd-dropdown__filter-string-input {
+    font-size: 14px !important;
+  }
+
+  .sv-dropdown-popup .sd-list__item-body {
+    font-size: 14px !important;
+  }
+
+  .sd-dropdown__value {
+    font-size: 14px !important;
+  }
+
+  .sd-element__title span {
+    font-size: 14px !important;
+  }
+}

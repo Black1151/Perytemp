@@ -1,0 +1,6 @@
+node_modules
+.husky
+.next
+.env
+.env.local
+

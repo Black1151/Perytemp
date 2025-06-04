@@ -1,0 +1,26 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "co.median.android.nexrjy",
+      "sha256_cert_fingerprints": [
+        "2A:40:6E:88:EC:2C:3A:1F:5C:B4:8C:3D:FF:32:C7:7E:FF:8C:FC:40:8D:0B:98:00:61:20:FB:05:1A:08:D0:74"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "uk.co.sedulo.perygon",
+      "sha256_cert_fingerprints": [
+        "82:7C:80:9F:00:6E:8B:34:24:B9:AD:D4:AF:EB:E4:9C:21:C7:AF:16:C4:9D:21:3E:24:B3:F0:72:EA:67:60:E7"
+      ]
+    }
+  }
+]

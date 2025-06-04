@@ -1,0 +1,72 @@
+.sd-root-modern.sd-root-modern--full-container {
+    height: auto;
+}
+
+/* This bit of css centers rating questions */
+
+.sd-rating {
+    width: max-content;
+    overflow: visible;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/*error message background colour*/
+.sd-error {
+    background-color: #f9f9f9;
+}
+
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--fixed-size & .sd-rating__item-smiley--readonly.sd-rating__item-smiley--selected {
+    border-color: white !important;
+    color: white !important;
+    background: white !important;
+}
+
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--fixed-size .sd-rating__item-text {
+    color: white !important;
+}
+
+.sd-rating__item.sd-rating__item--readonly.sd-rating__item--fixed-size {
+    color: white !important;
+    border: 1px solid white !important;
+}
+
+.sd-rating__item.sd-rating__item--readonly.sd-rating__item--fixed-size .sd-rating__item-text {
+    color: white !important;
+}
+
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--readonly.sd-rating__item--fixed-size {
+    background-color: white !important;
+    color: black !important;
+}
+
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--readonly.sd-rating__item--fixed-size .sd-rating__item-text {
+    color: black !important;
+}
+
+.sd-rating__item-text.sd-rating__item-text.sd-rating__min-text,
+.sd-rating__item-text.sd-rating__item-text.sd-rating__max-text {
+    color: #f9f9f9;
+    font-size: 14px !important;
+    margin-top: 12px !important;
+}
+
+/*Question input text colour*/
+.sd-input {
+    color: #ff0070;
+}
+
+.sd-rating.sd-rating--labels-bottom fieldset {
+    justify-content: center;
+}
+
+
+
+
+
+
+
+
+
+
+

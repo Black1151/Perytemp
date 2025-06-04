@@ -1,0 +1,43 @@
+trigger:
+  - develop
+
+resources:
+  - repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: "cded2d3b-6a50-4f45-a781-7e60a4e51b58"
+  imageRepository: "perygon-develop"
+  containerRegistry: "sedulocontainerreg.azurecr.io"
+  dockerfilePath: "$(Build.SourcesDirectory)/Dockerfile"
+  tag: "latest"
+  AGKey: "$(NEXT_PUBLIC_AG_GRID_LICENSE_KEY)"
+
+  # Agent VM image name
+  vmImageName: "ubuntu-latest"
+
+stages:
+  - stage: Build
+    displayName: Build and push stage
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - script: echo "$(Build.SourcesDirectory)"
+            displayName: "Print Build.SourcesDirectory"
+          # - script: 
+              # echo "NEXT_PUBLIC_AG_GRID_LICENSE_KEY=$(NEXT_PUBLIC_AG_GRID_LICENSE_KEY)" >> $(Build.SourcesDirectory)/.env 
+              # cat $(Build.SourcesDirectory)/.env  # Debugging step (will be masked)
+          
+            # displayName: "Create .env file with AG Grid License Key"
+          - task: Docker@2
+            displayName: Build and push an image to container registry
+            inputs:
+              command: buildAndPush
+              repository: $(imageRepository)
+              dockerfile: $(dockerfilePath)
+              containerRegistry: $(dockerRegistryServiceConnection)
+              tags: |
+                $(tag)
