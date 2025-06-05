@@ -1,6 +1,14 @@
 "use client";
 
-import { Box, Image, SimpleGrid, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Image,
+  SimpleGrid,
+  Text,
+  Spinner,
+} from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import CategoryItemCard from "./CategoryItemCard";
 
 interface HubCard {
   title: string;
@@ -16,6 +24,53 @@ const cards: HubCard[] = [
 ];
 
 export function HospitalityHubMasonry() {
+  const [selected, setSelected] = useState<string | null>(null);
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!selected) return;
+    const fetchItems = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/hospitality-hub/${selected.toLowerCase()}`);
+        const data = await res.json();
+        if (res.ok) {
+          setItems(data.resource || []);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItems();
+  }, [selected]);
+
+  if (selected) {
+    if (loading) {
+      return <Spinner />;
+    }
+
+    return (
+      <>
+        <Box mb={4} cursor="pointer" onClick={() => { setSelected(null); setItems([]); }}>
+          <Text fontWeight="bold">&larr; Back</Text>
+        </Box>
+        <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
+          {items.map((item) => (
+            <CategoryItemCard
+              key={item.id || item.title}
+              title={item.name || item.title}
+              description={item.description}
+              image={item.image}
+            />
+          ))}
+        </SimpleGrid>
+      </>
+    );
+  }
+
   return (
     <SimpleGrid columns={[2, 3, 5]} gap={4} w="100%">
       {cards.map((card) => (
@@ -26,6 +81,8 @@ export function HospitalityHubMasonry() {
           borderRadius="lg"
           overflow="hidden"
           role="group"
+          cursor="pointer"
+          onClick={() => setSelected(card.title)}
         >
           <Image src={card.image} alt={card.title} objectFit="cover" w="100%" h="100%" />
           <Box
