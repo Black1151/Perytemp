@@ -8,18 +8,18 @@ import {
   Spinner,
   Center,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import HospitalityItemCard from "../../components/HospitalityItemCard";
 import ItemDetailModal from "./ItemDetailModal";
 import hospitalityHubConfig, {
   HospitalityItem,
 } from "../../hospitalityHubConfig";
+import useHospitalityItems from "../../hooks/useHospitalityItems";
 // import hospitalityHubConfig, { HospitalityItem } from "../hospitalityHubConfig";
 
 export function HospitalityHubMasonry() {
   const [selected, setSelected] = useState<string | null>(null);
-  const [items, setItems] = useState<HospitalityItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { items, loading } = useHospitalityItems(selected);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(
@@ -43,24 +43,7 @@ export function HospitalityHubMasonry() {
     }
   };
 
-  useEffect(() => {
-    if (!selected) return;
-    const fetchItems = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/hospitality-hub/${selected}`);
-        const data = await res.json();
-        if (res.ok) {
-          setItems(data.resource || []);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchItems();
-  }, [selected]);
+  // Items are fetched via useHospitalityItems when a category is selected
 
   if (selected) {
     if (loading) {
@@ -74,7 +57,6 @@ export function HospitalityHubMasonry() {
           cursor="pointer"
           onClick={() => {
             setSelected(null);
-            setItems([]);
           }}
         >
           <Text fontWeight="bold">&larr; Back</Text>
