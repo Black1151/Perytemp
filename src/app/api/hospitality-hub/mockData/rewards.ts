@@ -1,4 +1,6 @@
-export const rewards = [
+import { Reward } from "@/types/hospitality";
+
+export const rewards: Reward[] = [
   {
     id: "reward-1",
     name: "Free Breakfast",

@@ -1,4 +1,6 @@
-export const events = [
+import { Event } from "@/types/hospitality";
+
+export const events: Event[] = [
   {
     id: "event-1",
     name: "Wine Tasting Evening",

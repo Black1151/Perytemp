@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { SimpleGrid, Spinner } from "@chakra-ui/react";
 import AdminCategoryItemCard from "./AdminCategoryItemCard";
+import { HospitalityItem } from "@/types/hospitality";
 
 interface CategoryTabContentProps {
   category: string;
 }
 
 export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<HospitalityItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
