@@ -11,8 +11,10 @@ import {
 import { useEffect, useState } from "react";
 import CategoryItemCard from "../../components/CategoryItemCard";
 import ItemDetailModal from "./ItemDetailModal";
-import hospitalityHubConfig, { HospitalityItem } from "../hospitalityHubConfig";
-
+import hospitalityHubConfig, {
+  HospitalityItem,
+} from "../../hospitalityHubConfig";
+// import hospitalityHubConfig, { HospitalityItem } from "../hospitalityHubConfig";
 
 export function HospitalityHubMasonry() {
   const [selected, setSelected] = useState<string | null>(null);
@@ -20,16 +22,16 @@ export function HospitalityHubMasonry() {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(
+    null
+  );
 
   const handleItemClick = async (itemId: string) => {
     if (!selected) return;
     setModalOpen(true);
     setModalLoading(true);
     try {
-      const res = await fetch(
-        `/api/hospitality-hub/${selected}/${itemId}`
-      );
+      const res = await fetch(`/api/hospitality-hub/${selected}/${itemId}`);
       const data = await res.json();
       if (res.ok) {
         setSelectedItem(data.resource);
@@ -46,9 +48,7 @@ export function HospitalityHubMasonry() {
     const fetchItems = async () => {
       setLoading(true);
       try {
-        const res = await fetch(
-          `/api/hospitality-hub/${selected}`
-        );
+        const res = await fetch(`/api/hospitality-hub/${selected}`);
         const data = await res.json();
         if (res.ok) {
           setItems(data.resource || []);
@@ -85,7 +85,8 @@ export function HospitalityHubMasonry() {
               key={item.id}
               item={item}
               optionalFields={
-                hospitalityHubConfig.find((c) => c.key === selected)?.optionalFields || []
+                hospitalityHubConfig.find((c) => c.key === selected)
+                  ?.optionalFields || []
               }
               onClick={() => handleItemClick(item.id)}
               showOverlay
@@ -101,7 +102,8 @@ export function HospitalityHubMasonry() {
           item={selectedItem}
           loading={modalLoading}
           optionalFields={
-            hospitalityHubConfig.find((c) => c.key === selected)?.optionalFields || []
+            hospitalityHubConfig.find((c) => c.key === selected)
+              ?.optionalFields || []
           }
         />
       </Center>

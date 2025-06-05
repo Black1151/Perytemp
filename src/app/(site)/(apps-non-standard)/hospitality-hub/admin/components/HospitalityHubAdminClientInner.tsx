@@ -1,8 +1,8 @@
 "use client";
 
 import { PerygonTabs } from "../../../big-up/tabs/PerygonTabs";
+import hospitalityHubConfig from "../../hospitalityHubConfig";
 import CategoryTabContent from "./CategoryTabContent";
-import hospitalityHubConfig from "../hospitalityHubConfig";
 
 export const HospitalityHubAdminClientInner = () => {
   const tabsData = hospitalityHubConfig.map((category) => ({
