@@ -5,6 +5,7 @@ export const legal = [
     speciality: "Corporate",
     location: "New York",
     contact: "555-1111",
+    image: "/carousel/client-satisfaction-bg.webp",
   },
   {
     id: "legal-2",
@@ -12,6 +13,7 @@ export const legal = [
     speciality: "Real Estate",
     location: "Miami",
     contact: "555-2222",
+    image: "/carousel/client-satisfaction-bg.webp",
   },
   {
     id: "legal-3",
@@ -19,6 +21,7 @@ export const legal = [
     speciality: "Employment",
     location: "Denver",
     contact: "555-3333",
+    image: "/carousel/client-satisfaction-bg.webp",
   },
   {
     id: "legal-4",
@@ -26,6 +29,7 @@ export const legal = [
     speciality: "Tax",
     location: "Chicago",
     contact: "555-4444",
+    image: "/carousel/client-satisfaction-bg.webp",
   },
   {
     id: "legal-5",
@@ -33,5 +37,6 @@ export const legal = [
     speciality: "Immigration",
     location: "Phoenix",
     contact: "555-5555",
+    image: "/carousel/client-satisfaction-bg.webp",
   },
 ];

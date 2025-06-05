@@ -5,6 +5,7 @@ export const medical = [
     speciality: "General Practice",
     location: "New York",
     contact: "555-1010",
+    image: "/carousel/business-score-carousel-bg.webp",
   },
   {
     id: "medical-2",
@@ -12,6 +13,7 @@ export const medical = [
     speciality: "Physiotherapy",
     location: "Miami",
     contact: "555-2020",
+    image: "/carousel/business-score-carousel-bg.webp",
   },
   {
     id: "medical-3",
@@ -19,6 +21,7 @@ export const medical = [
     speciality: "Cardiology",
     location: "Denver",
     contact: "555-3030",
+    image: "/carousel/business-score-carousel-bg.webp",
   },
   {
     id: "medical-4",
@@ -26,6 +29,7 @@ export const medical = [
     speciality: "Dentistry",
     location: "Chicago",
     contact: "555-4040",
+    image: "/carousel/business-score-carousel-bg.webp",
   },
   {
     id: "medical-5",
@@ -33,5 +37,6 @@ export const medical = [
     speciality: "Dermatology",
     location: "Phoenix",
     contact: "555-5050",
+    image: "/carousel/business-score-carousel-bg.webp",
   },
 ];
