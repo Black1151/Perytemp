@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { SimpleGrid, Spinner } from "@chakra-ui/react";
-import AdminCategoryItemCard from "./AdminCategoryItemCard";
+import ItemCard from "../../components/ItemCard";
 
 interface CategoryTabContentProps {
   category: string;
@@ -38,7 +38,7 @@ export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
   return (
     <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
       {items.map((item) => (
-        <AdminCategoryItemCard
+        <ItemCard
           key={item.id || item.name || item.provider}
           title={item.name || item.title || item.provider}
           description={item.description || item.speciality}
