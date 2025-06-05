@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import apiClient from "@/lib/apiClient";
+import { events } from "../../mockData/events";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: { eventId: string } },
 ) {
   const { eventId } = params;
-
+  /*
   try {
     const response = await apiClient(`/hospitality-hub/events/${eventId}`, {
       method: "GET",
@@ -25,6 +26,16 @@ export async function GET(
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  */
+
+  const event = events.find((e) => e.id === eventId);
+  if (!event) {
+    return NextResponse.json(
+      { error: "Event not found" },
+      { status: 404 },
+    );
+  }
+  return NextResponse.json({ resource: event });
 }
 
 export async function PUT(

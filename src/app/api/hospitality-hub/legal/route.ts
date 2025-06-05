@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import apiClient from "@/lib/apiClient";
+import { legal as legalData } from "../mockData/legal";
 
 export async function GET(req: NextRequest) {
+  /*
   const query = req.nextUrl.searchParams.toString();
   const endpoint = `/hospitality-hub/legal${query ? `?${query}` : ""}`;
 
@@ -22,6 +24,10 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  */
+
+  // Return mock data for now
+  return NextResponse.json({ resource: legalData });
 }
 
 export async function POST(req: NextRequest) {

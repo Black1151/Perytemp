@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import apiClient from "@/lib/apiClient";
+import { medical } from "../../mockData/medical";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: { medicalId: string } },
 ) {
   const { medicalId } = params;
-
+  /*
   try {
     const response = await apiClient(`/hospitality-hub/medical/${medicalId}`, {
       method: "GET",
@@ -25,6 +26,16 @@ export async function GET(
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  */
+
+  const record = medical.find((m) => m.id === medicalId);
+  if (!record) {
+    return NextResponse.json(
+      { error: "Medical record not found" },
+      { status: 404 },
+    );
+  }
+  return NextResponse.json({ resource: record });
 }
 
 export async function PUT(

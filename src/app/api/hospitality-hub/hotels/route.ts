@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import apiClient from "@/lib/apiClient";
+import { hotels } from "../mockData/hotels";
 
 export async function GET(req: NextRequest) {
+  /*
   const query = req.nextUrl.searchParams.toString();
   const endpoint = `/hospitality-hub/hotels${query ? `?${query}` : ""}`;
 
@@ -25,6 +27,10 @@ export async function GET(req: NextRequest) {
       { status: 500 },
     );
   }
+  */
+
+  // Until the backend is available return mock data for FE development
+  return NextResponse.json({ resource: hotels });
 }
 
 export async function POST(req: NextRequest) {

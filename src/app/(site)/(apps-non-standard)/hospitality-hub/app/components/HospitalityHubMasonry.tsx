@@ -6,6 +6,7 @@ import {
   SimpleGrid,
   Text,
   Spinner,
+  Center,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import CategoryItemCard from "./CategoryItemCard";
@@ -33,7 +34,9 @@ export function HospitalityHubMasonry() {
     const fetchItems = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/hospitality-hub/${selected.toLowerCase()}`);
+        const res = await fetch(
+          `/api/hospitality-hub/${selected.toLowerCase()}`
+        );
         const data = await res.json();
         if (res.ok) {
           setItems(data.resource || []);
@@ -53,8 +56,15 @@ export function HospitalityHubMasonry() {
     }
 
     return (
-      <>
-        <Box mb={4} cursor="pointer" onClick={() => { setSelected(null); setItems([]); }}>
+      <Center>
+        <Box
+          mb={4}
+          cursor="pointer"
+          onClick={() => {
+            setSelected(null);
+            setItems([]);
+          }}
+        >
           <Text fontWeight="bold">&larr; Back</Text>
         </Box>
         <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
@@ -67,7 +77,7 @@ export function HospitalityHubMasonry() {
             />
           ))}
         </SimpleGrid>
-      </>
+      </Center>
     );
   }
 
@@ -84,7 +94,13 @@ export function HospitalityHubMasonry() {
           cursor="pointer"
           onClick={() => setSelected(card.title)}
         >
-          <Image src={card.image} alt={card.title} objectFit="cover" w="100%" h="100%" />
+          <Image
+            src={card.image}
+            alt={card.title}
+            objectFit="cover"
+            w="100%"
+            h="100%"
+          />
           <Box
             position="absolute"
             top={0}

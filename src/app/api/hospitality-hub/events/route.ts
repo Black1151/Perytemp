@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import apiClient from "@/lib/apiClient";
+import { events as eventsData } from "../mockData/events";
 
 export async function GET(req: NextRequest) {
+  /*
   const query = req.nextUrl.searchParams.toString();
   const endpoint = `/hospitality-hub/events${query ? `?${query}` : ""}`;
 
@@ -22,6 +24,10 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  */
+
+  // Serve local mock data until backend endpoints exist
+  return NextResponse.json({ resource: eventsData });
 }
 
 export async function POST(req: NextRequest) {

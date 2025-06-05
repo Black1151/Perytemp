@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import apiClient from "@/lib/apiClient";
+import { rewards } from "../../mockData/rewards";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: { rewardId: string } },
 ) {
   const { rewardId } = params;
-
+  /*
   try {
     const response = await apiClient(`/hospitality-hub/rewards/${rewardId}`, {
       method: "GET",
@@ -23,11 +24,18 @@ export async function GET(
 
     return NextResponse.json({ resource: data.resource });
   } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  */
+
+  const reward = rewards.find((r) => r.id === rewardId);
+  if (!reward) {
     return NextResponse.json(
-      { error: error.message },
-      { status: 500 },
+      { error: "Reward not found" },
+      { status: 404 },
     );
   }
+  return NextResponse.json({ resource: reward });
 }
 
 export async function PUT(
