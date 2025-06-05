@@ -9,7 +9,7 @@ export default async function Layout({ children }: LayoutProps) {
   return (
     <>
       <Flex flex={1} width="100%">
-        <Box flex={1} overflowY="clip">
+        <Box flex={1} overflowY="auto">
           {children}
         </Box>
       </Flex>
