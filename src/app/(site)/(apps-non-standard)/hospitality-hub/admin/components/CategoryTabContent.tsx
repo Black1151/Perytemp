@@ -1,39 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { SimpleGrid, Spinner } from "@chakra-ui/react";
 import HospitalityItemCard from "../../components/HospitalityItemCard";
-import {
-  HospitalityCategory,
-  HospitalityItem,
-} from "../../hospitalityHubConfig";
+import { HospitalityCategory } from "../../hospitalityHubConfig";
+import useHospitalityItems from "../../hooks/useHospitalityItems";
 
 interface CategoryTabContentProps {
   category: HospitalityCategory;
 }
 
 export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
-  const [items, setItems] = useState<HospitalityItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchItems = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/hospitality-hub/${category.key}`);
-        const data = await res.json();
-        if (res.ok) {
-          setItems(data.resource || []);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchItems();
-  }, [category]);
+  const { items, loading } = useHospitalityItems(category.key);
 
   if (loading) {
     return <Spinner />;
