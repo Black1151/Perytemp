@@ -9,7 +9,7 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import CategoryItemCard from "./CategoryItemCard";
+import ItemCard from "../../components/ItemCard";
 import ItemDetailModal from "./ItemDetailModal";
 
 interface HubCard {
@@ -92,12 +92,13 @@ export function HospitalityHubMasonry() {
         </Box>
         <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
           {items.map((item) => (
-            <CategoryItemCard
+            <ItemCard
               key={item.id || item.title}
               title={item.name || item.title}
               description={item.description}
               image={item.image}
               onClick={() => handleItemClick(item.id)}
+              showOverlay
             />
           ))}
         </SimpleGrid>
