@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { SimpleGrid, Spinner } from "@chakra-ui/react";
 import AdminCategoryItemCard from "./AdminCategoryItemCard";
-import { HospitalityCategory, HospitalityItem } from "../hospitalityHubConfig";
+import {
+  HospitalityCategory,
+  HospitalityItem,
+} from "../../hospitalityHubConfig";
 
 interface CategoryTabContentProps {
   category: HospitalityCategory;
