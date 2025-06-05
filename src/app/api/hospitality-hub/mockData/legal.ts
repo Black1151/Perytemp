@@ -1,4 +1,6 @@
-export const legal = [
+import { LegalProvider } from "@/types/hospitality";
+
+export const legal: LegalProvider[] = [
   {
     id: "legal-1",
     provider: "City Law Firm",

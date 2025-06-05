@@ -9,6 +9,7 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { HospitalityItem } from "@/types/hospitality";
 import CategoryItemCard from "./CategoryItemCard";
 import ItemDetailModal from "./ItemDetailModal";
 
@@ -27,11 +28,11 @@ const cards: HubCard[] = [
 
 export function HospitalityHubMasonry() {
   const [selected, setSelected] = useState<string | null>(null);
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<HospitalityItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(null);
 
   const handleItemClick = async (itemId: string) => {
     if (!selected) return;

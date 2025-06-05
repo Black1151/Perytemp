@@ -1,4 +1,6 @@
-export const medical = [
+import { MedicalProvider } from "@/types/hospitality";
+
+export const medical: MedicalProvider[] = [
   {
     id: "medical-1",
     provider: "City Clinic",
