@@ -2,12 +2,11 @@
 
 import { PerygonTabs } from "../../../big-up/tabs/PerygonTabs";
 import CategoryTabContent from "./CategoryTabContent";
-
-const categories = ["Hotels", "Rewards", "Events", "Medical", "Legal"];
+import hospitalityHubConfig from "../hospitalityHubConfig";
 
 export const HospitalityHubAdminClientInner = () => {
-  const tabsData = categories.map((category) => ({
-    header: category,
+  const tabsData = hospitalityHubConfig.map((category) => ({
+    header: category.title,
     content: <CategoryTabContent category={category} />,
   }));
 

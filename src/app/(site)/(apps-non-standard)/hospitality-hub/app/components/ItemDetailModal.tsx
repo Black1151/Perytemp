@@ -11,15 +11,17 @@ import {
   Spinner,
   VStack,
 } from "@chakra-ui/react";
+import { HospitalityItem } from "../hospitalityHubConfig";
 
 interface ItemDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  item?: any;
+  item?: HospitalityItem | null;
   loading?: boolean;
+  optionalFields?: string[];
 }
 
-export const ItemDetailModal = ({ isOpen, onClose, item, loading }: ItemDetailModalProps) => {
+export const ItemDetailModal = ({ isOpen, onClose, item, loading, optionalFields }: ItemDetailModalProps) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
@@ -32,11 +34,13 @@ export const ItemDetailModal = ({ isOpen, onClose, item, loading }: ItemDetailMo
           ) : (
             <VStack align="start" spacing={2}>
               {item?.description && <Text>{item.description}</Text>}
-              {item?.location && <Text>Location: {item.location}</Text>}
-              {item?.date && <Text>Date: {item.date}</Text>}
-              {item?.points && <Text>Points: {item.points}</Text>}
-              {item?.rating && <Text>Rating: {item.rating}</Text>}
-              {item?.contact && <Text>Contact: {item.contact}</Text>}
+              {optionalFields?.map((field) =>
+                item && item[field] ? (
+                  <Text key={field}>
+                    {field.charAt(0).toUpperCase() + field.slice(1)}: {String(item[field])}
+                  </Text>
+                ) : null,
+              )}
             </VStack>
           )}
         </ModalBody>
