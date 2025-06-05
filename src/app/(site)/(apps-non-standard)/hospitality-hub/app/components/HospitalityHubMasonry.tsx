@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import CategoryItemCard from "./CategoryItemCard";
+import ItemDetailModal from "./ItemDetailModal";
 
 interface HubCard {
   title: string;
@@ -28,6 +29,28 @@ export function HospitalityHubMasonry() {
   const [selected, setSelected] = useState<string | null>(null);
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+
+  const handleItemClick = async (itemId: string) => {
+    if (!selected) return;
+    setModalOpen(true);
+    setModalLoading(true);
+    try {
+      const res = await fetch(
+        `/api/hospitality-hub/${selected.toLowerCase()}/${itemId}`
+      );
+      const data = await res.json();
+      if (res.ok) {
+        setSelectedItem(data.resource);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setModalLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!selected) return;
@@ -74,9 +97,19 @@ export function HospitalityHubMasonry() {
               title={item.name || item.title}
               description={item.description}
               image={item.image}
+              onClick={() => handleItemClick(item.id)}
             />
           ))}
         </SimpleGrid>
+        <ItemDetailModal
+          isOpen={modalOpen}
+          onClose={() => {
+            setModalOpen(false);
+            setSelectedItem(null);
+          }}
+          item={selectedItem}
+          loading={modalLoading}
+        />
       </Center>
     );
   }
