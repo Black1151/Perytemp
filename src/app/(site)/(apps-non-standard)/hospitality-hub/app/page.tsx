@@ -1,5 +1,5 @@
-"use client";
+import { HospitalityHubMasonry } from "./components/HospitalityHubMasonry";
 
 export default function HospitalityHubPage() {
-  return <></>;
+  return <HospitalityHubMasonry />;
 }
