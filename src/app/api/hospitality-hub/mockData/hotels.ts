@@ -5,6 +5,7 @@ export const hotels = [
     location: "New York",
     rating: 4.5,
     description: "Modern hotel in the heart of the city",
+    image: "/big-up/big-up-app-bg.webp",
   },
   {
     id: "hotel-2",
@@ -12,6 +13,7 @@ export const hotels = [
     location: "Miami",
     rating: 4.7,
     description: "Beachfront resort with stunning ocean views",
+    image: "/big-up/big-up-app-bg.webp",
   },
   {
     id: "hotel-3",
@@ -19,6 +21,7 @@ export const hotels = [
     location: "Denver",
     rating: 4.2,
     description: "Cozy lodge near the mountains",
+    image: "/big-up/big-up-app-bg.webp",
   },
   {
     id: "hotel-4",
@@ -26,6 +29,7 @@ export const hotels = [
     location: "Chicago",
     rating: 4.0,
     description: "Boutique hotel near downtown attractions",
+    image: "/big-up/big-up-app-bg.webp",
   },
   {
     id: "hotel-5",
@@ -33,5 +37,6 @@ export const hotels = [
     location: "Phoenix",
     rating: 4.3,
     description: "Relaxing stay in the desert",
+    image: "/big-up/big-up-app-bg.webp",
   },
 ];
