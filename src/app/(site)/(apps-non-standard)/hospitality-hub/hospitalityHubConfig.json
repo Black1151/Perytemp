@@ -1,0 +1,32 @@
+[
+  {
+    "key": "hotels",
+    "displayName": "Hotels",
+    "image": "/big-up/big-up-app-bg.webp",
+    "optionalFields": { "location": true, "date": false }
+  },
+  {
+    "key": "rewards",
+    "displayName": "Rewards",
+    "image": "/carousel/enps-carousel-bg.webp",
+    "optionalFields": { "location": false, "date": false }
+  },
+  {
+    "key": "events",
+    "displayName": "Events",
+    "image": "/carousel/happiness-score-carousel-bg.webp",
+    "optionalFields": { "location": true, "date": true }
+  },
+  {
+    "key": "medical",
+    "displayName": "Medical",
+    "image": "/carousel/business-score-carousel-bg.webp",
+    "optionalFields": { "location": true, "date": false }
+  },
+  {
+    "key": "legal",
+    "displayName": "Legal",
+    "image": "/carousel/client-satisfaction-bg.webp",
+    "optionalFields": { "location": true, "date": false }
+  }
+]

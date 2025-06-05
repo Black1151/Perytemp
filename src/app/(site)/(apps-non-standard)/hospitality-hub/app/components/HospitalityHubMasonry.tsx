@@ -11,27 +11,27 @@ import {
 import { useEffect, useState } from "react";
 import ItemCard from "../../components/ItemCard";
 import ItemDetailModal from "./ItemDetailModal";
+import type { HospitalityHubCategory } from "../../hospitalityHubConfig";
 
-interface HubCard {
-  title: string;
-  image: string;
-}
-
-const cards: HubCard[] = [
-  { title: "Hotels", image: "/big-up/big-up-app-bg.webp" },
-  { title: "Rewards", image: "/carousel/enps-carousel-bg.webp" },
-  { title: "Events", image: "/carousel/happiness-score-carousel-bg.webp" },
-  { title: "Medical", image: "/carousel/business-score-carousel-bg.webp" },
-  { title: "Legal", image: "/carousel/client-satisfaction-bg.webp" },
-];
+interface HubCard extends HospitalityHubCategory {}
 
 export function HospitalityHubMasonry() {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [categories, setCategories] = useState<HubCard[]>([]);
+  const [selected, setSelected] = useState<HubCard | null>(null);
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const res = await fetch("/api/hospitality-hub/config");
+      const data = await res.json();
+      setCategories(data);
+    };
+    fetchCategories();
+  }, []);
 
   const handleItemClick = async (itemId: string) => {
     if (!selected) return;
@@ -39,7 +39,7 @@ export function HospitalityHubMasonry() {
     setModalLoading(true);
     try {
       const res = await fetch(
-        `/api/hospitality-hub/${selected.toLowerCase()}/${itemId}`
+        `/api/hospitality-hub/${selected.key}/${itemId}`
       );
       const data = await res.json();
       if (res.ok) {
@@ -58,7 +58,7 @@ export function HospitalityHubMasonry() {
       setLoading(true);
       try {
         const res = await fetch(
-          `/api/hospitality-hub/${selected.toLowerCase()}`
+          `/api/hospitality-hub/${selected.key}`
         );
         const data = await res.json();
         if (res.ok) {
@@ -117,20 +117,20 @@ export function HospitalityHubMasonry() {
 
   return (
     <SimpleGrid columns={[2, 3, 5]} gap={4} w="100%">
-      {cards.map((card) => (
+      {categories.map((card) => (
         <Box
-          key={card.title}
+          key={card.key}
           position="relative"
           h="700px"
           borderRadius="lg"
           overflow="hidden"
           role="group"
           cursor="pointer"
-          onClick={() => setSelected(card.title)}
+          onClick={() => setSelected(card)}
         >
           <Image
             src={card.image}
-            alt={card.title}
+            alt={card.displayName}
             objectFit="cover"
             w="100%"
             h="100%"
@@ -150,7 +150,7 @@ export function HospitalityHubMasonry() {
             _groupHover={{ opacity: 1 }}
           >
             <Text color="white" fontWeight="bold" fontSize="xl">
-              {card.title}
+              {card.displayName}
             </Text>
           </Box>
         </Box>

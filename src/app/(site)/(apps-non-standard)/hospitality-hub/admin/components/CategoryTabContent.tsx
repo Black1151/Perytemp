@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { SimpleGrid, Spinner } from "@chakra-ui/react";
 import ItemCard from "../../components/ItemCard";
+import type { HospitalityHubCategory } from "../../hospitalityHubConfig";
 
 interface CategoryTabContentProps {
-  category: string;
+  category: HospitalityHubCategory;
 }
 
 export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
@@ -16,7 +17,7 @@ export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
     const fetchItems = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/hospitality-hub/${category.toLowerCase()}`);
+        const res = await fetch(`/api/hospitality-hub/${category.key}`);
         const data = await res.json();
         if (res.ok) {
           setItems(data.resource || []);
