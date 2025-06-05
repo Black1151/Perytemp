@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import apiClient from "@/lib/apiClient";
+import { legal } from "../../mockData/legal";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: { legalId: string } },
 ) {
   const { legalId } = params;
-
+  /*
   try {
     const response = await apiClient(`/hospitality-hub/legal/${legalId}`, {
       method: "GET",
@@ -25,6 +26,16 @@ export async function GET(
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  */
+
+  const record = legal.find((l) => l.id === legalId);
+  if (!record) {
+    return NextResponse.json(
+      { error: "Legal record not found" },
+      { status: 404 },
+    );
+  }
+  return NextResponse.json({ resource: record });
 }
 
 export async function PUT(

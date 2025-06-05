@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import apiClient from "@/lib/apiClient";
+import { medical as medicalData } from "../mockData/medical";
 
 export async function GET(req: NextRequest) {
+  /*
   const query = req.nextUrl.searchParams.toString();
   const endpoint = `/hospitality-hub/medical${query ? `?${query}` : ""}`;
 
@@ -22,6 +24,10 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  */
+
+  // Provide mock data in lieu of backend endpoint
+  return NextResponse.json({ resource: medicalData });
 }
 
 export async function POST(req: NextRequest) {

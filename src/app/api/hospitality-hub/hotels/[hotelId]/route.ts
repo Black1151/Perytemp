@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import apiClient from "@/lib/apiClient";
+import { hotels } from "../../mockData/hotels";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: { hotelId: string } },
 ) {
   const { hotelId } = params;
-
+  /*
   try {
     const response = await apiClient(`/hospitality-hub/hotels/${hotelId}`, {
       method: "GET",
@@ -23,11 +24,19 @@ export async function GET(
 
     return NextResponse.json({ resource: data.resource });
   } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  */
+
+  // Return a single record from mock data
+  const hotel = hotels.find((h) => h.id === hotelId);
+  if (!hotel) {
     return NextResponse.json(
-      { error: error.message },
-      { status: 500 },
+      { error: "Hotel not found" },
+      { status: 404 },
     );
   }
+  return NextResponse.json({ resource: hotel });
 }
 
 export async function PUT(
