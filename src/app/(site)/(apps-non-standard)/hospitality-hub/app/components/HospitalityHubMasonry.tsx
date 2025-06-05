@@ -14,7 +14,6 @@ import ItemDetailModal from "./ItemDetailModal";
 import hospitalityHubConfig, {
   HospitalityItem,
 } from "../../hospitalityHubConfig";
-// import hospitalityHubConfig, { HospitalityItem } from "../hospitalityHubConfig";
 
 export function HospitalityHubMasonry() {
   const [selected, setSelected] = useState<string | null>(null);
