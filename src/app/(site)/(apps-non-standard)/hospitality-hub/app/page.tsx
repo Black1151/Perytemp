@@ -3,7 +3,7 @@ import { HospitalityHubMasonry } from "./components/HospitalityHubMasonry";
 
 export default function HospitalityHubPage() {
   return (
-    <Center h="100vh" w="100vw" p={4}>
+    <Center minH="100vh" w="100%" p={4}>
       <HospitalityHubMasonry />;
     </Center>
   );
