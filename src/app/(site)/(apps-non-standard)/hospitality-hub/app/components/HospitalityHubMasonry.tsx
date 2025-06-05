@@ -9,7 +9,7 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import CategoryItemCard from "../../components/CategoryItemCard";
+import HospitalityItemCard from "../../components/HospitalityItemCard";
 import ItemDetailModal from "./ItemDetailModal";
 import hospitalityHubConfig, {
   HospitalityItem,
@@ -81,7 +81,7 @@ export function HospitalityHubMasonry() {
         </Box>
         <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
           {items.map((item) => (
-            <CategoryItemCard
+            <HospitalityItemCard
               key={item.id}
               item={item}
               optionalFields={
