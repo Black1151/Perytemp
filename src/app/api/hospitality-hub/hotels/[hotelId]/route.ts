@@ -1,24 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import apiClient from "@/lib/apiClient";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: { hotelId: string } },
 ) {
-  const cookieStore = cookies();
-  const authToken = cookieStore.get("auth_token")?.value;
   const { hotelId } = params;
 
   try {
-    const response = await fetch(
-      `${process.env.BE_URL}/hospitality-hub/hotels/${hotelId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: authToken ? `Bearer ${authToken}` : "",
-        },
-      },
-    );
+    const response = await apiClient(`/hospitality-hub/hotels/${hotelId}`, {
+      method: "GET",
+    });
 
     const data = await response.json();
 
@@ -42,8 +34,6 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { hotelId: string } },
 ) {
-  const cookieStore = cookies();
-  const authToken = cookieStore.get("auth_token")?.value;
   const { hotelId } = params;
 
   if (!hotelId) {
@@ -52,17 +42,10 @@ export async function PUT(
 
   try {
     const payload = await req.json();
-    const response = await fetch(
-      `${process.env.BE_URL}/hospitality-hub/hotels/${hotelId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: authToken ? `Bearer ${authToken}` : "",
-        },
-        body: JSON.stringify(payload),
-      },
-    );
+    const response = await apiClient(`/hospitality-hub/hotels/${hotelId}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
 
     const data = await response.json();
 
@@ -87,20 +70,12 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: { hotelId: string } },
 ) {
-  const cookieStore = cookies();
-  const authToken = cookieStore.get("auth_token")?.value;
   const { hotelId } = params;
 
   try {
-    const response = await fetch(
-      `${process.env.BE_URL}/hospitality-hub/hotels/${hotelId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: authToken ? `Bearer ${authToken}` : "",
-        },
-      },
-    );
+    const response = await apiClient(`/hospitality-hub/hotels/${hotelId}`, {
+      method: "DELETE",
+    });
 
     const data = await response.json();
 

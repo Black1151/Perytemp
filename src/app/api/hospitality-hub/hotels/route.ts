@@ -1,24 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import apiClient from "@/lib/apiClient";
 
 export async function GET(req: NextRequest) {
-  const cookieStore = cookies();
-  const authToken = cookieStore.get("auth_token")?.value;
-
-  const { searchParams } = req.nextUrl;
-  const backendUrl = `${process.env.BE_URL}/hospitality-hub/hotels`;
-  const urlWithParams = new URL(backendUrl);
-  searchParams.forEach((value, key) => {
-    urlWithParams.searchParams.append(key, value);
-  });
+  const query = req.nextUrl.searchParams.toString();
+  const endpoint = `/hospitality-hub/hotels${query ? `?${query}` : ""}`;
 
   try {
-    const response = await fetch(urlWithParams.toString(), {
-      method: "GET",
-      headers: {
-        Authorization: authToken ? `Bearer ${authToken}` : "",
-      },
-    });
+    const response = await apiClient(endpoint, { method: "GET" });
 
     const data = await response.json();
 
@@ -40,22 +28,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const cookieStore = cookies();
-  const authToken = cookieStore.get("auth_token")?.value;
-
   try {
     const hotels = await req.json();
-    const response = await fetch(
-      `${process.env.BE_URL}/hospitality-hub/hotels`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: authToken ? `Bearer ${authToken}` : "",
-        },
-        body: JSON.stringify(hotels),
-      },
-    );
+    const response = await apiClient(`/hospitality-hub/hotels`, {
+      method: "POST",
+      body: JSON.stringify(hotels),
+    });
 
     const data = await response.json();
 
