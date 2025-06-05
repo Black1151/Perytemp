@@ -11,7 +11,7 @@ import {
   Spinner,
   VStack,
 } from "@chakra-ui/react";
-import { HospitalityItem } from "../hospitalityHubConfig";
+import { HospitalityItem } from "../../hospitalityHubConfig";
 
 interface ItemDetailModalProps {
   isOpen: boolean;
@@ -21,7 +21,13 @@ interface ItemDetailModalProps {
   optionalFields?: string[];
 }
 
-export const ItemDetailModal = ({ isOpen, onClose, item, loading, optionalFields }: ItemDetailModalProps) => {
+export const ItemDetailModal = ({
+  isOpen,
+  onClose,
+  item,
+  loading,
+  optionalFields,
+}: ItemDetailModalProps) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
@@ -37,9 +43,10 @@ export const ItemDetailModal = ({ isOpen, onClose, item, loading, optionalFields
               {optionalFields?.map((field) =>
                 item && item[field] ? (
                   <Text key={field}>
-                    {field.charAt(0).toUpperCase() + field.slice(1)}: {String(item[field])}
+                    {field.charAt(0).toUpperCase() + field.slice(1)}:{" "}
+                    {String(item[field])}
                   </Text>
-                ) : null,
+                ) : null
               )}
             </VStack>
           )}
