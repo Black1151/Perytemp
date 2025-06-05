@@ -9,38 +9,29 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import ItemCard from "../../components/ItemCard";
+import CategoryItemCard from "../../components/CategoryItemCard";
 import ItemDetailModal from "./ItemDetailModal";
-
-interface HubCard {
-  title: string;
-  image: string;
-}
-
-const cards: HubCard[] = [
-  { title: "Hotels", image: "/big-up/big-up-app-bg.webp" },
-  { title: "Rewards", image: "/carousel/enps-carousel-bg.webp" },
-  { title: "Events", image: "/carousel/happiness-score-carousel-bg.webp" },
-  { title: "Medical", image: "/carousel/business-score-carousel-bg.webp" },
-  { title: "Legal", image: "/carousel/client-satisfaction-bg.webp" },
-];
+import hospitalityHubConfig, {
+  HospitalityItem,
+} from "../../hospitalityHubConfig";
+// import hospitalityHubConfig, { HospitalityItem } from "../hospitalityHubConfig";
 
 export function HospitalityHubMasonry() {
   const [selected, setSelected] = useState<string | null>(null);
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<HospitalityItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(
+    null
+  );
 
   const handleItemClick = async (itemId: string) => {
     if (!selected) return;
     setModalOpen(true);
     setModalLoading(true);
     try {
-      const res = await fetch(
-        `/api/hospitality-hub/${selected.toLowerCase()}/${itemId}`
-      );
+      const res = await fetch(`/api/hospitality-hub/${selected}/${itemId}`);
       const data = await res.json();
       if (res.ok) {
         setSelectedItem(data.resource);
@@ -57,9 +48,7 @@ export function HospitalityHubMasonry() {
     const fetchItems = async () => {
       setLoading(true);
       try {
-        const res = await fetch(
-          `/api/hospitality-hub/${selected.toLowerCase()}`
-        );
+        const res = await fetch(`/api/hospitality-hub/${selected}`);
         const data = await res.json();
         if (res.ok) {
           setItems(data.resource || []);
@@ -92,11 +81,13 @@ export function HospitalityHubMasonry() {
         </Box>
         <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
           {items.map((item) => (
-            <ItemCard
-              key={item.id || item.title}
-              title={item.name || item.title}
-              description={item.description}
-              image={item.image}
+            <CategoryItemCard
+              key={item.id}
+              item={item}
+              optionalFields={
+                hospitalityHubConfig.find((c) => c.key === selected)
+                  ?.optionalFields || []
+              }
               onClick={() => handleItemClick(item.id)}
               showOverlay
             />
@@ -110,6 +101,10 @@ export function HospitalityHubMasonry() {
           }}
           item={selectedItem}
           loading={modalLoading}
+          optionalFields={
+            hospitalityHubConfig.find((c) => c.key === selected)
+              ?.optionalFields || []
+          }
         />
       </Center>
     );
@@ -117,20 +112,20 @@ export function HospitalityHubMasonry() {
 
   return (
     <SimpleGrid columns={[2, 3, 5]} gap={4} w="100%">
-      {cards.map((card) => (
+      {hospitalityHubConfig.map((category) => (
         <Box
-          key={card.title}
+          key={category.key}
           position="relative"
           h="700px"
           borderRadius="lg"
           overflow="hidden"
           role="group"
           cursor="pointer"
-          onClick={() => setSelected(card.title)}
+          onClick={() => setSelected(category.key)}
         >
           <Image
-            src={card.image}
-            alt={card.title}
+            src={category.image}
+            alt={category.title}
             objectFit="cover"
             w="100%"
             h="100%"
@@ -150,7 +145,7 @@ export function HospitalityHubMasonry() {
             _groupHover={{ opacity: 1 }}
           >
             <Text color="white" fontWeight="bold" fontSize="xl">
-              {card.title}
+              {category.title}
             </Text>
           </Box>
         </Box>
