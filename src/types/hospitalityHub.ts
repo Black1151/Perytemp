@@ -4,12 +4,14 @@ export interface HospitalityItem {
   description: string;
   location?: string;
   date?: string;
+  image?: string;
   [key: string]: any;
 }
 
 export interface HospitalityCategory {
-  key: string;
-  displayName: string;
-  image: string;
-  optionalFields: Array<"location" | "date">;
+  id: string;
+  title: string;
+  description?: string;
+  image?: string;
+  optionalFields?: string[];
 }

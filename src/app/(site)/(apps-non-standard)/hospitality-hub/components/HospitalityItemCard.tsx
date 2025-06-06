@@ -1,11 +1,11 @@
 "use client";
 import { Box, VStack, Text, Image } from "@chakra-ui/react";
 import PerygonCard from "@/components/layout/PerygonCard";
-import { HospitalityItem } from "../hospitalityHubConfig";
+import { HospitalityItem } from '@/types/hospitalityHub';
 
 export interface HospitalityItemCardProps {
   item: HospitalityItem;
-  optionalFields: string[];
+  optionalFields?: string[];
   onClick?: () => void;
   showOverlay?: boolean;
 }
@@ -16,7 +16,7 @@ function formatLabel(label: string) {
 
 export default function HospitalityItemCard({
   item,
-  optionalFields,
+  optionalFields = [],
   onClick,
   showOverlay,
 }: HospitalityItemCardProps) {

@@ -11,14 +11,14 @@ import {
 import { useState } from "react";
 import HospitalityItemCard from "../../components/HospitalityItemCard";
 import ItemDetailModal from "./ItemDetailModal";
-import hospitalityHubConfig, {
-  HospitalityItem,
-} from "../../hospitalityHubConfig";
+import { HospitalityItem } from '@/types/hospitalityHub';
 import useHospitalityItems from "../../hooks/useHospitalityItems";
+import useHospitalityCategories from "../../hooks/useHospitalityCategories";
 // import hospitalityHubConfig, { HospitalityItem } from "../hospitalityHubConfig";
 
 export function HospitalityHubMasonry() {
   const [selected, setSelected] = useState<string | null>(null);
+  const { categories, loading: categoriesLoading } = useHospitalityCategories();
   const { items, loading } = useHospitalityItems(selected);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
@@ -67,8 +67,7 @@ export function HospitalityHubMasonry() {
               key={item.id}
               item={item}
               optionalFields={
-                hospitalityHubConfig.find((c) => c.key === selected)
-                  ?.optionalFields || []
+                categories.find((c) => c.id === selected)?.optionalFields || []
               }
               onClick={() => handleItemClick(item.id)}
               showOverlay
@@ -84,26 +83,29 @@ export function HospitalityHubMasonry() {
           item={selectedItem}
           loading={modalLoading}
           optionalFields={
-            hospitalityHubConfig.find((c) => c.key === selected)
-              ?.optionalFields || []
+            categories.find((c) => c.id === selected)?.optionalFields || []
           }
         />
       </Center>
     );
   }
 
+  if (categoriesLoading) {
+    return <Spinner />;
+  }
+
   return (
     <SimpleGrid columns={[2, 3, 5]} gap={4} w="100%">
-      {hospitalityHubConfig.map((category) => (
+      {categories.map((category) => (
         <Box
-          key={category.key}
+          key={category.id}
           position="relative"
           h="700px"
           borderRadius="lg"
           overflow="hidden"
           role="group"
           cursor="pointer"
-          onClick={() => setSelected(category.key)}
+          onClick={() => setSelected(category.id)}
         >
           <Image
             src={category.image}

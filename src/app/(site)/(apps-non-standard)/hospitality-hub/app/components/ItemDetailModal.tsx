@@ -11,7 +11,7 @@ import {
   Spinner,
   VStack,
 } from "@chakra-ui/react";
-import { HospitalityItem } from "../../hospitalityHubConfig";
+import { HospitalityItem } from "@/types/hospitalityHub";
 
 interface ItemDetailModalProps {
   isOpen: boolean;
