@@ -1,0 +1,141 @@
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import apiClient from "@/lib/apiClient";
+
+export async function GET(req: NextRequest) {
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
+
+  const { searchParams } = req.nextUrl;
+  const hasId = searchParams.has("id");
+  const basePath = hasId
+    ? "/userHospitalityItem/findBy"
+    : "/userHospitalityItem/allBy";
+
+  const url = new URL(`${process.env.BE_URL}${basePath}`);
+  searchParams.forEach((value, key) => {
+    url.searchParams.append(key, value);
+  });
+
+  try {
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authToken ? `Bearer ${authToken}` : "",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: data?.error || "Failed to fetch items." },
+        { status: response.status },
+      );
+    }
+
+    return NextResponse.json({ resource: data.resource });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "An error occurred." },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const payload = await req.json();
+    const response = await apiClient("/userHospitalityItem", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: data?.error || "Failed to create item." },
+        { status: response.status },
+      );
+    }
+
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "An error occurred." },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const payload = await req.json();
+    const id = payload?.id;
+    if (!id) {
+      return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    }
+
+    const response = await apiClient(`/userHospitalityItem/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: data?.error || "Failed to update item." },
+        { status: response.status },
+      );
+    }
+
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "An error occurred." },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
+  const { searchParams } = req.nextUrl;
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.BE_URL}/userHospitalityItem/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: authToken ? `Bearer ${authToken}` : "",
+        },
+      },
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: data?.error || "Failed to delete item." },
+        { status: response.status },
+      );
+    }
+
+    return NextResponse.json({ resource: data.resource });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "An error occurred." },
+      { status: 500 },
+    );
+  }
+}
