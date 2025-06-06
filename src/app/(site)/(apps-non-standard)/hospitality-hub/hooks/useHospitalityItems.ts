@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { HospitalityItem } from '../hospitalityHubConfig';
+import { HospitalityItem } from '@/types/hospitalityHub';
 
 export function useHospitalityItems(categoryKey?: string | null) {
   const [items, setItems] = useState<HospitalityItem[]>([]);

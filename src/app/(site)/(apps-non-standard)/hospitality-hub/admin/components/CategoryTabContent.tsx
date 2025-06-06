@@ -2,7 +2,7 @@
 
 import { SimpleGrid, Spinner } from "@chakra-ui/react";
 import HospitalityItemCard from "../../components/HospitalityItemCard";
-import { HospitalityCategory } from "../../hospitalityHubConfig";
+import { HospitalityCategory } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
 
 interface CategoryTabContentProps {
@@ -10,7 +10,7 @@ interface CategoryTabContentProps {
 }
 
 export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
-  const { items, loading } = useHospitalityItems(category.key);
+  const { items, loading } = useHospitalityItems(category.id);
 
   if (loading) {
     return <Spinner />;
@@ -22,7 +22,7 @@ export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
         <HospitalityItemCard
           key={item.id}
           item={item}
-          optionalFields={category.optionalFields}
+          optionalFields={category.optionalFields || []}
         />
       ))}
     </SimpleGrid>
