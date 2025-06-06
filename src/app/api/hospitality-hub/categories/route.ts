@@ -1,43 +1,141 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { categories } from '../mockData/categories';
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import apiClient from "@/lib/apiClient";
 
-let categoriesData = [...categories];
+export async function GET(req: NextRequest) {
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
 
-export async function GET() {
-  return NextResponse.json({ resource: categoriesData });
+  const { searchParams } = req.nextUrl;
+  const hasId = searchParams.has("id");
+  const basePath = hasId
+    ? "/userHospitalityCategory/findBy"
+    : "/userHospitalityCategory/allBy";
+
+  const url = new URL(`${process.env.BE_URL}${basePath}`);
+  searchParams.forEach((value, key) => {
+    url.searchParams.append(key, value);
+  });
+
+  try {
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authToken ? `Bearer ${authToken}` : "",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: data?.error || "Failed to fetch categories." },
+        { status: response.status },
+      );
+    }
+
+    return NextResponse.json({ resource: data.resource });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "An error occurred." },
+      { status: 500 },
+    );
+  }
 }
 
 export async function POST(req: NextRequest) {
-  const payload = await req.json();
-  const newCategory = {
-    id: `cat-${Date.now()}`,
-    title: payload.title,
-    description: payload.description,
-  };
-  categoriesData.push(newCategory);
-  return NextResponse.json({ resource: newCategory });
+  try {
+    const payload = await req.json();
+    const response = await apiClient("/userHospitalityCategory", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: data?.error || "Failed to create category." },
+        { status: response.status },
+      );
+    }
+
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "An error occurred." },
+      { status: 500 },
+    );
+  }
 }
 
 export async function PUT(req: NextRequest) {
-  const payload = await req.json();
-  const index = categoriesData.findIndex((c) => c.id === payload.id);
-  if (index === -1) {
-    return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+  try {
+    const payload = await req.json();
+    const id = payload?.id;
+    if (!id) {
+      return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    }
+
+    const response = await apiClient(`/userHospitalityCategory/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: data?.error || "Failed to update category." },
+        { status: response.status },
+      );
+    }
+
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "An error occurred." },
+      { status: 500 },
+    );
   }
-  categoriesData[index] = { ...categoriesData[index], ...payload };
-  return NextResponse.json({ resource: categoriesData[index] });
 }
 
 export async function DELETE(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get('id');
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
+  const { searchParams } = req.nextUrl;
+  const id = searchParams.get("id");
+
   if (!id) {
-    return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+    return NextResponse.json({ error: "Missing id" }, { status: 400 });
   }
-  const index = categoriesData.findIndex((c) => c.id === id);
-  if (index === -1) {
-    return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+
+  try {
+    const response = await fetch(
+      `${process.env.BE_URL}/userHospitalityCategory/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: authToken ? `Bearer ${authToken}` : "",
+        },
+      },
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: data?.error || "Failed to delete category." },
+        { status: response.status },
+      );
+    }
+
+    return NextResponse.json({ resource: data.resource });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "An error occurred." },
+      { status: 500 },
+    );
   }
-  const deleted = categoriesData.splice(index, 1)[0];
-  return NextResponse.json({ resource: deleted });
 }
