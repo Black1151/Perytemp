@@ -118,7 +118,7 @@ export function HospitalityHubMasonry({
         >
           <Image
             src={category.image}
-            alt={category.title}
+            alt={category.name}
             objectFit="cover"
             w="100%"
             h="100%"
@@ -138,7 +138,7 @@ export function HospitalityHubMasonry({
             _groupHover={{ opacity: 1 }}
           >
             <Text color="white" fontWeight="bold" fontSize="xl">
-              {category.title}
+              {category.name}
             </Text>
           </Box>
         </Box>

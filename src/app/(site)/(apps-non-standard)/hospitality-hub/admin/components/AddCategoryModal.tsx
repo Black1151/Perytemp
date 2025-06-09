@@ -23,7 +23,7 @@ interface AddCategoryModalProps {
 }
 
 interface FormValues {
-  title: string;
+  name: string;
   description: string;
 }
 
@@ -62,8 +62,8 @@ export default function AddCategoryModal({
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalBody>
             <FormControl mb={4} isRequired>
-              <FormLabel>Title</FormLabel>
-              <Input {...register("title", { required: true })} />
+              <FormLabel>Name</FormLabel>
+              <Input {...register("name", { required: true })} />
             </FormControl>
             <FormControl mb={4} isRequired>
               <FormLabel>Description</FormLabel>
