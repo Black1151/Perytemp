@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { HospitalityCategory } from '@/types/hospitalityHub';
+import { useState, useEffect } from "react";
+import { HospitalityCategory } from "@/types/hospitalityHub";
 
-export function useHospitalityCategories() {
-  const [categories, setCategories] = useState<HospitalityCategory[]>([]);
+export function useHospitalityCategories(initialCategories: HospitalityCategory[] = []) {
+  const [categories, setCategories] = useState<HospitalityCategory[]>(initialCategories);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
