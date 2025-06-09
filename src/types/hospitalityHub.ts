@@ -7,11 +7,12 @@ export interface HospitalityItem {
   image?: string;
   [key: string]: any;
 }
+/// above needs updateing to actual structure
 
 export interface HospitalityCategory {
   id: string;
-  title: string;
-  description?: string;
-  image?: string;
-  optionalFields?: string[];
+  name: string;
+  description: string;
+  customerId: string;
+  catOwnerUserId: string;
 }

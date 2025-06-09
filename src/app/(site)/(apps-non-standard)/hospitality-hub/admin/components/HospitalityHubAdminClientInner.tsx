@@ -7,13 +7,14 @@ import { HospitalityCategory } from "@/types/hospitalityHub";
 import useHospitalityCategories from "../../hooks/useHospitalityCategories";
 import CategoryTabContent from "./CategoryTabContent";
 import AddCategoryModal from "./AddCategoryModal";
+import { useUser } from "@/providers/UserProvider";
 
 export const HospitalityHubAdminClientInner = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const { categories, loading, refresh } = useHospitalityCategories();
 
   const tabsData = categories.map((category) => ({
-    header: category.title,
+    header: category.name,
     content: <CategoryTabContent category={category} />,
   }));
 

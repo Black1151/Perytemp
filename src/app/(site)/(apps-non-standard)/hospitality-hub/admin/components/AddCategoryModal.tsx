@@ -1,5 +1,6 @@
 "use client";
 
+import { useUser } from "@/providers/UserProvider";
 import {
   Modal,
   ModalOverlay,
@@ -33,10 +34,19 @@ export default function AddCategoryModal({
 }: AddCategoryModalProps) {
   const { register, handleSubmit, reset } = useForm<FormValues>();
 
+  const { user } = useUser();
+
+  const customerId = user?.customerId;
+  const userId = user?.userId;
+
   const onSubmit = async (data: FormValues) => {
     await fetch("/api/hospitality-hub/categories", {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        ...data,
+        customerId,
+        userId,
+      }),
     });
     onCreated();
     reset();
