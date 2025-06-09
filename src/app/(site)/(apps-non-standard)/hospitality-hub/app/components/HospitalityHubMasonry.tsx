@@ -16,9 +16,18 @@ import useHospitalityItems from "../../hooks/useHospitalityItems";
 import useHospitalityCategories from "../../hooks/useHospitalityCategories";
 // import hospitalityHubConfig, { HospitalityItem } from "../hospitalityHubConfig";
 
-export function HospitalityHubMasonry() {
+import { HospitalityCategory } from "@/types/hospitalityHub";
+
+interface HospitalityHubMasonryProps {
+  initialCategories?: HospitalityCategory[];
+}
+
+export function HospitalityHubMasonry({
+  initialCategories = [],
+}: HospitalityHubMasonryProps) {
   const [selected, setSelected] = useState<string | null>(null);
-  const { categories, loading: categoriesLoading } = useHospitalityCategories();
+  const { categories, loading: categoriesLoading } =
+    useHospitalityCategories(initialCategories);
   const { items, loading } = useHospitalityItems(selected);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
