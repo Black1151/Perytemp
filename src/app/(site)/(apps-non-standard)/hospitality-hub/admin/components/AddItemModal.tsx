@@ -55,8 +55,9 @@ export default function AddItemModal({
 
   const [logoImageUrl, setLogoImageUrl] = useState<string>("");
   const [coverImageUrl, setCoverImageUrl] = useState<string>("");
-  const [additionalImageUrlList, setAdditionalImageUrlList] = useState<string[]>([]);
-
+  const [additionalImageUrlList, setAdditionalImageUrlList] = useState<
+    string[]
+  >([]);
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -67,7 +68,7 @@ export default function AddItemModal({
   }, [customerId, userId, setValue]);
 
   const onSubmit = async (data: FormValues) => {
-    const res = await fetch("/api/hospitality-hub/items", {
+    const res = await fetch("/api/customer/uploadPhoto/", {
       method: "POST",
       body: JSON.stringify({
         ...data,
@@ -140,7 +141,7 @@ export default function AddItemModal({
             <FormControl mb={4}>
               <FormLabel>Logo Image</FormLabel>
               <DragDropFileUpload
-                uploadEndpoint="/api/hospitality-hub/uploadImage"
+                uploadEndpoint="/api/customer/uploadPhoto/"
                 formKey="imageUrl"
                 placeholder="Drag & drop logo here"
                 onUploadComplete={(url) => setLogoImageUrl(url)}
@@ -149,7 +150,7 @@ export default function AddItemModal({
             <FormControl mb={4}>
               <FormLabel>Cover Image</FormLabel>
               <DragDropFileUpload
-                uploadEndpoint="/api/hospitality-hub/uploadImage"
+                uploadEndpoint="/api/customer/uploadPhoto/"
                 formKey="imageUrl"
                 placeholder="Drag & drop cover image here"
                 onUploadComplete={(url) => setCoverImageUrl(url)}
@@ -158,7 +159,7 @@ export default function AddItemModal({
             <FormControl mb={4}>
               <FormLabel>Additional Images</FormLabel>
               <DragDropFileUpload
-                uploadEndpoint="/api/hospitality-hub/uploadImage"
+                uploadEndpoint="/api/customer/uploadPhoto/"
                 formKey="imageUrl"
                 multiple
                 placeholder="Drag & drop additional images"
