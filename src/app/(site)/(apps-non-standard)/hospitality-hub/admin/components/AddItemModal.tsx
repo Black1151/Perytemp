@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { useMediaUploader } from "@/hooks/useMediaUploader";
+import DragDropFileUpload from "@/components/forms/DragDropFileUpload";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -55,18 +55,6 @@ export default function AddItemModal({
   const [coverImageUrl, setCoverImageUrl] = useState<string>("");
   const [additionalImageUrlList, setAdditionalImageUrlList] = useState<string[]>([]);
 
-  const {
-    uploadMediaFile: uploadLogo,
-    isUploading: uploadingLogo,
-  } = useMediaUploader("/api/hospitality-hub/uploadImage", "imageUrl", () => {});
-  const {
-    uploadMediaFile: uploadCover,
-    isUploading: uploadingCover,
-  } = useMediaUploader("/api/hospitality-hub/uploadImage", "imageUrl", () => {});
-  const {
-    uploadMediaFile: uploadAdditional,
-    isUploading: uploadingAdditional,
-  } = useMediaUploader("/api/hospitality-hub/uploadImage", "imageUrl", () => {});
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -134,51 +122,32 @@ export default function AddItemModal({
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>Logo Image</FormLabel>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  const data = await uploadLogo(file);
-                  setLogoImageUrl(data.imageUrl);
-                  e.target.value = "";
-                }}
-                disabled={uploadingLogo}
+              <DragDropFileUpload
+                uploadEndpoint="/api/hospitality-hub/uploadImage"
+                formKey="imageUrl"
+                placeholder="Drag & drop logo here"
+                onUploadComplete={(url) => setLogoImageUrl(url)}
               />
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>Cover Image</FormLabel>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  const data = await uploadCover(file);
-                  setCoverImageUrl(data.imageUrl);
-                  e.target.value = "";
-                }}
-                disabled={uploadingCover}
+              <DragDropFileUpload
+                uploadEndpoint="/api/hospitality-hub/uploadImage"
+                formKey="imageUrl"
+                placeholder="Drag & drop cover image here"
+                onUploadComplete={(url) => setCoverImageUrl(url)}
               />
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>Additional Images</FormLabel>
-              <Input
-                type="file"
-                accept="image/*"
+              <DragDropFileUpload
+                uploadEndpoint="/api/hospitality-hub/uploadImage"
+                formKey="imageUrl"
                 multiple
-                onChange={async (e) => {
-                  const files = Array.from(e.target.files || []);
-                  const urls: string[] = [];
-                  for (const file of files) {
-                    const data = await uploadAdditional(file as File);
-                    urls.push(data.imageUrl);
-                  }
-                  setAdditionalImageUrlList((prev) => [...prev, ...urls]);
-                  e.target.value = "";
-                }}
-                disabled={uploadingAdditional}
+                placeholder="Drag & drop additional images"
+                onUploadComplete={(url) =>
+                  setAdditionalImageUrlList((prev) => [...prev, url])
+                }
               />
             </FormControl>
           </ModalBody>
