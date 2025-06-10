@@ -32,7 +32,7 @@ export const ItemDetailModal = ({
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
       <ModalContent p={4}>
-        <ModalHeader>{item?.name || item?.title || "Details"}</ModalHeader>
+        <ModalHeader>{item?.name || "Details"}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           {loading ? (

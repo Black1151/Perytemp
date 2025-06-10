@@ -29,9 +29,16 @@ export default function HospitalityItemCard({
       h="100%"
     >
       <PerygonCard width="100%" height="100%" p={4} display="flex" flexDirection="column">
-        {item.image && <Image src={item.image} alt={item.name || item.title || ""} borderRadius="md" mb={2} />}
+        {(item.coverImageUrl || item.logoImageUrl) && (
+          <Image
+            src={item.coverImageUrl || item.logoImageUrl}
+            alt={item.name}
+            borderRadius="md"
+            mb={2}
+          />
+        )}
         <VStack align="start" spacing={1} flex={1}>
-          <Text fontWeight="bold">{item.name || item.title}</Text>
+          <Text fontWeight="bold">{item.name}</Text>
           {item.description && <Text fontSize="sm">{item.description}</Text>}
           {optionalFields.map((field) =>
             item[field] ? (
@@ -58,7 +65,7 @@ export default function HospitalityItemCard({
           _groupHover={{ opacity: 1 }}
         >
           <Text color="white" fontWeight="bold" fontSize="xl">
-            {item.name || item.title}
+            {item.name}
           </Text>
         </Box>
       )}

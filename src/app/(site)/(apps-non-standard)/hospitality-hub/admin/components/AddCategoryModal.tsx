@@ -15,6 +15,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 
 interface AddCategoryModalProps {
   isOpen: boolean;
@@ -25,6 +26,8 @@ interface AddCategoryModalProps {
 interface FormValues {
   name: string;
   description: string;
+  customerId?: number;
+  catOwnerUserId?: number;
 }
 
 export default function AddCategoryModal({
@@ -32,12 +35,17 @@ export default function AddCategoryModal({
   onClose,
   onCreated,
 }: AddCategoryModalProps) {
-  const { register, handleSubmit, reset } = useForm<FormValues>();
+  const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
 
   const { user } = useUser();
 
   const customerId = user?.customerId;
   const userId = user?.userId;
+
+  useEffect(() => {
+    if (customerId !== undefined) setValue("customerId", customerId);
+    if (userId !== undefined) setValue("catOwnerUserId", userId);
+  }, [customerId, userId, setValue]);
 
   const onSubmit = async (data: FormValues) => {
     await fetch("/api/hospitality-hub/categories", {
@@ -45,7 +53,7 @@ export default function AddCategoryModal({
       body: JSON.stringify({
         ...data,
         customerId,
-        userId,
+        catOwnerUserId: userId,
       }),
     });
     onCreated();
@@ -61,6 +69,8 @@ export default function AddCategoryModal({
         <ModalCloseButton />
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalBody>
+            <input type="hidden" {...register("customerId")} />
+            <input type="hidden" {...register("catOwnerUserId")} />
             <FormControl mb={4} isRequired>
               <FormLabel>Name</FormLabel>
               <Input {...register("name", { required: true })} />
