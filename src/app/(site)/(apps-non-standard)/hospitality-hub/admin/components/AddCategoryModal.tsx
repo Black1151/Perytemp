@@ -15,7 +15,8 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useMediaUploader } from "@/hooks/useMediaUploader";
 
 interface AddCategoryModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ interface FormValues {
   description: string;
   customerId?: number;
   catOwnerUserId?: number;
+  imageUrl?: string;
 }
 
 export default function AddCategoryModal({
@@ -38,6 +40,14 @@ export default function AddCategoryModal({
   const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
 
   const { user } = useUser();
+
+  const [imageUrl, setImageUrl] = useState<string>("");
+
+  const { uploadMediaFile, isUploading } = useMediaUploader(
+    "/api/hospitality-hub/uploadImage",
+    "imageUrl",
+    () => {},
+  );
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -52,6 +62,7 @@ export default function AddCategoryModal({
       method: "POST",
       body: JSON.stringify({
         ...data,
+        imageUrl,
         customerId,
         catOwnerUserId: userId,
       }),
@@ -78,6 +89,21 @@ export default function AddCategoryModal({
             <FormControl mb={4} isRequired>
               <FormLabel>Description</FormLabel>
               <Input {...register("description", { required: true })} />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Image</FormLabel>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const data = await uploadMediaFile(file);
+                  setImageUrl(data.imageUrl);
+                  e.target.value = "";
+                }}
+                disabled={isUploading}
+              />
             </FormControl>
           </ModalBody>
           <ModalFooter>
