@@ -23,4 +23,5 @@ export interface HospitalityCategory {
   description: string;
   customerId: string;
   catOwnerUserId: string;
+  imageUrl?: string;
 }

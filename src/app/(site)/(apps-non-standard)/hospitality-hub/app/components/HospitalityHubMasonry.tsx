@@ -117,7 +117,7 @@ export function HospitalityHubMasonry({
           onClick={() => setSelected(category.id)}
         >
           <Image
-            src={category.image}
+            src={category.imageUrl || (category as any).image}
             alt={category.name}
             objectFit="cover"
             w="100%"
