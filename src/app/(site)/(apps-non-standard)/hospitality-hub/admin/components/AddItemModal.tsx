@@ -18,7 +18,6 @@ import {
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
-import { useMediaUploader } from "@/hooks/useMediaUploader";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -57,10 +56,22 @@ export default function AddItemModal({
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
 
-  const uploadEndpoint = user?.customerUniqueId
-    ? `/api/customer/uploadPhoto/${user.customerUniqueId}`
-    : "";
-  const { uploadMediaFile } = useMediaUploader(uploadEndpoint, "imageUrl", () => {});
+  // Helper to upload a file with a timestamp-based name
+  const uploadFile = async (file: File): Promise<string> => {
+    const fileName = `${Date.now()}-${file.name}`;
+    const renamed = new File([file], fileName, { type: file.type });
+    const formData = new FormData();
+    formData.append("imageUrl", renamed);
+
+    const res = await fetch(`/api/customer/uploadPhoto/${fileName}`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw data;
+    return data.imageUrl || data.url || data.resource?.imageUrl || "";
+  };
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -82,36 +93,21 @@ export default function AddItemModal({
       return;
     }
 
-    const extractUrl = (d: any): string =>
-      d.imageUrl || d.url || d.resource?.imageUrl || "";
-
     try {
       let logoImageUrl = "";
       let coverImageUrl = "";
       const additionalImageUrlList: string[] = [];
 
       if (logoFile) {
-        const renamed = new File([logoFile], `${Date.now()}-${logoFile.name}`, {
-          type: logoFile.type,
-        });
-        const resp = await uploadMediaFile(renamed);
-        logoImageUrl = extractUrl(resp);
+        logoImageUrl = await uploadFile(logoFile);
       }
 
       if (coverFile) {
-        const renamed = new File([coverFile], `${Date.now()}-${coverFile.name}`, {
-          type: coverFile.type,
-        });
-        const resp = await uploadMediaFile(renamed);
-        coverImageUrl = extractUrl(resp);
+        coverImageUrl = await uploadFile(coverFile);
       }
 
       for (const file of additionalFiles) {
-        const renamed = new File([file], `${Date.now()}-${file.name}`, {
-          type: file.type,
-        });
-        const resp = await uploadMediaFile(renamed);
-        const url = extractUrl(resp);
+        const url = await uploadFile(file);
         if (url) additionalImageUrlList.push(url);
       }
 
