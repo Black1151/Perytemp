@@ -15,7 +15,8 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useMediaUploader } from "@/hooks/useMediaUploader";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -34,6 +35,9 @@ interface FormValues {
   location: string;
   customerId?: number;
   itemOwnerUserId?: number;
+  logoImageUrl?: string;
+  coverImageUrl?: string;
+  additionalImageUrlList?: string[];
 }
 
 export default function AddItemModal({
@@ -45,6 +49,23 @@ export default function AddItemModal({
   const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
 
   const { user } = useUser();
+
+  const [logoImageUrl, setLogoImageUrl] = useState<string>("");
+  const [coverImageUrl, setCoverImageUrl] = useState<string>("");
+  const [additionalImageUrlList, setAdditionalImageUrlList] = useState<string[]>([]);
+
+  const {
+    uploadMediaFile: uploadLogo,
+    isUploading: uploadingLogo,
+  } = useMediaUploader("/api/hospitality-hub/uploadImage", "imageUrl", () => {});
+  const {
+    uploadMediaFile: uploadCover,
+    isUploading: uploadingCover,
+  } = useMediaUploader("/api/hospitality-hub/uploadImage", "imageUrl", () => {});
+  const {
+    uploadMediaFile: uploadAdditional,
+    isUploading: uploadingAdditional,
+  } = useMediaUploader("/api/hospitality-hub/uploadImage", "imageUrl", () => {});
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -59,6 +80,9 @@ export default function AddItemModal({
       method: "POST",
       body: JSON.stringify({
         ...data,
+        logoImageUrl,
+        coverImageUrl,
+        additionalImageUrlList,
         customerId,
         itemOwnerUserId: userId,
         hospitalityCatId: categoryId,
@@ -106,6 +130,55 @@ export default function AddItemModal({
             <FormControl mb={4}>
               <FormLabel>Location</FormLabel>
               <Input {...register("location")} />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Logo Image</FormLabel>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const data = await uploadLogo(file);
+                  setLogoImageUrl(data.imageUrl);
+                  e.target.value = "";
+                }}
+                disabled={uploadingLogo}
+              />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Cover Image</FormLabel>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const data = await uploadCover(file);
+                  setCoverImageUrl(data.imageUrl);
+                  e.target.value = "";
+                }}
+                disabled={uploadingCover}
+              />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Additional Images</FormLabel>
+              <Input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={async (e) => {
+                  const files = Array.from(e.target.files || []);
+                  const urls: string[] = [];
+                  for (const file of files) {
+                    const data = await uploadAdditional(file as File);
+                    urls.push(data.imageUrl);
+                  }
+                  setAdditionalImageUrlList((prev) => [...prev, ...urls]);
+                  e.target.value = "";
+                }}
+                disabled={uploadingAdditional}
+              />
             </FormControl>
           </ModalBody>
           <ModalFooter>
