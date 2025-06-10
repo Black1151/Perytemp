@@ -17,6 +17,7 @@ interface DragDropFileUploadProps {
   uploadEndpoint: string;
   formKey: string;
   onUploadComplete?: (url: string) => void;
+  onRemove?: (url: string) => void;
   placeholder?: string;
   initialUrl?: string;
   multiple?: boolean;
@@ -26,6 +27,7 @@ export default function DragDropFileUpload({
   uploadEndpoint,
   formKey,
   onUploadComplete,
+  onRemove,
   placeholder = "Drag & drop file here",
   initialUrl = "",
   multiple = false,
@@ -37,6 +39,7 @@ export default function DragDropFileUpload({
   );
 
   const [previewUrl, setPreviewUrl] = useState(initialUrl);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const borderColor = useColorModeValue("gray.400", "gray.600");
   const hoverBorderColor = useColorModeValue("gray.200", "gray.400");
@@ -45,7 +48,11 @@ export default function DragDropFileUpload({
     data.imageUrl || data.url || data.resource?.imageUrl || "";
 
   const handleUploadSuccess = (url: string) => {
-    if (!multiple) setPreviewUrl(url);
+    if (!multiple) {
+      setPreviewUrl(url);
+    } else {
+      setPreviewUrls((prev) => [...prev, url]);
+    }
     onUploadComplete?.(url);
   };
 
@@ -70,6 +77,17 @@ export default function DragDropFileUpload({
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
   }, []);
+
+  const handleRemove = (url?: string) => {
+    if (multiple) {
+      if (!url) return;
+      setPreviewUrls((prev) => prev.filter((u) => u !== url));
+      onRemove?.(url);
+    } else {
+      setPreviewUrl("");
+      if (previewUrl) onRemove?.(previewUrl);
+    }
+  };
 
   const onDrop = useCallback(
     async (e: React.DragEvent) => {
@@ -121,8 +139,50 @@ export default function DragDropFileUpload({
         )}
 
         <Box mb={4}>
-          {previewUrl ? (
-            <Image src={previewUrl} alt="preview" maxH="100px" mx="auto" />
+          {multiple ? (
+            previewUrls.length > 0 ? (
+              <Flex wrap="wrap" gap={2} justify="center">
+                {previewUrls.map((url) => (
+                  <Box key={url} position="relative">
+                    <Image src={url} alt="preview" maxH="100px" />
+                    <Button
+                      size="xs"
+                      colorScheme="red"
+                      position="absolute"
+                      top="0"
+                      right="0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemove(url);
+                      }}
+                    >
+                      &times;
+                    </Button>
+                  </Box>
+                ))}
+              </Flex>
+            ) : (
+              <Text color="white" fontSize={18}>
+                {placeholder}
+              </Text>
+            )
+          ) : previewUrl ? (
+            <Box position="relative">
+              <Image src={previewUrl} alt="preview" maxH="100px" mx="auto" />
+              <Button
+                size="xs"
+                colorScheme="red"
+                position="absolute"
+                top="0"
+                right="0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemove();
+                }}
+              >
+                &times;
+              </Button>
+            </Box>
           ) : (
             <Text color="white" fontSize={18}>
               {placeholder}
@@ -133,14 +193,14 @@ export default function DragDropFileUpload({
         <Button
           size="sm"
           colorScheme="blue"
-          mt={previewUrl ? 0 : 4}
+          mt={previewUrl || previewUrls.length ? 0 : 4}
           onClick={(e) => {
             e.stopPropagation();
             inputRef.current?.click();
           }}
           disabled={isUploading}
         >
-          {previewUrl ? "Change File" : "Browse files"}
+          {previewUrl || previewUrls.length ? "Add File" : "Browse files"}
         </Button>
 
         <input
