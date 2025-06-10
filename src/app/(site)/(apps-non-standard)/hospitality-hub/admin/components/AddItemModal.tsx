@@ -127,6 +127,7 @@ export default function AddItemModal({
                 formKey="imageUrl"
                 placeholder="Drag & drop logo here"
                 onUploadComplete={(url) => setLogoImageUrl(url)}
+                onRemove={() => setLogoImageUrl("")}
               />
             </FormControl>
             <FormControl mb={4}>
@@ -136,6 +137,7 @@ export default function AddItemModal({
                 formKey="imageUrl"
                 placeholder="Drag & drop cover image here"
                 onUploadComplete={(url) => setCoverImageUrl(url)}
+                onRemove={() => setCoverImageUrl("")}
               />
             </FormControl>
             <FormControl mb={4}>
@@ -147,6 +149,9 @@ export default function AddItemModal({
                 placeholder="Drag & drop additional images"
                 onUploadComplete={(url) =>
                   setAdditionalImageUrlList((prev) => [...prev, url])
+                }
+                onRemove={(url) =>
+                  setAdditionalImageUrlList((prev) => prev.filter((u) => u !== url))
                 }
               />
             </FormControl>
