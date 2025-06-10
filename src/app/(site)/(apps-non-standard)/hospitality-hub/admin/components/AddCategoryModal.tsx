@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
+import { useToast } from "@chakra-ui/react";
 import { useMediaUploader } from "@/hooks/useMediaUploader";
 
 interface AddCategoryModalProps {
@@ -38,6 +39,7 @@ export default function AddCategoryModal({
   onCreated,
 }: AddCategoryModalProps) {
   const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
+  const toast = useToast();
 
   const { user } = useUser();
 
@@ -58,7 +60,7 @@ export default function AddCategoryModal({
   }, [customerId, userId, setValue]);
 
   const onSubmit = async (data: FormValues) => {
-    await fetch("/api/hospitality-hub/categories", {
+    const res = await fetch("/api/hospitality-hub/categories", {
       method: "POST",
       body: JSON.stringify({
         ...data,
@@ -67,6 +69,21 @@ export default function AddCategoryModal({
         catOwnerUserId: userId,
       }),
     });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      toast({
+        title: result.error || "Failed to create category.",
+        description: result.details,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-right",
+      });
+      return;
+    }
+
     onCreated();
     reset();
     onClose();

@@ -56,7 +56,10 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data?.error || "Failed to create item." },
+        {
+          error: data?.error || "Failed to create item.",
+          details: data?.details,
+        },
         { status: response.status },
       );
     }
@@ -87,7 +90,10 @@ export async function PUT(req: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data?.error || "Failed to update item." },
+        {
+          error: data?.error || "Failed to update item.",
+          details: data?.details,
+        },
         { status: response.status },
       );
     }
@@ -126,7 +132,10 @@ export async function DELETE(req: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data?.error || "Failed to delete item." },
+        {
+          error: data?.error || "Failed to delete item.",
+          details: data?.details,
+        },
         { status: response.status },
       );
     }
