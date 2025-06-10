@@ -73,7 +73,7 @@ export const useMediaUploader = (
       const resp = await fetch(endpoint, { method: "POST", body: formData });
       if (!resp.ok) throw new Error("Failed to upload file");
 
-      await resp.json();
+      const data = await resp.json();
       toast({
         title: "Upload successful",
         description: "Your file has been uploaded.",
@@ -83,6 +83,7 @@ export const useMediaUploader = (
         position: "bottom-right",
       });
       onSuccess();
+      return data;
     } catch (err) {
       console.error("File upload error:", err);
       toast({
