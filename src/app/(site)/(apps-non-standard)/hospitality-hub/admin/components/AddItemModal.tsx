@@ -13,6 +13,7 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Textarea,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
@@ -109,15 +110,15 @@ export default function AddItemModal({
             </FormControl>
             <FormControl mb={4} isRequired>
               <FormLabel>Description</FormLabel>
-              <Input {...register("description", { required: true })} />
+              <Textarea {...register("description", { required: true })} />
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>How To Details</FormLabel>
-              <Input {...register("howToDetails")} />
+              <Textarea {...register("howToDetails")} />
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>Extra Details</FormLabel>
-              <Input {...register("extraDetails")} />
+              <Textarea {...register("extraDetails")} />
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>Start Date</FormLabel>

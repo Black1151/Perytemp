@@ -1,7 +1,7 @@
 "use client";
 import { Box, VStack, Text, Image } from "@chakra-ui/react";
 import PerygonCard from "@/components/layout/PerygonCard";
-import { HospitalityItem } from '@/types/hospitalityHub';
+import { HospitalityItem } from "@/types/hospitalityHub";
 
 export interface HospitalityItemCardProps {
   item: HospitalityItem;
@@ -28,7 +28,13 @@ export default function HospitalityItemCard({
       onClick={onClick}
       h="100%"
     >
-      <PerygonCard width="100%" height="100%" p={4} display="flex" flexDirection="column">
+      <PerygonCard
+        width="100%"
+        height="100%"
+        p={4}
+        display="flex"
+        flexDirection="column"
+      >
         {(item.coverImageUrl || item.logoImageUrl) && (
           <Image
             src={item.coverImageUrl || item.logoImageUrl}
@@ -41,11 +47,11 @@ export default function HospitalityItemCard({
           <Text fontWeight="bold">{item.name}</Text>
           {item.description && <Text fontSize="sm">{item.description}</Text>}
           {optionalFields.map((field) =>
-            item[field] ? (
+            (item as any)[field] ? (
               <Text key={field} fontSize="sm">
-                {formatLabel(field)}: {String(item[field])}
+                {formatLabel(field)}: {String((item as any)[field])}
               </Text>
-            ) : null,
+            ) : null
           )}
         </VStack>
       </PerygonCard>
