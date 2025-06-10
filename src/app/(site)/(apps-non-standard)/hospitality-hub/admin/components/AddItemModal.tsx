@@ -15,6 +15,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -26,6 +27,8 @@ interface AddItemModalProps {
 interface FormValues {
   name: string;
   description: string;
+  customerId?: number;
+  itemOwnerUserId?: number;
 }
 
 export default function AddItemModal({
@@ -34,12 +37,17 @@ export default function AddItemModal({
   categoryId,
   onCreated,
 }: AddItemModalProps) {
-  const { register, handleSubmit, reset } = useForm<FormValues>();
+  const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
 
   const { user } = useUser();
 
   const customerId = user?.customerId;
   const userId = user?.userId;
+
+  useEffect(() => {
+    if (customerId !== undefined) setValue("customerId", customerId);
+    if (userId !== undefined) setValue("itemOwnerUserId", userId);
+  }, [customerId, userId, setValue]);
 
   const onSubmit = async (data: FormValues) => {
     await fetch("/api/hospitality-hub/items", {
@@ -64,9 +72,11 @@ export default function AddItemModal({
         <ModalCloseButton />
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalBody>
+            <input type="hidden" {...register("customerId")} />
+            <input type="hidden" {...register("itemOwnerUserId")} />
             <FormControl mb={4} isRequired>
-            <FormLabel>Name</FormLabel>
-            <Input {...register("name", { required: true })} />
+              <FormLabel>Name</FormLabel>
+              <Input {...register("name", { required: true })} />
             </FormControl>
             <FormControl mb={4} isRequired>
               <FormLabel>Description</FormLabel>
