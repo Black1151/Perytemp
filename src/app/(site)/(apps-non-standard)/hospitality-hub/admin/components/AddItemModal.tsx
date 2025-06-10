@@ -27,6 +27,11 @@ interface AddItemModalProps {
 interface FormValues {
   name: string;
   description: string;
+  howToDetails: string;
+  extraDetails: string;
+  startDate: string;
+  endDate: string;
+  location: string;
   customerId?: number;
   itemOwnerUserId?: number;
 }
@@ -81,6 +86,26 @@ export default function AddItemModal({
             <FormControl mb={4} isRequired>
               <FormLabel>Description</FormLabel>
               <Input {...register("description", { required: true })} />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>How To Details</FormLabel>
+              <Input {...register("howToDetails")} />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Extra Details</FormLabel>
+              <Input {...register("extraDetails")} />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Start Date</FormLabel>
+              <Input type="date" {...register("startDate")} />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>End Date</FormLabel>
+              <Input type="date" {...register("endDate")} />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Location</FormLabel>
+              <Input {...register("location")} />
             </FormControl>
           </ModalBody>
           <ModalFooter>
