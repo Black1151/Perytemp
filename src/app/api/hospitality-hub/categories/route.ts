@@ -56,7 +56,10 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data?.error || "Failed to create category." },
+        {
+          error: data?.error || "Failed to create category.",
+          details: data?.details,
+        },
         { status: response.status },
       );
     }
@@ -87,7 +90,10 @@ export async function PUT(req: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data?.error || "Failed to update category." },
+        {
+          error: data?.error || "Failed to update category.",
+          details: data?.details,
+        },
         { status: response.status },
       );
     }
@@ -126,7 +132,10 @@ export async function DELETE(req: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data?.error || "Failed to delete category." },
+        {
+          error: data?.error || "Failed to delete category.",
+          details: data?.details,
+        },
         { status: response.status },
       );
     }
