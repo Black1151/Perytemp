@@ -1,13 +1,21 @@
 export interface HospitalityItem {
   id: string;
-  title: string;
+  name: string;
   description: string;
-  location?: string;
-  date?: string;
-  image?: string;
-  [key: string]: any;
+  howToDetails: string;
+  extraDetails: string;
+  customerId: string;
+  itemOwnerUserId: string;
+  hospitalityCatId: string;
+  isActive: boolean;
+  startDate: string;
+  endDate: string;
+  location: string;
+  itemType: string;
+  logoImageUrl: string;
+  coverImageUrl: string;
+  additionalImageUrlList: string[];
 }
-/// above needs updateing to actual structure
 
 export interface HospitalityCategory {
   id: string;
