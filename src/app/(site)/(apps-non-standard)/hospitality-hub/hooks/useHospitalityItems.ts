@@ -10,7 +10,9 @@ export function useHospitalityItems(categoryKey?: string | null) {
     if (!categoryKey) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/hospitality-hub/items?categoryId=${categoryKey}`);
+      const res = await fetch(
+        `/api/hospitality-hub/items?hospitalityCatId=${categoryKey}`,
+      );
       const data = await res.json();
       if (res.ok) {
         setItems(data.resource || []);

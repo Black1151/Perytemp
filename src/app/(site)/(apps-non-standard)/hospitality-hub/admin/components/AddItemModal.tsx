@@ -24,7 +24,7 @@ interface AddItemModalProps {
 }
 
 interface FormValues {
-  title: string;
+  name: string;
   description: string;
 }
 
@@ -47,8 +47,8 @@ export default function AddItemModal({
       body: JSON.stringify({
         ...data,
         customerId,
-        userId,
-        categoryId,
+        itemOwnerUserId: userId,
+        hospitalityCatId: categoryId,
       }),
     });
     onCreated();
@@ -65,8 +65,8 @@ export default function AddItemModal({
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalBody>
             <FormControl mb={4} isRequired>
-              <FormLabel>Title</FormLabel>
-              <Input {...register("title", { required: true })} />
+            <FormLabel>Name</FormLabel>
+            <Input {...register("name", { required: true })} />
             </FormControl>
             <FormControl mb={4} isRequired>
               <FormLabel>Description</FormLabel>

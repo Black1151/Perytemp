@@ -45,7 +45,7 @@ export default function AddCategoryModal({
       body: JSON.stringify({
         ...data,
         customerId,
-        userId,
+        catOwnerUserId: userId,
       }),
     });
     onCreated();
