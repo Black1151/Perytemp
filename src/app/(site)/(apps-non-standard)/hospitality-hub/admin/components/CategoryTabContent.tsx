@@ -1,10 +1,10 @@
 "use client";
 
-import { Spinner, VStack, Button, useToast } from "@chakra-ui/react";
+import { Spinner, VStack, useToast } from "@chakra-ui/react";
 import HospitalityItemsMasonry from "./HospitalityItemsMasonry";
 import { HospitalityCategory, HospitalityItem } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
-import { useState } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import AddItemModal from "./AddItemModal";
 import DeleteItemModal from "./DeleteItemModal";
 
@@ -12,7 +12,13 @@ interface CategoryTabContentProps {
   category: HospitalityCategory;
 }
 
-export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
+export interface CategoryTabContentRef {
+  openAddModal: () => void;
+}
+export const CategoryTabContent = forwardRef<
+  CategoryTabContentRef,
+  CategoryTabContentProps
+>(({ category }, ref) => {
   const { items, loading, refresh } = useHospitalityItems(category.id);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<HospitalityItem | null>(null);
@@ -22,21 +28,19 @@ export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
   );
   const toast = useToast();
 
+  useImperativeHandle(ref, () => ({
+    openAddModal: () => {
+      setEditingItem(null);
+      setModalOpen(true);
+    },
+  }));
+
   if (loading) {
     return <Spinner />;
   }
 
   return (
     <VStack w="100%" align="stretch" spacing={4}>
-      <Button
-        alignSelf="flex-end"
-        onClick={() => {
-          setEditingItem(null);
-          setModalOpen(true);
-        }}
-      >
-        Add Item
-      </Button>
       {loading ? (
         <Spinner />
       ) : (
@@ -93,6 +97,6 @@ export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
       />
     </VStack>
   );
-};
+});
 
 export default CategoryTabContent;
