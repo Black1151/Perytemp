@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   VStack,
   Spinner,
@@ -20,7 +20,7 @@ import {
 } from "react-icons/fi";
 import { HospitalityCategory } from "@/types/hospitalityHub";
 import useHospitalityCategories from "../../hooks/useHospitalityCategories";
-import CategoryTabContent from "./CategoryTabContent";
+import CategoryTabContent, { CategoryTabContentRef } from "./CategoryTabContent";
 import AddCategoryModal from "./AddCategoryModal";
 import DeleteCategoryModal from "./DeleteCategoryModal";
 
@@ -32,6 +32,7 @@ export const HospitalityHubAdminClientInner = () => {
   const { categories, loading, refresh } = useHospitalityCategories();
   const [selectedCategory, setSelectedCategory] =
     useState<HospitalityCategory | null>(null);
+  const itemTabRef = useRef<CategoryTabContentRef>(null);
   const toast = useToast();
 
   useEffect(() => {
@@ -80,6 +81,20 @@ export const HospitalityHubAdminClientInner = () => {
                 border="1px solid"
                 borderColor="green.400"
                 _hover={{ bg: "white", color: "green.400", borderColor: "green.400" }}
+              />
+            </Tooltip>
+            <Tooltip label="Add Item" openDelay={1000}>
+              <IconButton
+                aria-label="Add Item"
+                icon={<FiPlus />}
+                onClick={() => itemTabRef.current?.openAddModal()}
+                size="sm"
+                bg="green.400"
+                color="white"
+                border="1px solid"
+                borderColor="green.400"
+                _hover={{ bg: "white", color: "green.400", borderColor: "green.400" }}
+                isDisabled={!selectedCategory}
               />
             </Tooltip>
             <Tooltip label="Edit Category" openDelay={1000}>
@@ -170,7 +185,10 @@ export const HospitalityHubAdminClientInner = () => {
             </Tooltip>
           </HStack>
           {selectedCategory && (
-            <CategoryTabContent category={selectedCategory} />
+            <CategoryTabContent
+              ref={itemTabRef}
+              category={selectedCategory}
+            />
           )}
         </>
       )}
