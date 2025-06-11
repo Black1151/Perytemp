@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { VStack, Spinner, Select, IconButton, HStack } from "@chakra-ui/react";
 import {
-  VStack,
-  Spinner,
-  Select,
-  IconButton,
-  HStack,
-} from "@chakra-ui/react";
-import { FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiToggleLeft,
+  FiToggleRight,
+} from "react-icons/fi";
 import { HospitalityCategory } from "@/types/hospitalityHub";
 import useHospitalityCategories from "../../hooks/useHospitalityCategories";
 import CategoryTabContent from "./CategoryTabContent";
@@ -17,10 +17,12 @@ import DeleteCategoryModal from "./DeleteCategoryModal";
 
 export const HospitalityHubAdminClientInner = () => {
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<HospitalityCategory | null>(null);
+  const [editingCategory, setEditingCategory] =
+    useState<HospitalityCategory | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const { categories, loading, refresh } = useHospitalityCategories();
-  const [selectedCategory, setSelectedCategory] = useState<HospitalityCategory | null>(null);
+  const [selectedCategory, setSelectedCategory] =
+    useState<HospitalityCategory | null>(null);
 
   useEffect(() => {
     if (!selectedCategory && categories.length > 0) {
@@ -44,7 +46,9 @@ export const HospitalityHubAdminClientInner = () => {
               }}
               color="primaryTextColor"
               bg="elementBG"
-              sx={{ option: { backgroundColor: "var(--chakra-colors-elementBG)" } }}
+              sx={{
+                option: { backgroundColor: "var(--chakra-colors-elementBG)" },
+              }}
             >
               {categories.map((category) => (
                 <option key={category.id} value={String(category.id)}>
@@ -81,8 +85,43 @@ export const HospitalityHubAdminClientInner = () => {
               colorScheme="red"
               isDisabled={!selectedCategory}
             />
+            <IconButton
+              aria-label={
+                selectedCategory?.isActive
+                  ? "Disable Category"
+                  : "Enable Category"
+              }
+              icon={
+                selectedCategory?.isActive ? (
+                  <FiToggleLeft />
+                ) : (
+                  <FiToggleRight />
+                )
+              }
+              onClick={async () => {
+                if (!selectedCategory) return;
+                const res = await fetch("/api/hospitality-hub/categories", {
+                  method: "PUT",
+                  body: JSON.stringify({
+                    id: selectedCategory.id,
+                    isActive: !selectedCategory.isActive,
+                  }),
+                });
+                if (res.ok) {
+                  refresh();
+                  setSelectedCategory({
+                    ...selectedCategory,
+                    isActive: !selectedCategory.isActive,
+                  });
+                }
+              }}
+              size="sm"
+              isDisabled={!selectedCategory}
+            />
           </HStack>
-          {selectedCategory && <CategoryTabContent category={selectedCategory} />}
+          {selectedCategory && (
+            <CategoryTabContent category={selectedCategory} />
+          )}
         </>
       )}
       <AddCategoryModal

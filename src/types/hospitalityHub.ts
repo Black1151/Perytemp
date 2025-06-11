@@ -23,5 +23,6 @@ export interface HospitalityCategory {
   description: string;
   customerId: string;
   catOwnerUserId: string;
+  isActive: boolean;
   imageUrl?: string;
 }
