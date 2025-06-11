@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import {
   FiPlus,
+  FiPlusSquare,
   FiEdit2,
   FiTrash2,
   FiToggleLeft,
@@ -86,14 +87,14 @@ export const HospitalityHubAdminClientInner = () => {
             <Tooltip label="Add Item" openDelay={1000}>
               <IconButton
                 aria-label="Add Item"
-                icon={<FiPlus />}
+                icon={<FiPlusSquare />}
                 onClick={() => itemTabRef.current?.openAddModal()}
                 size="sm"
-                bg="green.400"
+                bg="green.500"
                 color="white"
                 border="1px solid"
-                borderColor="green.400"
-                _hover={{ bg: "white", color: "green.400", borderColor: "green.400" }}
+                borderColor="green.500"
+                _hover={{ bg: "white", color: "green.500", borderColor: "green.500" }}
                 isDisabled={!selectedCategory}
               />
             </Tooltip>
