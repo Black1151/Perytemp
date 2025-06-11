@@ -58,7 +58,10 @@ export default function HospitalityItemsMasonry({
                 </Tooltip>
               )}
               {onToggleActive && (
-                <Tooltip label={item.isActive ? "Disable Item" : "Enable Item"}>
+                <Tooltip
+                  label={item.isActive ? "Disable Item" : "Enable Item"}
+                  shouldWrapChildren
+                >
                   <Switch
                     aria-label={item.isActive ? "Disable Item" : "Enable Item"}
                     size="sm"
