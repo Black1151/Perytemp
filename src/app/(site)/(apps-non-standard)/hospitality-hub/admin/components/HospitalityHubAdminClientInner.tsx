@@ -107,6 +107,7 @@ export const HospitalityHubAdminClientInner = () => {
                   ? "Disable Category"
                   : "Enable Category"
               }
+              shouldWrapChildren
             >
               <Switch
                 aria-label={
