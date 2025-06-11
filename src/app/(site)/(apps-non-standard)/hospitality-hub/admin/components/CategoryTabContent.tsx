@@ -1,7 +1,7 @@
 "use client";
 
-import { SimpleGrid, Spinner, VStack, Button } from "@chakra-ui/react";
-import HospitalityItemCard from "../../components/HospitalityItemCard";
+import { Spinner, VStack, Button } from "@chakra-ui/react";
+import HospitalityItemsMasonry from "./HospitalityItemsMasonry";
 import { HospitalityCategory } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
 import { useState } from "react";
@@ -27,15 +27,10 @@ export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
       {loading ? (
         <Spinner />
       ) : (
-        <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
-          {items.map((item) => (
-            <HospitalityItemCard
-              key={item.id}
-              item={item}
-              optionalFields={category.optionalFields || []}
-            />
-          ))}
-        </SimpleGrid>
+        <HospitalityItemsMasonry
+          items={items}
+          optionalFields={category.optionalFields || []}
+        />
       )}
       <AddItemModal
         isOpen={modalOpen}
