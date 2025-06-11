@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { HospitalityItem } from '@/types/hospitalityHub';
+import { useState, useEffect } from "react";
+import { HospitalityItem } from "@/types/hospitalityHub";
 
 export function useHospitalityItems(categoryKey?: string | null) {
   const [items, setItems] = useState<HospitalityItem[]>([]);
@@ -11,13 +11,13 @@ export function useHospitalityItems(categoryKey?: string | null) {
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/hospitality-hub/items?hospitalityCatId=${categoryKey}`,
+        `/api/hospitality-hub/category-items?hospitalityCatId=${categoryKey}`,
       );
       const data = await res.json();
       if (res.ok) {
         setItems(data.resource || []);
       } else {
-        throw new Error(data?.error || 'Failed to fetch items');
+        throw new Error(data?.error || "Failed to fetch items");
       }
     } catch (err: any) {
       console.error(err);
