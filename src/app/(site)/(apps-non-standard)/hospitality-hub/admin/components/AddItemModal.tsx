@@ -18,12 +18,14 @@ import {
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
+import { HospitalityItem } from "@/types/hospitalityHub";
 
 interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   categoryId: string;
   onCreated: () => void;
+  item?: HospitalityItem | null;
 }
 
 interface FormValues {
@@ -46,6 +48,7 @@ export default function AddItemModal({
   onClose,
   categoryId,
   onCreated,
+  item,
 }: AddItemModalProps) {
   const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
   const toast = useToast();
@@ -55,6 +58,9 @@ export default function AddItemModal({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
+  const [logoUrl, setLogoUrl] = useState<string>("");
+  const [coverUrl, setCoverUrl] = useState<string>("");
+  const [additionalUrls, setAdditionalUrls] = useState<string[]>([]);
 
   // Helper to upload a file with a timestamp-based name
   const uploadFile = async (file: File): Promise<string> => {
@@ -81,6 +87,34 @@ export default function AddItemModal({
     if (userId !== undefined) setValue("itemOwnerUserId", userId);
   }, [customerId, userId, setValue]);
 
+  useEffect(() => {
+    if (isOpen) {
+      if (item) {
+        setValue("name", item.name);
+        setValue("description", item.description);
+        setValue("howToDetails", item.howToDetails);
+        setValue("extraDetails", item.extraDetails);
+        setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
+        setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
+        setValue("location", item.location);
+        setLogoUrl(item.logoImageUrl || "");
+        setCoverUrl(item.coverImageUrl || "");
+        setAdditionalUrls(item.additionalImageUrlList || []);
+      } else {
+        reset();
+        setLogoUrl("");
+        setCoverUrl("");
+        setAdditionalUrls([]);
+        if (customerId !== undefined) setValue("customerId", customerId);
+        if (userId !== undefined) setValue("itemOwnerUserId", userId);
+      }
+      setLogoFile(null);
+      setCoverFile(null);
+      setAdditionalFiles([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item, isOpen]);
+
   const onSubmit = async (data: FormValues) => {
     if (!user?.customerUniqueId) {
       toast({
@@ -94,9 +128,9 @@ export default function AddItemModal({
     }
 
     try {
-      let logoImageUrl = "";
-      let coverImageUrl = "";
-      const additionalImageUrlList: string[] = [];
+      let logoImageUrl = logoUrl;
+      let coverImageUrl = coverUrl;
+      const additionalImageUrlList: string[] = [...additionalUrls];
 
       if (logoFile) {
         logoImageUrl = await uploadFile(logoFile);
@@ -111,24 +145,28 @@ export default function AddItemModal({
         if (url) additionalImageUrlList.push(url);
       }
 
+      const method = item ? "PUT" : "POST";
+      const body: any = {
+        ...data,
+        logoImageUrl,
+        coverImageUrl,
+        additionalImageUrlList,
+        customerId,
+        itemOwnerUserId: userId,
+        hospitalityCatId: categoryId,
+      };
+      if (item) body.id = item.id;
+
       const res = await fetch("/api/hospitality-hub/items", {
-        method: "POST",
-        body: JSON.stringify({
-          ...data,
-          logoImageUrl,
-          coverImageUrl,
-          additionalImageUrlList,
-          customerId,
-          itemOwnerUserId: userId,
-          hospitalityCatId: categoryId,
-        }),
+        method,
+        body: JSON.stringify(body),
       });
 
       const result = await res.json();
 
       if (!res.ok) {
         toast({
-          title: result.error || "Failed to create item.",
+          title: result.error || (item ? "Failed to update item." : "Failed to create item."),
           description: result.details,
           status: "error",
           duration: 5000,
@@ -143,6 +181,9 @@ export default function AddItemModal({
       setLogoFile(null);
       setCoverFile(null);
       setAdditionalFiles([]);
+      setLogoUrl("");
+      setCoverUrl("");
+      setAdditionalUrls([]);
       onClose();
     } catch (err) {
       console.error(err);
@@ -160,7 +201,7 @@ export default function AddItemModal({
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Create Item</ModalHeader>
+        <ModalHeader>{item ? "Update Item" : "Create Item"}</ModalHeader>
         <ModalCloseButton />
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalBody>
@@ -231,7 +272,7 @@ export default function AddItemModal({
           </ModalBody>
           <ModalFooter>
             <Button type="submit" colorScheme="blue">
-              Create
+              {item ? "Update" : "Create"}
             </Button>
           </ModalFooter>
         </form>
