@@ -176,6 +176,14 @@ export default function AddItemModal({
         return;
       }
 
+      toast({
+        title: item ? "Item updated successfully." : "Item created successfully.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-right",
+      });
+
       onCreated();
       reset();
       setLogoFile(null);

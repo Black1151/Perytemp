@@ -9,6 +9,7 @@ import {
   HStack,
   Tooltip,
   Switch,
+  useToast,
 } from "@chakra-ui/react";
 import {
   FiPlus,
@@ -31,6 +32,7 @@ export const HospitalityHubAdminClientInner = () => {
   const { categories, loading, refresh } = useHospitalityCategories();
   const [selectedCategory, setSelectedCategory] =
     useState<HospitalityCategory | null>(null);
+  const toast = useToast();
 
   useEffect(() => {
     if (!selectedCategory && categories.length > 0) {
@@ -139,10 +141,26 @@ export const HospitalityHubAdminClientInner = () => {
                     }),
                   });
                   if (res.ok) {
+                    toast({
+                      title: "Category updated successfully.",
+                      status: "success",
+                      duration: 5000,
+                      isClosable: true,
+                      position: "bottom-right",
+                    });
                     refresh();
                     setSelectedCategory({
                       ...selectedCategory,
                       isActive: !selectedCategory.isActive,
+                    });
+                  } else {
+                    const data = await res.json();
+                    toast({
+                      title: data.error || "Failed to update category.",
+                      status: "error",
+                      duration: 5000,
+                      isClosable: true,
+                      position: "bottom-right",
                     });
                   }
                 }}
