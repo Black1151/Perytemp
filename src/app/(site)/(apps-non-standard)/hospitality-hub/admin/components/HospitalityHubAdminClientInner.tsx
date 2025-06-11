@@ -28,9 +28,10 @@ export const HospitalityHubAdminClientInner = () => {
       ) : (
         <>
           <Select
-            value={selectedCategory?.id || ""}
+            value={selectedCategory?.id?.toString() || ""}
             onChange={(e) => {
-              const cat = categories.find((c) => c.id === e.target.value);
+              const value = e.target.value;
+              const cat = categories.find((c) => String(c.id) === value);
               setSelectedCategory(cat || null);
             }}
             color="primaryTextColor"
@@ -38,7 +39,7 @@ export const HospitalityHubAdminClientInner = () => {
             sx={{ option: { backgroundColor: "var(--chakra-colors-elementBG)" } }}
           >
             {categories.map((category) => (
-              <option key={category.id} value={category.id}>
+              <option key={category.id} value={String(category.id)}>
                 {category.name}
               </option>
             ))}
