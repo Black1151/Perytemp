@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { VStack, Spinner, Select, IconButton, HStack } from "@chakra-ui/react";
+import {
+  VStack,
+  Spinner,
+  Select,
+  IconButton,
+  HStack,
+  Tooltip,
+  Switch,
+} from "@chakra-ui/react";
 import {
   FiPlus,
   FiEdit2,
@@ -56,68 +64,78 @@ export const HospitalityHubAdminClientInner = () => {
                 </option>
               ))}
             </Select>
-            <IconButton
-              aria-label="Add Category"
-              icon={<FiPlus />}
-              onClick={() => {
-                setEditingCategory(null);
-                setCategoryModalOpen(true);
-              }}
-              size="sm"
-            />
-            <IconButton
-              aria-label="Edit Category"
-              icon={<FiEdit2 />}
-              onClick={() => {
-                if (selectedCategory) {
-                  setEditingCategory(selectedCategory);
+            <Tooltip label="Add Category">
+              <IconButton
+                aria-label="Add Category"
+                icon={<FiPlus />}
+                onClick={() => {
+                  setEditingCategory(null);
                   setCategoryModalOpen(true);
-                }
-              }}
-              size="sm"
-              isDisabled={!selectedCategory}
-            />
-            <IconButton
-              aria-label="Delete Category"
-              icon={<FiTrash2 />}
-              onClick={() => setDeleteModalOpen(true)}
-              size="sm"
-              colorScheme="red"
-              isDisabled={!selectedCategory}
-            />
-            <IconButton
-              aria-label={
+                }}
+                size="sm"
+                colorScheme="green"
+              />
+            </Tooltip>
+            <Tooltip label="Edit Category">
+              <IconButton
+                aria-label="Edit Category"
+                icon={<FiEdit2 />}
+                onClick={() => {
+                  if (selectedCategory) {
+                    setEditingCategory(selectedCategory);
+                    setCategoryModalOpen(true);
+                  }
+                }}
+                size="sm"
+                isDisabled={!selectedCategory}
+                colorScheme="blue"
+              />
+            </Tooltip>
+            <Tooltip label="Delete Category">
+              <IconButton
+                aria-label="Delete Category"
+                icon={<FiTrash2 />}
+                onClick={() => setDeleteModalOpen(true)}
+                size="sm"
+                colorScheme="red"
+                isDisabled={!selectedCategory}
+              />
+            </Tooltip>
+            <Tooltip
+              label={
                 selectedCategory?.isActive
                   ? "Disable Category"
                   : "Enable Category"
               }
-              icon={
-                selectedCategory?.isActive ? (
-                  <FiToggleLeft />
-                ) : (
-                  <FiToggleRight />
-                )
-              }
-              onClick={async () => {
-                if (!selectedCategory) return;
-                const res = await fetch("/api/hospitality-hub/categories", {
-                  method: "PUT",
-                  body: JSON.stringify({
-                    id: selectedCategory.id,
-                    isActive: !selectedCategory.isActive,
-                  }),
-                });
-                if (res.ok) {
-                  refresh();
-                  setSelectedCategory({
-                    ...selectedCategory,
-                    isActive: !selectedCategory.isActive,
-                  });
+            >
+              <Switch
+                aria-label={
+                  selectedCategory?.isActive
+                    ? "Disable Category"
+                    : "Enable Category"
                 }
-              }}
-              size="sm"
-              isDisabled={!selectedCategory}
-            />
+                isChecked={selectedCategory?.isActive}
+                onChange={async () => {
+                  if (!selectedCategory) return;
+                  const res = await fetch("/api/hospitality-hub/categories", {
+                    method: "PUT",
+                    body: JSON.stringify({
+                      id: selectedCategory.id,
+                      isActive: !selectedCategory.isActive,
+                    }),
+                  });
+                  if (res.ok) {
+                    refresh();
+                    setSelectedCategory({
+                      ...selectedCategory,
+                      isActive: !selectedCategory.isActive,
+                    });
+                  }
+                }}
+                size="sm"
+                isDisabled={!selectedCategory}
+              />
+            </Tooltip>
           </HStack>
           {selectedCategory && (
             <CategoryTabContent category={selectedCategory} />

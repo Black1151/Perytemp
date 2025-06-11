@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, HStack, IconButton, SimpleGrid } from "@chakra-ui/react";
+import { Box, HStack, IconButton, SimpleGrid, Tooltip, Switch } from "@chakra-ui/react";
 import HospitalityItemCard from "../../components/HospitalityItemCard";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import { FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight } from "react-icons/fi";
@@ -28,29 +28,36 @@ export default function HospitalityItemsMasonry({
           {(onEdit || onDelete || onToggleActive) && (
             <HStack position="absolute" top={2} right={2} spacing={1}>
               {onEdit && (
-                <IconButton
-                  aria-label="Edit Item"
-                  size="sm"
-                  icon={<FiEdit2 />}
-                  onClick={() => onEdit(item)}
-                />
+                <Tooltip label="Edit Item">
+                  <IconButton
+                    aria-label="Edit Item"
+                    size="sm"
+                    icon={<FiEdit2 />}
+                    onClick={() => onEdit(item)}
+                    colorScheme="blue"
+                  />
+                </Tooltip>
               )}
               {onDelete && (
-                <IconButton
-                  aria-label="Delete Item"
-                  size="sm"
-                  colorScheme="red"
-                  icon={<FiTrash2 />}
-                  onClick={() => onDelete(item)}
-                />
+                <Tooltip label="Delete Item">
+                  <IconButton
+                    aria-label="Delete Item"
+                    size="sm"
+                    colorScheme="red"
+                    icon={<FiTrash2 />}
+                    onClick={() => onDelete(item)}
+                  />
+                </Tooltip>
               )}
               {onToggleActive && (
-                <IconButton
-                  aria-label={item.isActive ? "Disable Item" : "Enable Item"}
-                  size="sm"
-                  icon={item.isActive ? <FiToggleLeft /> : <FiToggleRight />}
-                  onClick={() => onToggleActive(item)}
-                />
+                <Tooltip label={item.isActive ? "Disable Item" : "Enable Item"}>
+                  <Switch
+                    aria-label={item.isActive ? "Disable Item" : "Enable Item"}
+                    size="sm"
+                    isChecked={item.isActive}
+                    onChange={() => onToggleActive(item)}
+                  />
+                </Tooltip>
               )}
             </HStack>
           )}
