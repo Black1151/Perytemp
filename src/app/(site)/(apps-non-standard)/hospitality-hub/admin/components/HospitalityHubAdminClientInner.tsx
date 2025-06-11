@@ -73,7 +73,11 @@ export const HospitalityHubAdminClientInner = () => {
                   setCategoryModalOpen(true);
                 }}
                 size="sm"
-                colorScheme="green"
+                bg="green.400"
+                color="white"
+                border="1px solid"
+                borderColor="green.400"
+                _hover={{ bg: "white", color: "green.400", borderColor: "green.400" }}
               />
             </Tooltip>
             <Tooltip label="Edit Category" openDelay={1000}>
@@ -88,7 +92,11 @@ export const HospitalityHubAdminClientInner = () => {
                 }}
                 size="sm"
                 isDisabled={!selectedCategory}
-                colorScheme="blue"
+                bg="blue.400"
+                color="white"
+                border="1px solid"
+                borderColor="blue.400"
+                _hover={{ bg: "white", color: "blue.400", borderColor: "blue.400" }}
               />
             </Tooltip>
             <Tooltip label="Delete Category" openDelay={1000}>
@@ -97,7 +105,11 @@ export const HospitalityHubAdminClientInner = () => {
                 icon={<FiTrash2 />}
                 onClick={() => setDeleteModalOpen(true)}
                 size="sm"
-                colorScheme="red"
+                bg="red.400"
+                color="white"
+                border="1px solid"
+                borderColor="red.400"
+                _hover={{ bg: "white", color: "red.400", borderColor: "red.400" }}
                 isDisabled={!selectedCategory}
               />
             </Tooltip>

@@ -34,7 +34,11 @@ export default function HospitalityItemsMasonry({
                     size="sm"
                     icon={<FiEdit2 />}
                     onClick={() => onEdit(item)}
-                    colorScheme="blue"
+                    bg="blue.400"
+                    color="white"
+                    border="1px solid"
+                    borderColor="blue.400"
+                    _hover={{ bg: "white", color: "blue.400", borderColor: "blue.400" }}
                   />
                 </Tooltip>
               )}
@@ -43,9 +47,13 @@ export default function HospitalityItemsMasonry({
                   <IconButton
                     aria-label="Delete Item"
                     size="sm"
-                    colorScheme="red"
                     icon={<FiTrash2 />}
                     onClick={() => onDelete(item)}
+                    bg="red.400"
+                    color="white"
+                    border="1px solid"
+                    borderColor="red.400"
+                    _hover={{ bg: "white", color: "red.400", borderColor: "red.400" }}
                   />
                 </Tooltip>
               )}
