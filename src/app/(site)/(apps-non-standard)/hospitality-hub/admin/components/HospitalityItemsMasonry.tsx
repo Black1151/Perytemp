@@ -28,7 +28,7 @@ export default function HospitalityItemsMasonry({
           {(onEdit || onDelete || onToggleActive) && (
             <HStack position="absolute" top={2} right={2} spacing={1}>
               {onEdit && (
-                <Tooltip label="Edit Item">
+                <Tooltip label="Edit Item" openDelay={1000}>
                   <IconButton
                     aria-label="Edit Item"
                     size="sm"
@@ -39,7 +39,7 @@ export default function HospitalityItemsMasonry({
                 </Tooltip>
               )}
               {onDelete && (
-                <Tooltip label="Delete Item">
+                <Tooltip label="Delete Item" openDelay={1000}>
                   <IconButton
                     aria-label="Delete Item"
                     size="sm"
@@ -53,6 +53,7 @@ export default function HospitalityItemsMasonry({
                 <Tooltip
                   label={item.isActive ? "Disable Item" : "Enable Item"}
                   shouldWrapChildren
+                  openDelay={1000}
                 >
                   <Switch
                     aria-label={item.isActive ? "Disable Item" : "Enable Item"}

@@ -64,7 +64,7 @@ export const HospitalityHubAdminClientInner = () => {
                 </option>
               ))}
             </Select>
-            <Tooltip label="Add Category">
+            <Tooltip label="Add Category" openDelay={1000}>
               <IconButton
                 aria-label="Add Category"
                 icon={<FiPlus />}
@@ -76,7 +76,7 @@ export const HospitalityHubAdminClientInner = () => {
                 colorScheme="green"
               />
             </Tooltip>
-            <Tooltip label="Edit Category">
+            <Tooltip label="Edit Category" openDelay={1000}>
               <IconButton
                 aria-label="Edit Category"
                 icon={<FiEdit2 />}
@@ -91,7 +91,7 @@ export const HospitalityHubAdminClientInner = () => {
                 colorScheme="blue"
               />
             </Tooltip>
-            <Tooltip label="Delete Category">
+            <Tooltip label="Delete Category" openDelay={1000}>
               <IconButton
                 aria-label="Delete Category"
                 icon={<FiTrash2 />}
@@ -108,6 +108,7 @@ export const HospitalityHubAdminClientInner = () => {
                   : "Enable Category"
               }
               shouldWrapChildren
+              openDelay={1000}
             >
               <Switch
                 aria-label={
