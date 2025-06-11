@@ -18,11 +18,13 @@ import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { useMediaUploader } from "@/hooks/useMediaUploader";
+import { HospitalityCategory } from "@/types/hospitalityHub";
 
 interface AddCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreated: () => void;
+  category?: HospitalityCategory | null;
 }
 
 interface FormValues {
@@ -59,22 +61,46 @@ export default function AddCategoryModal({
     if (userId !== undefined) setValue("catOwnerUserId", userId);
   }, [customerId, userId, setValue]);
 
+  useEffect(() => {
+    if (isOpen) {
+      if (category) {
+        setValue("name", category.name);
+        setValue("description", category.description);
+        setImageUrl(category.imageUrl || "");
+      } else {
+        reset();
+        setImageUrl("");
+        if (customerId !== undefined) setValue("customerId", customerId);
+        if (userId !== undefined) setValue("catOwnerUserId", userId);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, isOpen]);
+
   const onSubmit = async (data: FormValues) => {
+    const method = category ? "PUT" : "POST";
+    const body = {
+      ...data,
+      imageUrl,
+      customerId,
+      catOwnerUserId: userId,
+    } as any;
+    if (category) {
+      (body as any).id = category.id;
+    }
+
     const res = await fetch("/api/hospitality-hub/categories", {
-      method: "POST",
-      body: JSON.stringify({
-        ...data,
-        imageUrl,
-        customerId,
-        catOwnerUserId: userId,
-      }),
+      method,
+      body: JSON.stringify(body),
     });
 
     const result = await res.json();
 
     if (!res.ok) {
       toast({
-        title: result.error || "Failed to create category.",
+        title:
+          result.error ||
+          (category ? "Failed to update category." : "Failed to create category."),
         description: result.details,
         status: "error",
         duration: 5000,
@@ -93,7 +119,7 @@ export default function AddCategoryModal({
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Create Category</ModalHeader>
+        <ModalHeader>{category ? "Update Category" : "Create Category"}</ModalHeader>
         <ModalCloseButton />
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalBody>
@@ -125,7 +151,7 @@ export default function AddCategoryModal({
           </ModalBody>
           <ModalFooter>
             <Button type="submit" colorScheme="blue">
-              Create
+              {category ? "Update" : "Create"}
             </Button>
           </ModalFooter>
         </form>
