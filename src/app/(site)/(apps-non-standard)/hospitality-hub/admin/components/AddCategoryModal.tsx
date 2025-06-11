@@ -39,6 +39,7 @@ export default function AddCategoryModal({
   isOpen,
   onClose,
   onCreated,
+  category,
 }: AddCategoryModalProps) {
   const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
   const toast = useToast();
