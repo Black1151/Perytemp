@@ -111,6 +111,14 @@ export default function AddCategoryModal({
       return;
     }
 
+    toast({
+      title: category ? "Category updated successfully." : "Category created successfully.",
+      status: "success",
+      duration: 5000,
+      isClosable: true,
+      position: "bottom-right",
+    });
+
     onCreated();
     reset();
     onClose();

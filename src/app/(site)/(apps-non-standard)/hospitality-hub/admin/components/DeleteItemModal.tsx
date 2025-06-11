@@ -49,6 +49,14 @@ export default function DeleteItemModal({
       return;
     }
 
+    toast({
+      title: "Item deleted successfully.",
+      status: "success",
+      duration: 5000,
+      isClosable: true,
+      position: "bottom-right",
+    });
+
     onDeleted();
     onClose();
   };

@@ -67,6 +67,13 @@ export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
               });
               return;
             }
+            toast({
+              title: "Item updated successfully.",
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+              position: "bottom-right",
+            });
             refresh();
           }}
         />
