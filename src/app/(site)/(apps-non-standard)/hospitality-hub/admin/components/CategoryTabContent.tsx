@@ -1,6 +1,6 @@
 "use client";
 
-import { Spinner, VStack, Button } from "@chakra-ui/react";
+import { Spinner, VStack, Button, useToast } from "@chakra-ui/react";
 import HospitalityItemsMasonry from "./HospitalityItemsMasonry";
 import { HospitalityCategory, HospitalityItem } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
@@ -17,7 +17,10 @@ export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<HospitalityItem | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deletingItem, setDeletingItem] = useState<HospitalityItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<HospitalityItem | null>(
+    null,
+  );
+  const toast = useToast();
 
   if (loading) {
     return <Spinner />;
@@ -47,6 +50,24 @@ export const CategoryTabContent = ({ category }: CategoryTabContentProps) => {
           onDelete={(item) => {
             setDeletingItem(item);
             setDeleteOpen(true);
+          }}
+          onToggleActive={async (item) => {
+            const res = await fetch("/api/hospitality-hub/items", {
+              method: "PUT",
+              body: JSON.stringify({ id: item.id, isActive: !item.isActive }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+              toast({
+                title: data.error || "Failed to update item.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom-right",
+              });
+              return;
+            }
+            refresh();
           }}
         />
       )}
