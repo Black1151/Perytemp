@@ -38,7 +38,7 @@ export default function DeleteCategoryModal({
 
   const handleDelete = async () => {
     const res = await fetch(
-      `/api/hospitality-hub/categories?id=${category.id}`,
+      `/api/hospitality-hub/categories/${category.id}`,
       {
         method: "DELETE",
       },
