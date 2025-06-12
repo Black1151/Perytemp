@@ -80,13 +80,20 @@ export const ItemDetailModal = ({
                   )}
                 </SimpleGrid>
               )}
-              {item?.additionalImageUrlList?.length ? (
-                <SimpleGrid columns={[1, 2]} gap={2} w="100%">
-                  {item.additionalImageUrlList.map((url) => (
-                    <Image key={url} src={url} alt={item?.name} borderRadius="md" />
-                  ))}
-                </SimpleGrid>
-              ) : null}
+              {(() => {
+                const additionalImages = Array.isArray(item?.additionalImageUrlList)
+                  ? item?.additionalImageUrlList
+                  : typeof item?.additionalImageUrlList === "string"
+                    ? item.additionalImageUrlList.split(',').map((u) => u.trim()).filter(Boolean)
+                    : [];
+                return additionalImages.length ? (
+                  <SimpleGrid columns={[1, 2]} gap={2} w="100%">
+                    {additionalImages.map((url) => (
+                      <Image key={url} src={url} alt={item?.name} borderRadius="md" />
+                    ))}
+                  </SimpleGrid>
+                ) : null;
+              })()}
             </VStack>
           )}
         </ModalBody>
