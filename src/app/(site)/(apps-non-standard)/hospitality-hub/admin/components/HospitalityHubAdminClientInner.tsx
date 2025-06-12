@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   VStack,
   Spinner,
@@ -10,6 +10,8 @@ import {
   Tooltip,
   Switch,
   useToast,
+  Text,
+  Center,
 } from "@chakra-ui/react";
 import {
   FiPlus,
@@ -21,7 +23,9 @@ import {
 } from "react-icons/fi";
 import { HospitalityCategory } from "@/types/hospitalityHub";
 import useHospitalityCategories from "../../hooks/useHospitalityCategories";
-import CategoryTabContent, { CategoryTabContentRef } from "./CategoryTabContent";
+import CategoryTabContent, {
+  CategoryTabContentRef,
+} from "./CategoryTabContent";
 import AddCategoryModal from "./AddCategoryModal";
 import DeleteCategoryModal from "./DeleteCategoryModal";
 
@@ -36,20 +40,27 @@ export const HospitalityHubAdminClientInner = () => {
   const itemTabRef = useRef<CategoryTabContentRef>(null);
   const toast = useToast();
 
-  useEffect(() => {
-    if (!selectedCategory && categories.length > 0) {
-      setSelectedCategory(categories[0]);
-    }
-  }, [categories, selectedCategory]);
-
   return (
-    <VStack w="100%" spacing={4} align="stretch">
+    <VStack
+      w="100%"
+      spacing={4}
+      align="stretch"
+      flex={1}
+      py={4}
+      mt={20}
+      mb={10}
+      px={6}
+    >
+      <Text fontFamily="bonfire" fontSize="5xl" textAlign="left" color="white">
+        Hospitality Hub Admin
+      </Text>
       {loading ? (
         <Spinner />
       ) : (
         <>
           <HStack>
             <Select
+              placeholder="Select Category"
               value={selectedCategory?.id?.toString() || ""}
               onChange={(e) => {
                 const value = e.target.value;
@@ -81,7 +92,11 @@ export const HospitalityHubAdminClientInner = () => {
                 color="white"
                 border="1px solid"
                 borderColor="green.400"
-                _hover={{ bg: "white", color: "green.400", borderColor: "green.400" }}
+                _hover={{
+                  bg: "white",
+                  color: "green.400",
+                  borderColor: "green.400",
+                }}
               />
             </Tooltip>
             <Tooltip label="Add Item" openDelay={1000}>
@@ -94,7 +109,11 @@ export const HospitalityHubAdminClientInner = () => {
                 color="white"
                 border="1px solid"
                 borderColor="green.500"
-                _hover={{ bg: "white", color: "green.500", borderColor: "green.500" }}
+                _hover={{
+                  bg: "white",
+                  color: "green.500",
+                  borderColor: "green.500",
+                }}
                 isDisabled={!selectedCategory}
               />
             </Tooltip>
@@ -114,7 +133,11 @@ export const HospitalityHubAdminClientInner = () => {
                 color="white"
                 border="1px solid"
                 borderColor="blue.400"
-                _hover={{ bg: "white", color: "blue.400", borderColor: "blue.400" }}
+                _hover={{
+                  bg: "white",
+                  color: "blue.400",
+                  borderColor: "blue.400",
+                }}
               />
             </Tooltip>
             <Tooltip label="Delete Category" openDelay={1000}>
@@ -127,7 +150,11 @@ export const HospitalityHubAdminClientInner = () => {
                 color="white"
                 border="1px solid"
                 borderColor="red.400"
-                _hover={{ bg: "white", color: "red.400", borderColor: "red.400" }}
+                _hover={{
+                  bg: "white",
+                  color: "red.400",
+                  borderColor: "red.400",
+                }}
                 isDisabled={!selectedCategory}
               />
             </Tooltip>
@@ -185,11 +212,19 @@ export const HospitalityHubAdminClientInner = () => {
               />
             </Tooltip>
           </HStack>
-          {selectedCategory && (
-            <CategoryTabContent
-              ref={itemTabRef}
-              category={selectedCategory}
-            />
+          {selectedCategory ? (
+            <CategoryTabContent ref={itemTabRef} category={selectedCategory} />
+          ) : (
+            <Center flex={1}>
+              <Text
+                fontFamily="bonfire"
+                fontSize="2xl"
+                textAlign="center"
+                color="white"
+              >
+                select a category to start!
+              </Text>
+            </Center>
           )}
         </>
       )}
