@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   VStack,
   Spinner,
@@ -10,6 +10,8 @@ import {
   Tooltip,
   Switch,
   useToast,
+  Text,
+  Center,
 } from "@chakra-ui/react";
 import {
   FiPlus,
@@ -36,20 +38,18 @@ export const HospitalityHubAdminClientInner = () => {
   const itemTabRef = useRef<CategoryTabContentRef>(null);
   const toast = useToast();
 
-  useEffect(() => {
-    if (!selectedCategory && categories.length > 0) {
-      setSelectedCategory(categories[0]);
-    }
-  }, [categories, selectedCategory]);
-
   return (
-    <VStack w="100%" spacing={4} align="stretch">
+    <VStack w="100%" spacing={4} align="stretch" flex={1} py={4}>
+      <Text fontFamily="bonfire" fontSize="3xl" textAlign="center" color="white">
+        Hospitality Hub Admin
+      </Text>
       {loading ? (
         <Spinner />
       ) : (
         <>
           <HStack>
             <Select
+              placeholder="Select Category"
               value={selectedCategory?.id?.toString() || ""}
               onChange={(e) => {
                 const value = e.target.value;
@@ -185,11 +185,22 @@ export const HospitalityHubAdminClientInner = () => {
               />
             </Tooltip>
           </HStack>
-          {selectedCategory && (
+          {selectedCategory ? (
             <CategoryTabContent
               ref={itemTabRef}
               category={selectedCategory}
             />
+          ) : (
+            <Center flex={1}>
+              <Text
+                fontFamily="bonfire"
+                fontSize="2xl"
+                textAlign="center"
+                color="white"
+              >
+                select a category to start!
+              </Text>
+            </Center>
           )}
         </>
       )}

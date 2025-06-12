@@ -1,10 +1,10 @@
-import { Center } from "@chakra-ui/react";
+import { PerygonContainer } from "@/components/layout/PerygonContainer";
 import { HospitalityHubAdminClientInner } from "./components/HospitalityHubAdminClientInner";
 
 export default function HospitalityHubAdminPage() {
   return (
-    <Center minH="100vh" w="100%" p={4}>
+    <PerygonContainer>
       <HospitalityHubAdminClientInner />
-    </Center>
+    </PerygonContainer>
   );
 }
