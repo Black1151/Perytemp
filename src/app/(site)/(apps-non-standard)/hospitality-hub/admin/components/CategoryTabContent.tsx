@@ -4,7 +4,7 @@ import { Spinner, VStack, useToast } from "@chakra-ui/react";
 import HospitalityItemsMasonry from "./HospitalityItemsMasonry";
 import { HospitalityCategory, HospitalityItem } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
-import { useState, forwardRef, useImperativeHandle } from "react";
+import { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import AddItemModal from "./AddItemModal";
 import DeleteItemModal from "./DeleteItemModal";
 
@@ -19,14 +19,27 @@ export const CategoryTabContent = forwardRef<
   CategoryTabContentRef,
   CategoryTabContentProps
 >(({ category }, ref) => {
-  const { items, loading, refresh } = useHospitalityItems(category.id);
+  const {
+    items: fetchedItems,
+    loading,
+    refresh,
+  } = useHospitalityItems(category.id);
+  const [items, setItems] = useState<HospitalityItem[]>(fetchedItems);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<HospitalityItem | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingItem, setDeletingItem] = useState<HospitalityItem | null>(
-    null,
+    null
   );
   const toast = useToast();
+
+  useEffect(() => {
+    setItems(fetchedItems);
+  }, [fetchedItems]);
+
+  const handleRefresh = async () => {
+    await refresh();
+  };
 
   useImperativeHandle(ref, () => ({
     openAddModal: () => {
@@ -35,13 +48,14 @@ export const CategoryTabContent = forwardRef<
     },
   }));
 
-  if (loading) {
+  if (loading && items.length === 0) {
     return <Spinner />;
   }
 
   return (
     <VStack w="100%" align="stretch" spacing={4}>
-      {loading ? (
+      {loading && items.length > 0 && <Spinner size="sm" alignSelf="center" />}
+      {loading && items.length === 0 ? (
         <Spinner />
       ) : (
         <HospitalityItemsMasonry
@@ -78,14 +92,18 @@ export const CategoryTabContent = forwardRef<
               isClosable: true,
               position: "bottom-right",
             });
-            refresh();
+            setItems((prev) =>
+              prev.map((i) =>
+                i.id === item.id ? { ...i, isActive: !i.isActive } : i
+              )
+            );
           }}
         />
       )}
       <AddItemModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        onCreated={refresh}
+        onCreated={handleRefresh}
         categoryId={category.id}
         item={editingItem}
       />
@@ -93,7 +111,7 @@ export const CategoryTabContent = forwardRef<
         isOpen={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         item={deletingItem}
-        onDeleted={refresh}
+        onDeleted={handleRefresh}
       />
     </VStack>
   );
