@@ -4,7 +4,7 @@ import { Spinner, VStack, useToast } from "@chakra-ui/react";
 import HospitalityItemsMasonry from "./HospitalityItemsMasonry";
 import { HospitalityCategory, HospitalityItem } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
-import { useState, forwardRef, useImperativeHandle } from "react";
+import { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import AddItemModal from "./AddItemModal";
 import DeleteItemModal from "./DeleteItemModal";
 
@@ -19,13 +19,17 @@ export const CategoryTabContent = forwardRef<
   CategoryTabContentRef,
   CategoryTabContentProps
 >(({ category }, ref) => {
-  const { items: fetchedItems, loading, refresh } = useHospitalityItems(category.id);
+  const {
+    items: fetchedItems,
+    loading,
+    refresh,
+  } = useHospitalityItems(category.id);
   const [items, setItems] = useState<HospitalityItem[]>(fetchedItems);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<HospitalityItem | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingItem, setDeletingItem] = useState<HospitalityItem | null>(
-    null,
+    null
   );
   const toast = useToast();
 
@@ -50,9 +54,7 @@ export const CategoryTabContent = forwardRef<
 
   return (
     <VStack w="100%" align="stretch" spacing={4}>
-      {loading && items.length > 0 && (
-        <Spinner size="sm" alignSelf="center" />
-      )}
+      {loading && items.length > 0 && <Spinner size="sm" alignSelf="center" />}
       {loading && items.length === 0 ? (
         <Spinner />
       ) : (
@@ -92,8 +94,8 @@ export const CategoryTabContent = forwardRef<
             });
             setItems((prev) =>
               prev.map((i) =>
-                i.id === item.id ? { ...i, isActive: !i.isActive } : i,
-              ),
+                i.id === item.id ? { ...i, isActive: !i.isActive } : i
+              )
             );
           }}
         />
