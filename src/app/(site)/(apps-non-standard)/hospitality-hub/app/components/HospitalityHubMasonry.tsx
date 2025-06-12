@@ -8,6 +8,7 @@ import {
   Spinner,
   Center,
 } from "@chakra-ui/react";
+import { AnimatedList, AnimatedListItem } from "@/components/animations/AnimatedList";
 import { useState } from "react";
 import HospitalityItemCard from "../../components/HospitalityItemCard";
 import ItemDetailModal from "./ItemDetailModal";
@@ -71,17 +72,20 @@ export function HospitalityHubMasonry({
           <Text fontWeight="bold">&larr; Back</Text>
         </Box>
         <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
-          {items.map((item) => (
-            <HospitalityItemCard
-              key={item.id}
-              item={item}
-              optionalFields={
-                categories.find((c) => c.id === selected)?.optionalFields || []
-              }
-              onClick={() => handleItemClick(item.id)}
-              showOverlay
-            />
-          ))}
+          <AnimatedList>
+            {items.map((item, index) => (
+              <AnimatedListItem key={item.id} index={index}>
+                <HospitalityItemCard
+                  item={item}
+                  optionalFields={
+                    categories.find((c) => c.id === selected)?.optionalFields || []
+                  }
+                  onClick={() => handleItemClick(item.id)}
+                  showOverlay
+                />
+              </AnimatedListItem>
+            ))}
+          </AnimatedList>
         </SimpleGrid>
         <ItemDetailModal
           isOpen={modalOpen}
@@ -105,44 +109,47 @@ export function HospitalityHubMasonry({
 
   return (
     <SimpleGrid columns={[2, 3, 5]} gap={4} w="100%">
-      {categories.map((category) => (
-        <Box
-          key={category.id}
-          position="relative"
-          h="700px"
-          borderRadius="lg"
-          overflow="hidden"
-          role="group"
-          cursor="pointer"
-          onClick={() => setSelected(category.id)}
-        >
-          <Image
-            src={category.imageUrl || (category as any).image}
-            alt={category.name}
-            objectFit="cover"
-            w="100%"
-            h="100%"
-          />
-          <Box
-            position="absolute"
-            top={0}
-            left={0}
-            w="100%"
-            h="100%"
-            bg="rgba(0,0,0,0.6)"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            opacity={0}
-            transition="opacity 0.3s"
-            _groupHover={{ opacity: 1 }}
-          >
-            <Text color="white" fontWeight="bold" fontSize="xl">
-              {category.name}
-            </Text>
-          </Box>
-        </Box>
-      ))}
+      <AnimatedList>
+        {categories.map((category, index) => (
+          <AnimatedListItem key={category.id} index={index}>
+            <Box
+              position="relative"
+              h="700px"
+              borderRadius="lg"
+              overflow="hidden"
+              role="group"
+              cursor="pointer"
+              onClick={() => setSelected(category.id)}
+            >
+              <Image
+                src={category.imageUrl || (category as any).image}
+                alt={category.name}
+                objectFit="cover"
+                w="100%"
+                h="100%"
+              />
+              <Box
+                position="absolute"
+                top={0}
+                left={0}
+                w="100%"
+                h="100%"
+                bg="rgba(0,0,0,0.6)"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                opacity={0}
+                transition="opacity 0.3s"
+                _groupHover={{ opacity: 1 }}
+              >
+                <Text color="white" fontWeight="bold" fontSize="xl">
+                  {category.name}
+                </Text>
+              </Box>
+            </Box>
+          </AnimatedListItem>
+        ))}
+      </AnimatedList>
     </SimpleGrid>
   );
 }
