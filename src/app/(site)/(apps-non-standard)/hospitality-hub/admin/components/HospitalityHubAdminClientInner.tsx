@@ -55,7 +55,9 @@ export const HospitalityHubAdminClientInner = () => {
         Hospitality Hub Admin
       </Text>
       {loading ? (
-        <Spinner />
+        <Center flex={1}>
+          <Spinner size="xl" color="themeTextColor" thickness="4px" />
+        </Center>
       ) : (
         <>
           <HStack>
