@@ -71,7 +71,12 @@ export function HospitalityHubMasonry({
         >
           <Text fontWeight="bold">&larr; Back</Text>
         </Box>
-        <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
+        {/* use an auto-fill grid so cards make use of the available width */}
+        <SimpleGrid
+          w="100%"
+          gap={4}
+          templateColumns="repeat(auto-fill, minmax(250px, 1fr))"
+        >
           <AnimatedList>
             {items.map((item, index) => (
               <AnimatedListItem key={item.id} index={index}>
@@ -108,7 +113,12 @@ export function HospitalityHubMasonry({
   }
 
   return (
-    <SimpleGrid columns={[2, 3, 5]} gap={4} w="100%">
+    {/* categories grid also uses auto-fill to utilize available width */}
+    <SimpleGrid
+      w="100%"
+      gap={4}
+      templateColumns="repeat(auto-fill, minmax(250px, 1fr))"
+    >
       <AnimatedList>
         {categories.map((category, index) => (
           <AnimatedListItem key={category.id} index={index}>
