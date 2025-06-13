@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { AnimatedList, AnimatedListItem } from "@/components/animations/AnimatedList";
 import { useState } from "react";
-import HospitalityItemCard from "../../components/HospitalityItemCard";
+import HospitalityItemsMasonry from "./HospitalityItemsMasonry";
 import ItemDetailModal from "./ItemDetailModal";
 import { HospitalityItem } from '@/types/hospitalityHub';
 import useHospitalityItems from "../../hooks/useHospitalityItems";
@@ -71,22 +71,13 @@ export function HospitalityHubMasonry({
         >
           <Text fontWeight="bold">&larr; Back</Text>
         </Box>
-        <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
-          <AnimatedList>
-            {items.map((item, index) => (
-              <AnimatedListItem key={item.id} index={index}>
-                <HospitalityItemCard
-                  item={item}
-                  optionalFields={
-                    categories.find((c) => c.id === selected)?.optionalFields || []
-                  }
-                  onClick={() => handleItemClick(item.id)}
-                  showOverlay
-                />
-              </AnimatedListItem>
-            ))}
-          </AnimatedList>
-        </SimpleGrid>
+        <HospitalityItemsMasonry
+          items={items}
+          optionalFields={
+            categories.find((c) => c.id === selected)?.optionalFields || []
+          }
+          onItemClick={(item) => handleItemClick(item.id)}
+        />
         <ItemDetailModal
           isOpen={modalOpen}
           onClose={() => {
