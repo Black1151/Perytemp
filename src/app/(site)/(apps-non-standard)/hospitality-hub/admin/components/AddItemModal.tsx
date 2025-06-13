@@ -36,6 +36,7 @@ interface FormValues {
   startDate: string;
   endDate: string;
   location: string;
+  handlerEmail?: string;
   customerId?: number;
   itemOwnerUserId?: number;
   logoImageUrl?: string;
@@ -94,6 +95,7 @@ export default function AddItemModal({
         setValue("description", item.description);
         setValue("howToDetails", item.howToDetails);
         setValue("extraDetails", item.extraDetails);
+        setValue("handlerEmail", item.handlerEmail || "");
         setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
         setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
         setValue("location", item.location);
@@ -105,6 +107,7 @@ export default function AddItemModal({
         setLogoUrl("");
         setCoverUrl("");
         setAdditionalUrls([]);
+        setValue("handlerEmail", "");
         if (customerId !== undefined) setValue("customerId", customerId);
         if (userId !== undefined) setValue("itemOwnerUserId", userId);
       }
@@ -242,6 +245,10 @@ export default function AddItemModal({
             <FormControl mb={4}>
               <FormLabel>Location</FormLabel>
               <Input {...register("location")} />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Handler Email</FormLabel>
+              <Input {...register("handlerEmail")} type="email" />
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>Logo Image</FormLabel>

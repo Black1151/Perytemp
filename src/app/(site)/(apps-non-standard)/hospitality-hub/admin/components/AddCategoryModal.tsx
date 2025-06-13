@@ -30,6 +30,7 @@ interface AddCategoryModalProps {
 interface FormValues {
   name: string;
   description: string;
+  handlerEmail?: string;
   customerId?: number;
   catOwnerUserId?: number;
   imageUrl?: string;
@@ -67,10 +68,12 @@ export default function AddCategoryModal({
       if (category) {
         setValue("name", category.name);
         setValue("description", category.description);
+        setValue("handlerEmail", category.handlerEmail || "");
         setImageUrl(category.imageUrl || "");
       } else {
         reset();
         setImageUrl("");
+        setValue("handlerEmail", "");
         if (customerId !== undefined) setValue("customerId", customerId);
         if (userId !== undefined) setValue("catOwnerUserId", userId);
       }
@@ -141,6 +144,10 @@ export default function AddCategoryModal({
             <FormControl mb={4} isRequired>
               <FormLabel>Description</FormLabel>
               <Input {...register("description", { required: true })} />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Handler Email</FormLabel>
+              <Input {...register("handlerEmail")} type="email" />
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>Image</FormLabel>
