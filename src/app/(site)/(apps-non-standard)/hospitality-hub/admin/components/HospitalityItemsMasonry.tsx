@@ -22,7 +22,11 @@ export default function HospitalityItemsMasonry({
   onToggleActive,
 }: HospitalityItemsMasonryProps) {
   return (
-    <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
+    <SimpleGrid
+      w="100%"
+      gap={4}
+      templateColumns="repeat(auto-fill, minmax(260px, 1fr))"
+    >
       <AnimatedList>
         {items.map((item: HospitalityItem, index) => (
           <AnimatedListItem key={item.id} index={index}>
