@@ -15,6 +15,7 @@ export interface HospitalityItem {
   logoImageUrl: string;
   coverImageUrl: string;
   additionalImageUrlList: string[];
+  handlerEmail?: string;
 }
 
 export interface HospitalityCategory {
@@ -25,4 +26,5 @@ export interface HospitalityCategory {
   catOwnerUserId: string;
   isActive: boolean;
   imageUrl?: string;
+  handlerEmail?: string;
 }
