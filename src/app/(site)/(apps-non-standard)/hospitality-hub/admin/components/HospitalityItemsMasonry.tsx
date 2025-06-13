@@ -1,10 +1,20 @@
 "use client";
 
-import { Box, HStack, IconButton, SimpleGrid, Tooltip, Switch } from "@chakra-ui/react";
+import {
+  Box,
+  HStack,
+  IconButton,
+  SimpleGrid,
+  Tooltip,
+  Switch,
+} from "@chakra-ui/react";
 import HospitalityItemCard from "../../components/HospitalityItemCard";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import { FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight } from "react-icons/fi";
-import { AnimatedList, AnimatedListItem } from "@/components/animations/AnimatedList";
+import {
+  AnimatedList,
+  AnimatedListItem,
+} from "@/components/animations/AnimatedList";
 
 interface HospitalityItemsMasonryProps {
   items: HospitalityItem[];
@@ -25,13 +35,17 @@ export default function HospitalityItemsMasonry({
     <SimpleGrid
       w="100%"
       gap={4}
-      templateColumns="repeat(auto-fill, minmax(260px, 1fr))"
+      height="500px"
+      templateColumns="repeat(auto-fill, minmax(500px, 1fr))"
     >
       <AnimatedList>
         {items.map((item: HospitalityItem, index) => (
           <AnimatedListItem key={item.id} index={index}>
             <Box position="relative">
-              <HospitalityItemCard item={item} optionalFields={optionalFields} />
+              <HospitalityItemCard
+                item={item}
+                optionalFields={optionalFields}
+              />
               {(onEdit || onDelete || onToggleActive) && (
                 <HStack position="absolute" top={2} right={2} spacing={1}>
                   {onEdit && (
@@ -45,7 +59,11 @@ export default function HospitalityItemsMasonry({
                         color="white"
                         border="1px solid"
                         borderColor="blue.400"
-                        _hover={{ bg: "white", color: "blue.400", borderColor: "blue.400" }}
+                        _hover={{
+                          bg: "white",
+                          color: "blue.400",
+                          borderColor: "blue.400",
+                        }}
                       />
                     </Tooltip>
                   )}
@@ -60,7 +78,11 @@ export default function HospitalityItemsMasonry({
                         color="white"
                         border="1px solid"
                         borderColor="red.400"
-                        _hover={{ bg: "white", color: "red.400", borderColor: "red.400" }}
+                        _hover={{
+                          bg: "white",
+                          color: "red.400",
+                          borderColor: "red.400",
+                        }}
                       />
                     </Tooltip>
                   )}
@@ -71,7 +93,9 @@ export default function HospitalityItemsMasonry({
                       openDelay={1000}
                     >
                       <Switch
-                        aria-label={item.isActive ? "Disable Item" : "Enable Item"}
+                        aria-label={
+                          item.isActive ? "Disable Item" : "Enable Item"
+                        }
                         size="sm"
                         isChecked={item.isActive}
                         onChange={() => onToggleActive(item)}
