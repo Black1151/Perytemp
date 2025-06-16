@@ -158,6 +158,8 @@ export async function PUT(req: NextRequest) {
 
     const data = await response.json();
 
+    console.log("PUT RESPONSE", data);
+
     if (!response.ok) {
       return NextResponse.json(
         {
