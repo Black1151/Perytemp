@@ -7,6 +7,7 @@ import {
   SimpleGrid,
   Tooltip,
   Switch,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import HospitalityItemCard from "../../components/HospitalityItemCard";
 import { HospitalityItem } from "@/types/hospitalityHub";
@@ -36,7 +37,8 @@ export default function HospitalityItemsMasonry({
       w="100%"
       gap={4}
       height="500px"
-      templateColumns="repeat(auto-fill, minmax(500px, 1fr))"
+      templateColumns={`repeat(auto-fill, minmax(300px, 1fr))`}
+      maxW="1920px"
     >
       <AnimatedList>
         {items.map((item: HospitalityItem, index) => (
