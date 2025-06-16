@@ -110,7 +110,10 @@ export default function AddItemModal({
     }
 
     try {
-      const method = item ? "PUT" : "POST";
+      // Always use POST for file uploads. The backend
+      // switches between create and update based on the
+      // presence of an `id` field.
+      const method = "POST";
       const formData = new FormData();
 
       Object.entries(data).forEach(([key, value]) => {
