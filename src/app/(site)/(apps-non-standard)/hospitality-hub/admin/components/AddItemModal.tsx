@@ -14,6 +14,7 @@ import {
   FormLabel,
   Input,
   Textarea,
+  Select,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
@@ -31,6 +32,7 @@ interface AddItemModalProps {
 interface FormValues {
   name: string;
   description: string;
+  itemType: string;
   howToDetails: string;
   extraDetails: string;
   startDate: string;
@@ -57,7 +59,6 @@ export default function AddItemModal({
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
 
-
   const customerId = user?.customerId;
   const userId = user?.userId;
 
@@ -72,9 +73,13 @@ export default function AddItemModal({
         setValue("name", item.name);
         setValue("description", item.description);
         setValue("howToDetails", item.howToDetails);
+        setValue("itemType", item.itemType);
         setValue("extraDetails", item.extraDetails);
         setValue("handlerEmail", item.handlerEmail || "");
-        setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
+        setValue(
+          "startDate",
+          item.startDate ? item.startDate.slice(0, 10) : ""
+        );
         setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
         setValue("location", item.location);
         // Existing images are ignored when editing; handled server-side
@@ -114,8 +119,10 @@ export default function AddItemModal({
         }
       });
 
-      if (customerId !== undefined) formData.append("customerId", String(customerId));
-      if (userId !== undefined) formData.append("itemOwnerUserId", String(userId));
+      if (customerId !== undefined)
+        formData.append("customerId", String(customerId));
+      if (userId !== undefined)
+        formData.append("itemOwnerUserId", String(userId));
       formData.append("hospitalityCatId", categoryId);
       if (logoFile) formData.append("logoImageUpload", logoFile);
       if (coverFile) formData.append("coverImageUpload", coverFile);
@@ -130,7 +137,9 @@ export default function AddItemModal({
 
       if (!res.ok) {
         toast({
-          title: result.error || (item ? "Failed to update item." : "Failed to create item."),
+          title:
+            result.error ||
+            (item ? "Failed to update item." : "Failed to create item."),
           description: result.details,
           status: "error",
           duration: 5000,
@@ -141,7 +150,9 @@ export default function AddItemModal({
       }
 
       toast({
-        title: item ? "Item updated successfully." : "Item created successfully.",
+        title: item
+          ? "Item updated successfully."
+          : "Item created successfully.",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -183,6 +194,15 @@ export default function AddItemModal({
             <FormControl mb={4} isRequired>
               <FormLabel>Description</FormLabel>
               <Textarea {...register("description", { required: true })} />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Item Type</FormLabel>
+              <Select {...register("itemType")}>
+                <option value="event">Event</option>
+                <option value="booking">Booking</option>
+                <option value="information">Information</option>
+                <option value="other">Other</option>
+              </Select>
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>How To Details</FormLabel>
