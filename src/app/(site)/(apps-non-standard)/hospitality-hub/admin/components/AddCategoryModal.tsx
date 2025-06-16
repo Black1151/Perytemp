@@ -14,6 +14,7 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
+import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
@@ -49,10 +50,11 @@ export default function AddCategoryModal({
 
   const [imageUrl, setImageUrl] = useState<string>("");
 
-  const { uploadMediaFile, isUploading } = useMediaUploader(
+  const { uploadMediaFile } = useMediaUploader(
     "/api/hospitality-hub/uploadImage",
     "imageUrl",
     () => {},
+    10 * 1024 * 1024,
   );
 
   const customerId = user?.customerId;
@@ -149,21 +151,14 @@ export default function AddCategoryModal({
               <FormLabel>Handler Email</FormLabel>
               <Input {...register("handlerEmail")} type="email" />
             </FormControl>
-            <FormControl mb={4}>
-              <FormLabel>Image</FormLabel>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  const data = await uploadMediaFile(file);
-                  setImageUrl(data.imageUrl);
-                  e.target.value = "";
-                }}
-                disabled={isUploading}
-              />
-            </FormControl>
+            <ImageUploadWithCrop
+              label="Image"
+              onFileSelected={async (file) => {
+                if (!file) return;
+                const data = await uploadMediaFile(file);
+                setImageUrl(data.imageUrl);
+              }}
+            />
           </ModalBody>
           <ModalFooter>
             <Button type="submit" colorScheme="blue">

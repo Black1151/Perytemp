@@ -16,6 +16,7 @@ import {
   Textarea,
   Select,
 } from "@chakra-ui/react";
+import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
@@ -228,28 +229,14 @@ export default function AddItemModal({
               <FormLabel>Handler Email</FormLabel>
               <Input {...register("handlerEmail")} type="email" />
             </FormControl>
-            <FormControl mb={4}>
-              <FormLabel>Logo Image</FormLabel>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] || null;
-                  setLogoFile(file);
-                }}
-              />
-            </FormControl>
-            <FormControl mb={4}>
-              <FormLabel>Cover Image</FormLabel>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0] || null;
-                  setCoverFile(file);
-                }}
-              />
-            </FormControl>
+            <ImageUploadWithCrop
+              label="Logo Image"
+              onFileSelected={(file) => setLogoFile(file)}
+            />
+            <ImageUploadWithCrop
+              label="Cover Image"
+              onFileSelected={(file) => setCoverFile(file)}
+            />
             <FormControl mb={4}>
               <FormLabel>Additional Images</FormLabel>
               <Input
