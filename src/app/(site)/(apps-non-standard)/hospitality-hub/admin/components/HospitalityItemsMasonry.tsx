@@ -46,6 +46,7 @@ export default function HospitalityItemsMasonry({
               <HospitalityItemCard
                 item={item}
                 optionalFields={optionalFields}
+                disabled={!item.isActive}
               />
               {(onEdit || onDelete || onToggleActive) && (
                 <HStack position="absolute" top={2} right={2} spacing={1}>
