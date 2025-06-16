@@ -17,6 +17,7 @@ import {
   Select,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
+import DragDropFileInput from "@/components/forms/DragDropFileInput";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
@@ -239,14 +240,10 @@ export default function AddItemModal({
             />
             <FormControl mb={4}>
               <FormLabel>Additional Images</FormLabel>
-              <Input
-                type="file"
+              <DragDropFileInput
                 multiple
-                accept="image/*"
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  setAdditionalFiles(files);
-                }}
+                placeholder="Drag & drop additional images here"
+                onFilesSelected={(files) => setAdditionalFiles(files)}
               />
             </FormControl>
           </ModalBody>
