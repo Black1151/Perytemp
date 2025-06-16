@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { useMediaUploader } from "@/hooks/useMediaUploader";
+import ImageCropper from "@/components/forms/ImageCropper";
 import { HospitalityCategory } from "@/types/hospitalityHub";
 
 interface AddCategoryModalProps {
@@ -48,11 +49,14 @@ export default function AddCategoryModal({
   const { user } = useUser();
 
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [isCropOpen, setCropOpen] = useState(false);
 
   const { uploadMediaFile, isUploading } = useMediaUploader(
     "/api/hospitality-hub/uploadImage",
     "imageUrl",
     () => {},
+    10 * 1024 * 1024,
   );
 
   const customerId = user?.customerId;
@@ -154,11 +158,11 @@ export default function AddCategoryModal({
               <Input
                 type="file"
                 accept="image/*"
-                onChange={async (e) => {
+                onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
-                  const data = await uploadMediaFile(file);
-                  setImageUrl(data.imageUrl);
+                  setCropFile(file);
+                  setCropOpen(true);
                   e.target.value = "";
                 }}
                 disabled={isUploading}
@@ -173,5 +177,15 @@ export default function AddCategoryModal({
         </form>
       </ModalContent>
     </Modal>
+    <ImageCropper
+      file={cropFile}
+      isOpen={isCropOpen}
+      onClose={() => setCropOpen(false)}
+      onComplete={async (f) => {
+        const data = await uploadMediaFile(f);
+        setImageUrl(data.imageUrl);
+        setCropOpen(false);
+      }}
+    />
   );
 }

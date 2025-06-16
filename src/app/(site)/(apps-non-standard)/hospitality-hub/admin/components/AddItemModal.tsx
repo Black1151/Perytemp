@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
+import ImageCropper from "@/components/forms/ImageCropper";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -58,6 +59,9 @@ export default function AddItemModal({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [cropTarget, setCropTarget] = useState<"logo" | "cover" | null>(null);
+  const [isCropOpen, setCropOpen] = useState(false);
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -235,7 +239,11 @@ export default function AddItemModal({
                 accept="image/*"
                 onChange={(e) => {
                   const file = e.target.files?.[0] || null;
-                  setLogoFile(file);
+                  if (!file) return;
+                  setCropFile(file);
+                  setCropTarget("logo");
+                  setCropOpen(true);
+                  e.target.value = "";
                 }}
               />
             </FormControl>
@@ -246,7 +254,11 @@ export default function AddItemModal({
                 accept="image/*"
                 onChange={(e) => {
                   const file = e.target.files?.[0] || null;
-                  setCoverFile(file);
+                  if (!file) return;
+                  setCropFile(file);
+                  setCropTarget("cover");
+                  setCropOpen(true);
+                  e.target.value = "";
                 }}
               />
             </FormControl>
@@ -271,5 +283,15 @@ export default function AddItemModal({
         </form>
       </ModalContent>
     </Modal>
+    <ImageCropper
+      file={cropFile}
+      isOpen={isCropOpen}
+      onClose={() => setCropOpen(false)}
+      onComplete={(f) => {
+        if (cropTarget === "logo") setLogoFile(f);
+        if (cropTarget === "cover") setCoverFile(f);
+        setCropOpen(false);
+      }}
+    />
   );
 }
