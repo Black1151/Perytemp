@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
           "Content-Type": contentType,
         },
         body: req.body,
+        duplex: "half",
       });
     } else {
       const payload = await req.json();
@@ -119,6 +120,7 @@ export async function PUT(req: NextRequest) {
             "Content-Type": contentType,
           },
           body: cloned.body,
+          duplex: "half",
         },
       );
     } else {
