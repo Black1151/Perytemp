@@ -40,6 +40,9 @@ export default function HospitalityItemCard({
         p={4}
         display="flex"
         flexDirection="column"
+        border="4px solid rgb(238, 228, 88)"
+        bgColor="rgb(60, 60, 60)"
+        borderRadius="md"
       >
         {(item.coverImageUrl || item.logoImageUrl) && (
           <Image
@@ -50,7 +53,9 @@ export default function HospitalityItemCard({
           />
         )}
         <VStack align="start" spacing={1} flex={1}>
-          <Text fontWeight="bold">{item.name}</Text>
+          <Text fontWeight="bold" color="white">
+            {item.name}
+          </Text>
           {item.description && <Text fontSize="sm">{item.description}</Text>}
           {optionalFields.map((field) =>
             (item as any)[field] ? (
