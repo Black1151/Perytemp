@@ -14,6 +14,7 @@ import {
   FormLabel,
   Input,
   Textarea,
+  Select,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
@@ -31,6 +32,7 @@ interface AddItemModalProps {
 interface FormValues {
   name: string;
   description: string;
+  itemType: string;
   howToDetails: string;
   extraDetails: string;
   startDate: string;
@@ -39,9 +41,6 @@ interface FormValues {
   handlerEmail?: string;
   customerId?: number;
   itemOwnerUserId?: number;
-  logoImageUrl?: string;
-  coverImageUrl?: string;
-  additionalImageUrlList?: string[];
 }
 
 export default function AddItemModal({
@@ -59,26 +58,6 @@ export default function AddItemModal({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
-  const [logoUrl, setLogoUrl] = useState<string>("");
-  const [coverUrl, setCoverUrl] = useState<string>("");
-  const [additionalUrls, setAdditionalUrls] = useState<string[]>([]);
-
-  // Helper to upload a file with a timestamp-based name
-  const uploadFile = async (file: File): Promise<string> => {
-    const fileName = `${Date.now()}-${file.name}`;
-    const renamed = new File([file], fileName, { type: file.type });
-    const formData = new FormData();
-    formData.append("imageUrl", renamed);
-
-    const res = await fetch(`/api/customer/uploadPhoto/${fileName}`, {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw data;
-    return data.imageUrl || data.url || data.resource?.imageUrl || "";
-  };
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -94,19 +73,19 @@ export default function AddItemModal({
         setValue("name", item.name);
         setValue("description", item.description);
         setValue("howToDetails", item.howToDetails);
+        setValue("itemType", item.itemType);
         setValue("extraDetails", item.extraDetails);
         setValue("handlerEmail", item.handlerEmail || "");
-        setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
+        setValue(
+          "startDate",
+          item.startDate ? item.startDate.slice(0, 10) : ""
+        );
         setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
         setValue("location", item.location);
-        setLogoUrl(item.logoImageUrl || "");
-        setCoverUrl(item.coverImageUrl || "");
-        setAdditionalUrls(item.additionalImageUrlList || []);
+        // Existing images are ignored when editing; handled server-side
       } else {
         reset();
-        setLogoUrl("");
-        setCoverUrl("");
-        setAdditionalUrls([]);
+        // reset image selections
         setValue("handlerEmail", "");
         if (customerId !== undefined) setValue("customerId", customerId);
         if (userId !== undefined) setValue("itemOwnerUserId", userId);
@@ -131,45 +110,36 @@ export default function AddItemModal({
     }
 
     try {
-      let logoImageUrl = logoUrl;
-      let coverImageUrl = coverUrl;
-      const additionalImageUrlList: string[] = [...additionalUrls];
-
-      if (logoFile) {
-        logoImageUrl = await uploadFile(logoFile);
-      }
-
-      if (coverFile) {
-        coverImageUrl = await uploadFile(coverFile);
-      }
-
-      for (const file of additionalFiles) {
-        const url = await uploadFile(file);
-        if (url) additionalImageUrlList.push(url);
-      }
-
       const method = item ? "PUT" : "POST";
-      const body: any = {
-        ...data,
-        logoImageUrl,
-        coverImageUrl,
-        additionalImageUrlList,
-        customerId,
-        itemOwnerUserId: userId,
-        hospitalityCatId: categoryId,
-      };
-      if (item) body.id = item.id;
+      const formData = new FormData();
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          formData.append(key, value as any);
+        }
+      });
+
+      if (customerId !== undefined)
+        formData.append("customerId", String(customerId));
+      if (userId !== undefined)
+        formData.append("itemOwnerUserId", String(userId));
+      formData.append("hospitalityCatId", categoryId);
+      if (logoFile) formData.append("logoImageUpload", logoFile);
+      if (coverFile) formData.append("coverImageUpload", coverFile);
+      if (item) formData.append("id", item.id);
 
       const res = await fetch("/api/hospitality-hub/items", {
         method,
-        body: JSON.stringify(body),
+        body: formData,
       });
 
       const result = await res.json();
 
       if (!res.ok) {
         toast({
-          title: result.error || (item ? "Failed to update item." : "Failed to create item."),
+          title:
+            result.error ||
+            (item ? "Failed to update item." : "Failed to create item."),
           description: result.details,
           status: "error",
           duration: 5000,
@@ -180,7 +150,9 @@ export default function AddItemModal({
       }
 
       toast({
-        title: item ? "Item updated successfully." : "Item created successfully.",
+        title: item
+          ? "Item updated successfully."
+          : "Item created successfully.",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -192,9 +164,6 @@ export default function AddItemModal({
       setLogoFile(null);
       setCoverFile(null);
       setAdditionalFiles([]);
-      setLogoUrl("");
-      setCoverUrl("");
-      setAdditionalUrls([]);
       onClose();
     } catch (err) {
       console.error(err);
@@ -214,7 +183,7 @@ export default function AddItemModal({
       <ModalContent>
         <ModalHeader>{item ? "Update Item" : "Create Item"}</ModalHeader>
         <ModalCloseButton />
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
           <ModalBody>
             <input type="hidden" {...register("customerId")} />
             <input type="hidden" {...register("itemOwnerUserId")} />
@@ -225,6 +194,15 @@ export default function AddItemModal({
             <FormControl mb={4} isRequired>
               <FormLabel>Description</FormLabel>
               <Textarea {...register("description", { required: true })} />
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel>Item Type</FormLabel>
+              <Select {...register("itemType")}>
+                <option value="event">Event</option>
+                <option value="booking">Booking</option>
+                <option value="information">Information</option>
+                <option value="other">Other</option>
+              </Select>
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>How To Details</FormLabel>
