@@ -118,7 +118,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const id = incoming ? incoming.get("id") : payload?.id;
-    if (!id || typeof id !== "string") {
+    if (id === undefined || id === null || id === "") {
       return NextResponse.json({ error: "Missing id" }, { status: 400 });
     }
 
