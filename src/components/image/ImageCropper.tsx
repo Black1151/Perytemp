@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useState, useEffect } from "react";
 import {
   Modal,
@@ -29,9 +31,13 @@ const canvasToFile = async (
   type = "image/jpeg",
 ): Promise<File> => {
   return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      resolve(new File([blob!], fileName, { type }));
-    }, type, 0.9);
+    canvas.toBlob(
+      (blob) => {
+        resolve(new File([blob!], fileName, { type }));
+      },
+      type,
+      0.9,
+    );
   });
 };
 
@@ -127,9 +133,13 @@ export default function ImageCropper({
     while (newFile.size > 10 * 1024 * 1024 && quality > 0.1) {
       quality -= 0.1;
       newFile = await new Promise<File>((resolve) => {
-        canvas.toBlob((blob) => {
-          resolve(new File([blob!], file.name, { type: file.type }));
-        }, file.type, quality);
+        canvas.toBlob(
+          (blob) => {
+            resolve(new File([blob!], file.name, { type: file.type }));
+          },
+          file.type,
+          quality,
+        );
       });
     }
     onComplete(newFile);
@@ -196,4 +206,3 @@ export default function ImageCropper({
     </Modal>
   );
 }
-

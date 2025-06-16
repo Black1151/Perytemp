@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { FormControl, FormLabel, Input, Image } from "@chakra-ui/react";
 import ImageCropper from "./ImageCropper";
