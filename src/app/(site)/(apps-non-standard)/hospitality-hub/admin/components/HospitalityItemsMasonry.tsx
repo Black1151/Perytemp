@@ -7,11 +7,10 @@ import {
   SimpleGrid,
   Tooltip,
   Switch,
-  useBreakpointValue,
 } from "@chakra-ui/react";
 import HospitalityItemCard from "../../components/HospitalityItemCard";
 import { HospitalityItem } from "@/types/hospitalityHub";
-import { FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight } from "react-icons/fi";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import {
   AnimatedList,
   AnimatedListItem,
