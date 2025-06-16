@@ -172,7 +172,7 @@ export default function AddItemModal({
       <ModalContent>
         <ModalHeader>{item ? "Update Item" : "Create Item"}</ModalHeader>
         <ModalCloseButton />
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
           <ModalBody>
             <input type="hidden" {...register("customerId")} />
             <input type="hidden" {...register("itemOwnerUserId")} />

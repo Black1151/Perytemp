@@ -49,15 +49,28 @@ export async function POST(req: NextRequest) {
   const authToken = cookieStore.get("auth_token")?.value;
 
   try {
-    const incoming = await req.formData();
-    const formData = new FormData();
-    incoming.forEach((value, key) => {
-      if (value instanceof Blob) {
-        formData.append(key, value, (value as File).name);
-      } else {
-        formData.append(key, value as string);
-      }
-    });
+    const contentType = req.headers.get("content-type") || "";
+    let formData: FormData;
+
+    if (contentType.includes("multipart/form-data")) {
+      const incoming = await req.formData();
+      formData = new FormData();
+      incoming.forEach((value, key) => {
+        if (value instanceof Blob) {
+          formData.append(key, value, (value as File).name);
+        } else {
+          formData.append(key, value as string);
+        }
+      });
+    } else {
+      const payload = await req.json();
+      formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, String(value));
+        }
+      });
+    }
 
     const response = await fetch(`${process.env.BE_URL}/userHospitalityItem`, {
       method: "POST",
@@ -93,20 +106,39 @@ export async function PUT(req: NextRequest) {
   const authToken = cookieStore.get("auth_token")?.value;
 
   try {
-    const incoming = await req.formData();
-    const id = incoming.get("id");
+    const contentType = req.headers.get("content-type") || "";
+    let incoming: FormData | null = null;
+    let payload: any = null;
+    let formData: FormData;
+
+    if (contentType.includes("multipart/form-data")) {
+      incoming = await req.formData();
+    } else {
+      payload = await req.json();
+    }
+
+    const id = incoming ? incoming.get("id") : payload?.id;
     if (!id || typeof id !== "string") {
       return NextResponse.json({ error: "Missing id" }, { status: 400 });
     }
 
-    const formData = new FormData();
-    incoming.forEach((value, key) => {
-      if (value instanceof Blob) {
-        formData.append(key, value, (value as File).name);
-      } else {
-        formData.append(key, value as string);
-      }
-    });
+    formData = new FormData();
+
+    if (incoming) {
+      incoming.forEach((value, key) => {
+        if (value instanceof Blob) {
+          formData.append(key, value, (value as File).name);
+        } else {
+          formData.append(key, value as string);
+        }
+      });
+    } else if (payload) {
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, String(value));
+        }
+      });
+    }
 
     const response = await fetch(
       `${process.env.BE_URL}/userHospitalityItem/${id}`,
