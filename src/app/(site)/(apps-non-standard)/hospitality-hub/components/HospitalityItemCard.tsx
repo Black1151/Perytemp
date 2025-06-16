@@ -8,6 +8,11 @@ export interface HospitalityItemCardProps {
   optionalFields?: string[];
   onClick?: () => void;
   showOverlay?: boolean;
+  /**
+   * When true the card displays a semi-transparent overlay to
+   * visually indicate that the item is disabled.
+   */
+  disabled?: boolean;
 }
 
 function formatLabel(label: string) {
@@ -19,6 +24,7 @@ export default function HospitalityItemCard({
   optionalFields = [],
   onClick,
   showOverlay,
+  disabled = false,
 }: HospitalityItemCardProps) {
   return (
     <Box
@@ -55,6 +61,18 @@ export default function HospitalityItemCard({
           )}
         </VStack>
       </PerygonCard>
+      {disabled && (
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          w="100%"
+          h="100%"
+          bg="rgba(128,128,128,0.5)"
+          borderRadius="inherit"
+          pointerEvents="none"
+        />
+      )}
       {showOverlay && (
         <Box
           position="absolute"
