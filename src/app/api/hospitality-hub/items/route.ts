@@ -45,11 +45,26 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
+
   try {
-    const payload = await req.json();
-    const response = await apiClient("/userHospitalityItem", {
+    const incoming = await req.formData();
+    const formData = new FormData();
+    incoming.forEach((value, key) => {
+      if (value instanceof Blob) {
+        formData.append(key, value, (value as File).name);
+      } else {
+        formData.append(key, value as string);
+      }
+    });
+
+    const response = await fetch(`${process.env.BE_URL}/userHospitalityItem`, {
       method: "POST",
-      body: JSON.stringify(payload),
+      headers: {
+        Authorization: authToken ? `Bearer ${authToken}` : "",
+      },
+      body: formData,
     });
 
     const data = await response.json();
@@ -74,17 +89,35 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
+
   try {
-    const payload = await req.json();
-    const id = payload?.id;
-    if (!id) {
+    const incoming = await req.formData();
+    const id = incoming.get("id");
+    if (!id || typeof id !== "string") {
       return NextResponse.json({ error: "Missing id" }, { status: 400 });
     }
 
-    const response = await apiClient(`/userHospitalityItem/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(payload),
+    const formData = new FormData();
+    incoming.forEach((value, key) => {
+      if (value instanceof Blob) {
+        formData.append(key, value, (value as File).name);
+      } else {
+        formData.append(key, value as string);
+      }
     });
+
+    const response = await fetch(
+      `${process.env.BE_URL}/userHospitalityItem/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: authToken ? `Bearer ${authToken}` : "",
+        },
+        body: formData,
+      },
+    );
 
     const data = await response.json();
 
