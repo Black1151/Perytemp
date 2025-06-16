@@ -8,11 +8,14 @@ import {
   Spinner,
   Center,
 } from "@chakra-ui/react";
-import { AnimatedList, AnimatedListItem } from "@/components/animations/AnimatedList";
+import {
+  AnimatedList,
+  AnimatedListItem,
+} from "@/components/animations/AnimatedList";
 import { useState } from "react";
 import HospitalityItemCard from "../../components/HospitalityItemCard";
 import ItemDetailModal from "./ItemDetailModal";
-import { HospitalityItem } from '@/types/hospitalityHub';
+import { HospitalityItem } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
 import useHospitalityCategories from "../../hooks/useHospitalityCategories";
 // import hospitalityHubConfig, { HospitalityItem } from "../hospitalityHubConfig";
@@ -33,7 +36,7 @@ export function HospitalityHubMasonry({
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(
-    null
+    null,
   );
 
   const handleItemClick = async (itemId: string) => {
@@ -78,10 +81,10 @@ export function HospitalityHubMasonry({
                 <HospitalityItemCard
                   item={item}
                   optionalFields={
-                    categories.find((c) => c.id === selected)?.optionalFields || []
+                    categories.find((c) => c.id === selected)?.optionalFields ||
+                    []
                   }
                   onClick={() => handleItemClick(item.id)}
-                  showOverlay
                 />
               </AnimatedListItem>
             ))}
@@ -120,6 +123,8 @@ export function HospitalityHubMasonry({
               role="group"
               cursor="pointer"
               onClick={() => setSelected(category.id)}
+              transition="transform 0.3s, box-shadow 0.3s"
+              _hover={{ transform: "scale(1.05)", boxShadow: "2xl" }}
             >
               <Image
                 src={category.imageUrl || (category as any).image}
@@ -134,10 +139,10 @@ export function HospitalityHubMasonry({
                 left={0}
                 w="100%"
                 h="100%"
-                bg="rgba(0,0,0,0.6)"
                 display="flex"
                 justifyContent="center"
                 alignItems="center"
+                pointerEvents="none"
                 opacity={0}
                 transition="opacity 0.3s"
                 _groupHover={{ opacity: 1 }}
