@@ -50,35 +50,28 @@ export async function POST(req: NextRequest) {
 
   try {
     const contentType = req.headers.get("content-type") || "";
-    let formData: FormData;
+    let response: Response;
 
     if (contentType.includes("multipart/form-data")) {
-      const incoming = await req.formData();
-      formData = new FormData();
-      incoming.forEach((value, key) => {
-        if (value instanceof Blob) {
-          formData.append(key, value, (value as File).name);
-        } else {
-          formData.append(key, value as string);
-        }
+      response = await fetch(`${process.env.BE_URL}/userHospitalityItem`, {
+        method: "POST",
+        headers: {
+          Authorization: authToken ? `Bearer ${authToken}` : "",
+          "Content-Type": contentType,
+        },
+        body: req.body,
       });
     } else {
       const payload = await req.json();
-      formData = new FormData();
-      Object.entries(payload).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, String(value));
-        }
+      response = await fetch(`${process.env.BE_URL}/userHospitalityItem`, {
+        method: "POST",
+        headers: {
+          Authorization: authToken ? `Bearer ${authToken}` : "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
     }
-
-    const response = await fetch(`${process.env.BE_URL}/userHospitalityItem`, {
-      method: "POST",
-      headers: {
-        Authorization: authToken ? `Bearer ${authToken}` : "",
-      },
-      body: formData,
-    });
 
     const data = await response.json();
 
@@ -107,49 +100,44 @@ export async function PUT(req: NextRequest) {
 
   try {
     const contentType = req.headers.get("content-type") || "";
-    let incoming: FormData | null = null;
-    let payload: any = null;
-    let formData: FormData;
+    let response: Response;
 
     if (contentType.includes("multipart/form-data")) {
-      incoming = await req.formData();
+      const cloned = req.clone();
+      const incoming = await req.formData();
+      const id = incoming.get("id");
+      if (!id) {
+        return NextResponse.json({ error: "Missing id" }, { status: 400 });
+      }
+
+      response = await fetch(
+        `${process.env.BE_URL}/userHospitalityItem/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: authToken ? `Bearer ${authToken}` : "",
+            "Content-Type": contentType,
+          },
+          body: cloned.body,
+        },
+      );
     } else {
-      payload = await req.json();
-    }
+      const payload = await req.json();
+      const id = payload?.id;
+      if (!id) {
+        return NextResponse.json({ error: "Missing id" }, { status: 400 });
+      }
 
-    const id = incoming ? incoming.get("id") : payload?.id;
-    if (id === undefined || id === null || id === "") {
-      return NextResponse.json({ error: "Missing id" }, { status: 400 });
-    }
-
-    formData = new FormData();
-
-    if (incoming) {
-      incoming.forEach((value, key) => {
-        if (value instanceof Blob) {
-          formData.append(key, value, (value as File).name);
-        } else {
-          formData.append(key, value as string);
-        }
-      });
-    } else if (payload) {
-      Object.entries(payload).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, String(value));
-        }
-      });
-    }
-
-    const response = await fetch(
-      `${process.env.BE_URL}/userHospitalityItem/${id}`,
+      response = await fetch(`${process.env.BE_URL}/userHospitalityItem/${id}`,
       {
         method: "PUT",
         headers: {
           Authorization: authToken ? `Bearer ${authToken}` : "",
+          "Content-Type": "application/json",
         },
-        body: formData,
-      },
-    );
+        body: JSON.stringify(payload),
+      });
+    }
 
     const data = await response.json();
 
