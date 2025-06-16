@@ -45,12 +45,34 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
+
   try {
-    const payload = await req.json();
-    const response = await apiClient("/userHospitalityItem", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+    const contentType = req.headers.get("content-type") || "";
+    let response: Response;
+
+    if (contentType.includes("multipart/form-data")) {
+      response = await fetch(`${process.env.BE_URL}/userHospitalityItem`, {
+        method: "POST",
+        headers: {
+          Authorization: authToken ? `Bearer ${authToken}` : "",
+          "Content-Type": contentType,
+        },
+        body: req.body,
+        duplex: "half",
+      });
+    } else {
+      const payload = await req.json();
+      response = await fetch(`${process.env.BE_URL}/userHospitalityItem`, {
+        method: "POST",
+        headers: {
+          Authorization: authToken ? `Bearer ${authToken}` : "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+    }
 
     const data = await response.json();
 
@@ -74,17 +96,50 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  try {
-    const payload = await req.json();
-    const id = payload?.id;
-    if (!id) {
-      return NextResponse.json({ error: "Missing id" }, { status: 400 });
-    }
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
 
-    const response = await apiClient(`/userHospitalityItem/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(payload),
-    });
+  try {
+    const contentType = req.headers.get("content-type") || "";
+    let response: Response;
+
+    if (contentType.includes("multipart/form-data")) {
+      const cloned = req.clone();
+      const incoming = await req.formData();
+      const id = incoming.get("id");
+      if (!id) {
+        return NextResponse.json({ error: "Missing id" }, { status: 400 });
+      }
+
+      response = await fetch(
+        `${process.env.BE_URL}/userHospitalityItem/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: authToken ? `Bearer ${authToken}` : "",
+            "Content-Type": contentType,
+          },
+          body: cloned.body,
+          duplex: "half",
+        },
+      );
+    } else {
+      const payload = await req.json();
+      const id = payload?.id;
+      if (!id) {
+        return NextResponse.json({ error: "Missing id" }, { status: 400 });
+      }
+
+      response = await fetch(`${process.env.BE_URL}/userHospitalityItem/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: authToken ? `Bearer ${authToken}` : "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+    }
 
     const data = await response.json();
 
