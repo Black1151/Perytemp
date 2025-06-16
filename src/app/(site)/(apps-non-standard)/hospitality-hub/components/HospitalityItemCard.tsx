@@ -7,7 +7,6 @@ export interface HospitalityItemCardProps {
   item: HospitalityItem;
   optionalFields?: string[];
   onClick?: () => void;
-  showOverlay?: boolean;
   /**
    * When true the card displays a semi-transparent overlay to
    * visually indicate that the item is disabled.
@@ -23,16 +22,16 @@ export default function HospitalityItemCard({
   item,
   optionalFields = [],
   onClick,
-  showOverlay,
   disabled = false,
 }: HospitalityItemCardProps) {
   return (
     <Box
       position="relative"
-      role={showOverlay ? "group" : undefined}
       cursor={onClick ? "pointer" : undefined}
       onClick={onClick}
       h="100%"
+      transition="transform 0.3s, box-shadow 0.3s"
+      _hover={{ transform: "scale(1.05)", boxShadow: "2xl" }}
     >
       <PerygonCard
         width="100%"
@@ -62,7 +61,7 @@ export default function HospitalityItemCard({
               <Text key={field} fontSize="sm">
                 {formatLabel(field)}: {String((item as any)[field])}
               </Text>
-            ) : null
+            ) : null,
           )}
         </VStack>
       </PerygonCard>
@@ -77,26 +76,6 @@ export default function HospitalityItemCard({
           borderRadius="inherit"
           pointerEvents="none"
         />
-      )}
-      {showOverlay && (
-        <Box
-          position="absolute"
-          top={0}
-          left={0}
-          w="100%"
-          h="100%"
-          bg="rgba(0,0,0,0.6)"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          opacity={0}
-          transition="opacity 0.3s"
-          _groupHover={{ opacity: 1 }}
-        >
-          <Text color="white" fontWeight="bold" fontSize="xl">
-            {item.name}
-          </Text>
-        </Box>
       )}
     </Box>
   );
