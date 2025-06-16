@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import apiClient from "@/lib/apiClient";
 
 export async function GET(req: NextRequest) {
   const cookieStore = cookies();
@@ -53,14 +52,22 @@ export async function POST(req: NextRequest) {
     let response: Response;
 
     if (contentType.includes("multipart/form-data")) {
+      const incoming = await req.formData();
+      const laravelFormData = new FormData();
+      incoming.forEach((value, key) => {
+        if (value instanceof Blob) {
+          laravelFormData.append(key, value, (value as File).name);
+        } else {
+          laravelFormData.append(key, value as string);
+        }
+      });
+
       response = await fetch(`${process.env.BE_URL}/userHospitalityItem`, {
         method: "POST",
         headers: {
           Authorization: authToken ? `Bearer ${authToken}` : "",
-          "Content-Type": contentType,
         },
-        body: req.body,
-        duplex: "half",
+        body: laravelFormData,
       });
     } else {
       const payload = await req.json();
@@ -104,12 +111,20 @@ export async function PUT(req: NextRequest) {
     let response: Response;
 
     if (contentType.includes("multipart/form-data")) {
-      const cloned = req.clone();
       const incoming = await req.formData();
       const id = incoming.get("id");
       if (!id) {
         return NextResponse.json({ error: "Missing id" }, { status: 400 });
       }
+
+      const laravelFormData = new FormData();
+      incoming.forEach((value, key) => {
+        if (value instanceof Blob) {
+          laravelFormData.append(key, value, (value as File).name);
+        } else {
+          laravelFormData.append(key, value as string);
+        }
+      });
 
       response = await fetch(
         `${process.env.BE_URL}/userHospitalityItem/${id}`,
@@ -117,10 +132,8 @@ export async function PUT(req: NextRequest) {
           method: "PUT",
           headers: {
             Authorization: authToken ? `Bearer ${authToken}` : "",
-            "Content-Type": contentType,
           },
-          body: cloned.body,
-          duplex: "half",
+          body: laravelFormData,
         },
       );
     } else {
