@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     if (!response.ok) {
       return NextResponse.json(
         { error: data?.error || "Failed to fetch items." },
-        { status: response.status },
+        { status: response.status }
       );
     }
 
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || "An error occurred." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
           error: data?.error || "Failed to create item.",
           details: data?.details,
         },
-        { status: response.status },
+        { status: response.status }
       );
     }
 
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || "An error occurred." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -129,12 +129,12 @@ export async function PUT(req: NextRequest) {
       response = await fetch(
         `${process.env.BE_URL}/userHospitalityItem/${id}`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             Authorization: authToken ? `Bearer ${authToken}` : "",
           },
           body: laravelFormData,
-        },
+        }
       );
     } else {
       const payload = await req.json();
@@ -143,15 +143,17 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({ error: "Missing id" }, { status: 400 });
       }
 
-      response = await fetch(`${process.env.BE_URL}/userHospitalityItem/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: authToken ? `Bearer ${authToken}` : "",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      response = await fetch(
+        `${process.env.BE_URL}/userHospitalityItem/${id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: authToken ? `Bearer ${authToken}` : "",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
     }
 
     const data = await response.json();
@@ -162,7 +164,7 @@ export async function PUT(req: NextRequest) {
           error: data?.error || "Failed to update item.",
           details: data?.details,
         },
-        { status: response.status },
+        { status: response.status }
       );
     }
 
@@ -170,7 +172,7 @@ export async function PUT(req: NextRequest) {
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || "An error occurred." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -193,7 +195,7 @@ export async function DELETE(req: NextRequest) {
         headers: {
           Authorization: authToken ? `Bearer ${authToken}` : "",
         },
-      },
+      }
     );
 
     const data = await response.json();
@@ -204,7 +206,7 @@ export async function DELETE(req: NextRequest) {
           error: data?.error || "Failed to delete item.",
           details: data?.details,
         },
-        { status: response.status },
+        { status: response.status }
       );
     }
 
@@ -212,7 +214,7 @@ export async function DELETE(req: NextRequest) {
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || "An error occurred." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
