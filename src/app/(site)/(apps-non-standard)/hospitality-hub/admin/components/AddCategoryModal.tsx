@@ -54,6 +54,7 @@ export default function AddCategoryModal({
     "/api/hospitality-hub/uploadImage",
     "imageUrl",
     () => {},
+    10 * 1024 * 1024,
   );
 
   const customerId = user?.customerId;

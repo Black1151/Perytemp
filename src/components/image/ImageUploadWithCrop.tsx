@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FormControl, FormLabel, Input } from "@chakra-ui/react";
+import { FormControl, FormLabel, Input, Image } from "@chakra-ui/react";
 import ImageCropper from "./ImageCropper";
 
 interface Props {
@@ -15,6 +15,7 @@ export default function ImageUploadWithCrop({
 }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [cropOpen, setCropOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -28,6 +29,7 @@ export default function ImageUploadWithCrop({
   const handleComplete = (cropped: File) => {
     setCropOpen(false);
     setFile(null);
+    setPreviewUrl(URL.createObjectURL(cropped));
     onFileSelected(cropped);
   };
 
@@ -40,6 +42,9 @@ export default function ImageUploadWithCrop({
     <FormControl mb={4} isRequired={isRequired}>
       <FormLabel>{label}</FormLabel>
       <Input type="file" accept="image/*" onChange={handleChange} />
+      {previewUrl && (
+        <Image src={previewUrl} alt="preview" maxH="100px" mt={2} />
+      )}
       <ImageCropper
         file={file}
         isOpen={cropOpen}
