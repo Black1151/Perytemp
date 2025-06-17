@@ -109,7 +109,7 @@ export default function ImageCropper({
   onComplete,
   onCancel,
   aspect = 1,
-  maxSizeMB = 10,
+  maxSizeMB = 1.95,
 }: ImageCropperProps) {
   /* local state */
   const [imgURL, setImgURL] = useState<string | null>(null);
