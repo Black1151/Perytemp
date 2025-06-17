@@ -12,6 +12,7 @@ export const MinimalDark = extendTheme(baseTheme, {
     elementBG: "rgb(48, 48, 48)",
     elementBG2: "rgb(78, 78, 78)",
     shadowColor: "red",
+    premium: colorPalette.premium,
     primaryTextColor: "rgb(255, 255, 255)",
     secondaryTextColor: "rgb(255, 255, 255)",
     themeTextColor: "rgb(255, 255, 255)",

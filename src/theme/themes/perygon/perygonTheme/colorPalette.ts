@@ -6,4 +6,5 @@ export const colorPalette = {
   yellow: "#EFC718",
   lightGreen: "#92C01F",
   seduloGreen: "#008000",
+  premium: "#fe914d",
 };

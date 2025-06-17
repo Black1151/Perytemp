@@ -33,6 +33,7 @@ export const baseTheme = extendTheme({
     yellow: "#EFC718",
     lightGreen: "#92C01F",
     seduloGreen: "#008000",
+    premium: "#a5917f",
     darkGray: "#4A4A4A",
     darkElementBG: "rgb(41, 41, 41, 0.85)",
     primaryTextColor: "rgb(0, 0, 0)",

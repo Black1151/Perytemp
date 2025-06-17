@@ -5,6 +5,7 @@ import { baseTheme } from "../../base-theme/baseTheme";
 const colorPalette = {
   dmrPrimary: "hsla(205, 31%, 26%, 1)",
   dmrSecondary: "hsla( 72, 98%, 64%, 1)",
+  premium: "#a9ab50",
 };
 
 const gradients = {
@@ -22,6 +23,7 @@ export const dmrDefaultTheme = extendTheme(baseTheme, {
     primaryButton: colorPalette.dmrSecondary,
     elementBG: "rgb(255, 255, 255)",
     elementBG2: "hsla( 72, 98%, 64%, 1)",
+    premium: colorPalette.premium,
     primaryTextColor: "rgb(0, 0, 0)",
     secondaryTextColor: "rgb(83, 83, 83)",
     themeTextColor: colorPalette.dmrPrimary,
