@@ -14,6 +14,7 @@ export const perygonTheme = extendTheme(baseTheme, {
     elementBG2: "rgb(255, 223, 251)",
     elementBGTransparent: "rgb(255, 223, 251, 0.3)",
     shadowColor: "red",
+    premium: colorPalette.premium,
     primaryTextColor: "rgb(0, 0, 0)",
     secondaryTextColor: "rgb(83, 83, 83)",
     themeTextColor: colorPalette.perygonPink,

@@ -1,5 +1,6 @@
 "use client";
-import { Box, Text, Image } from "@chakra-ui/react";
+import { Box, Text, Image, useTheme } from "@chakra-ui/react";
+import { transparentize } from "@chakra-ui/theme-tools";
 import { keyframes } from "@emotion/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import PerygonCard from "@/components/layout/PerygonCard";
@@ -32,6 +33,8 @@ export default function MasonryItemCard({
   onClick,
   disabled = false,
 }: MasonryItemCardProps) {
+  const theme = useTheme();
+  const shimmerColor = transparentize(theme.colors.premium, 0.5)(theme);
   return (
     <PerygonCard
       role="group"
@@ -72,7 +75,7 @@ export default function MasonryItemCard({
         w="150%"
         h="100%"
         pointerEvents="none"
-        bgGradient="linear(120deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%)"
+        bgGradient={`linear(120deg, transparent 0%, ${shimmerColor} 50%, transparent 100%)`}
         transform="translateX(-100%) skewX(-20deg)"
         opacity={0}
         _groupHover={{ animation: `${shimmer} 0.8s` }}

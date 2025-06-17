@@ -5,6 +5,7 @@ export const colorPalette = {
 
   yellow: "#EFC718",
   lightGreen: "#92C01F",
+  premium: "#a7a87a",
   happinessScale: {
     1: "#b22200",
     2: "#e92300",

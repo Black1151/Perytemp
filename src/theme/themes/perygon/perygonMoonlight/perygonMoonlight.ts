@@ -13,6 +13,7 @@ export const Moonlight = extendTheme(baseTheme, {
     elementBG: "rgb(48, 48, 48)",
     elementBG2: "rgb(78, 78, 78)",
     shadowColor: "red",
+    premium: colorPalette.premium,
     primaryTextColor: "rgb(212, 212, 212)",
     secondaryTextColor: "rgb(230, 230, 230)",
     themeTextColor: "rgb(155, 155, 155)",

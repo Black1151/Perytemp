@@ -7,6 +7,7 @@ const colorPalette = {
   prByWhitneySecondary: "white",
   prByWhitneyPebble: "rgb(243, 243, 243)",
   prByWhitneyHighlight: "rgb(239, 114, 39)",
+  premium: "#a59126",
 };
 
 const gradients = {
@@ -22,6 +23,7 @@ export const prByWhitneyDefaultTheme = extendTheme(baseTheme, {
     primaryButton: colorPalette.prByWhitneySecondary,
     elementBG: "rgb(255, 255, 255)",
     elementBG2: colorPalette.prByWhitneyPrimary,
+    premium: colorPalette.premium,
     primaryTextColor: "rgb(0, 0, 0)",
     secondaryTextColor: "rgb(83, 83, 83)",
     themeTextColor: colorPalette.prByWhitneyHighlight,
