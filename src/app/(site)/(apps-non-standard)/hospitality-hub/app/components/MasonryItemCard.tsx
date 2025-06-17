@@ -54,6 +54,16 @@ export default function MasonryItemCard({
           h="100%"
         />
       )}
+      {item.logoImageUrl && (
+        <Box position="absolute" top={2} right={2} zIndex={1} pointerEvents="none">
+          <Image
+            src={item.logoImageUrl}
+            alt={`${item.name} logo`}
+            boxSize="50px"
+            objectFit="contain"
+          />
+        </Box>
+      )}
       {/* Shimmer overlay */}
       <Box
         position="absolute"
