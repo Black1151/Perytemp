@@ -5,22 +5,12 @@ import { HospitalityItem } from "@/types/hospitalityHub";
 
 export interface HospitalityItemCardProps {
   item: HospitalityItem;
-  optionalFields?: string[];
   onClick?: () => void;
-  /**
-   * When true the card displays a semi-transparent overlay to
-   * visually indicate that the item is disabled.
-   */
   disabled?: boolean;
-}
-
-function formatLabel(label: string) {
-  return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 export default function HospitalityItemCard({
   item,
-  optionalFields = [],
   onClick,
   disabled = false,
 }: HospitalityItemCardProps) {
@@ -31,7 +21,7 @@ export default function HospitalityItemCard({
       onClick={onClick}
       h="100%"
       transition="transform 0.3s, box-shadow 0.3s"
-      _hover={{ transform: "scale(1.05)", boxShadow: "2xl" }}
+      _hover={{ transform: "scale(1.03)", boxShadow: "2xl" }}
     >
       <PerygonCard
         width="100%"
@@ -56,13 +46,6 @@ export default function HospitalityItemCard({
             {item.name}
           </Text>
           {item.description && <Text fontSize="sm">{item.description}</Text>}
-          {optionalFields.map((field) =>
-            (item as any)[field] ? (
-              <Text key={field} fontSize="sm">
-                {formatLabel(field)}: {String((item as any)[field])}
-              </Text>
-            ) : null,
-          )}
         </VStack>
       </PerygonCard>
       {disabled && (

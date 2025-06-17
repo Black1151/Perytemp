@@ -36,7 +36,7 @@ export function HospitalityHubMasonry({
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(
-    null,
+    null
   );
 
   const handleItemClick = async (itemId: string) => {
@@ -64,7 +64,7 @@ export function HospitalityHubMasonry({
     }
 
     return (
-      <Center>
+      <Center mt={20} mb={10}>
         <Box
           mb={4}
           cursor="pointer"
@@ -74,16 +74,12 @@ export function HospitalityHubMasonry({
         >
           <Text fontWeight="bold">&larr; Back</Text>
         </Box>
-        <SimpleGrid columns={[1, 2, 3]} gap={4} w="100%">
+        <SimpleGrid columns={[1, 2, 3]} gap={6} w="100%">
           <AnimatedList>
             {items.map((item, index) => (
               <AnimatedListItem key={item.id} index={index}>
                 <HospitalityItemCard
                   item={item}
-                  optionalFields={
-                    categories.find((c) => c.id === selected)?.optionalFields ||
-                    []
-                  }
                   onClick={() => handleItemClick(item.id)}
                 />
               </AnimatedListItem>
@@ -98,9 +94,6 @@ export function HospitalityHubMasonry({
           }}
           item={selectedItem}
           loading={modalLoading}
-          optionalFields={
-            categories.find((c) => c.id === selected)?.optionalFields || []
-          }
         />
       </Center>
     );
