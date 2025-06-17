@@ -18,7 +18,7 @@ export const PerygonContainer: React.FC<PerygonContatinerProps> = ({
 
   const pathname = usePathname();
 
-  const hospitalityHubGradient = "linear(to-br, black 0%, gold 100%)";
+  const hospitalityHubGradient = "linear(to-br, black 60%, gray 100%)";
 
   const displayBackgroundImage = () => {
     if (headerBackgroundImageUrl && pathname.includes("workflow")) {
