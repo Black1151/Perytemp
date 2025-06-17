@@ -55,7 +55,13 @@ export default function MasonryItemCard({
         />
       )}
       {item.logoImageUrl && (
-        <Box position="absolute" top={2} right={2} zIndex={1} pointerEvents="none">
+        <Box
+          position="absolute"
+          top={2}
+          right={2}
+          zIndex={1}
+          pointerEvents="none"
+        >
           <Image
             src={item.logoImageUrl}
             alt={`${item.name} logo`}
@@ -72,7 +78,7 @@ export default function MasonryItemCard({
         w="150%"
         h="100%"
         pointerEvents="none"
-        bgGradient="linear(120deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%)"
+        bgGradient="linear(120deg, transparent 0%, rgba(255,215,0,0.3) 45%, rgba(255,255,224,0.9) 50%, rgba(255,215,0,0.3) 55%, transparent 100%)"
         transform="translateX(-100%) skewX(-20deg)"
         opacity={0}
         _groupHover={{ animation: `${shimmer} 0.8s` }}
