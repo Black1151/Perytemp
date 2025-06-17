@@ -18,48 +18,31 @@ import {
   Box,
 } from "@chakra-ui/react";
 
+/* --------------------------------------------------------------------- */
+/* ------------------------------ types -------------------------------- */
 interface ImageCropperProps {
-  /** original file selected by the user (may be null while no image picked) */
   file: File | null;
   isOpen: boolean;
-  /** called with the new file once the user hits “Crop” */
   onComplete: (file: File) => void;
-  /** called when the user cancels / closes the modal */
   onCancel: () => void;
-  /**
-   * Desired aspect ratio.
-   * Leave undefined for free‑form, pass `1` for square avatars, `16/9` for banners, etc.
-   */
+  /** crop aspect ratio, default = 1 (square) */
   aspect?: number;
+  /** maximum allowed file size in MB (default 10) */
+  maxSizeMB?: number;
 }
+/* --------------------------------------------------------------------- */
 
-/* ------------------------------------------------------------ */
-/* utility: turn a canvas into a File (with optional re‑encode) */
-const canvasToFile = async (
-  canvas: HTMLCanvasElement,
-  origin: File,
-  quality = 0.9
-): Promise<File> =>
-  new Promise((resolve) => {
-    canvas.toBlob(
-      (blob) => resolve(new File([blob!], origin.name, { type: origin.type })),
-      origin.type,
-      quality
-    );
-  });
-
-/* render/crop helper adapted from react‑easy‑crop docs */
-const getCroppedFile = async (
-  image: HTMLImageElement,
-  crop: Area,
-  originFile: File
-): Promise<File> => {
+/* ---------- canvas helpers ---------- */
+const drawImageToCanvas = (
+  img: HTMLImageElement,
+  crop: Area
+): HTMLCanvasElement => {
   const canvas = document.createElement("canvas");
   canvas.width = crop.width;
   canvas.height = crop.height;
   const ctx = canvas.getContext("2d")!;
   ctx.drawImage(
-    image,
+    img,
     crop.x,
     crop.y,
     crop.width,
@@ -69,39 +52,78 @@ const getCroppedFile = async (
     crop.width,
     crop.height
   );
-
-  // compress if needed to stay <10 MB
-  let result = await canvasToFile(canvas, originFile);
-  let quality = 0.8;
-  while (result.size > 10 * 1024 * 1024 && quality >= 0.1) {
-    result = await canvasToFile(canvas, originFile, quality);
-    quality -= 0.1;
-  }
-  return result;
+  return canvas;
 };
-/* ------------------------------------------------------------ */
+
+const canvasToBlob = (
+  canvas: HTMLCanvasElement,
+  type: string,
+  quality: number
+): Promise<Blob> =>
+  new Promise((resolve) => canvas.toBlob((b) => resolve(b!), type, quality));
+
+/* compress + resize until ≤ maxBytes */
+const canvasToSizedFile = async (
+  srcCanvas: HTMLCanvasElement,
+  origin: File,
+  maxBytes: number
+): Promise<File> => {
+  let canvas = srcCanvas;
+  let quality = 0.9;
+
+  /* helper to encode canvas & return File   */
+  const encode = async (): Promise<File> => {
+    const blob = await canvasToBlob(canvas, origin.type, quality);
+    return new File([blob], origin.name, { type: origin.type });
+  };
+
+  let out = await encode();
+
+  /* Step 1: lower JPEG/PNG quality */
+  while (out.size > maxBytes && quality > 0.5) {
+    quality -= 0.1;
+    out = await encode();
+  }
+
+  /* Step 2: down‑scale bitmap if still too big */
+  while (out.size > maxBytes && (canvas.width > 256 || canvas.height > 256)) {
+    const nextCanvas = document.createElement("canvas");
+    nextCanvas.width = Math.round(canvas.width * 0.9);
+    nextCanvas.height = Math.round(canvas.height * 0.9);
+    nextCanvas
+      .getContext("2d")!
+      .drawImage(canvas, 0, 0, nextCanvas.width, nextCanvas.height);
+    canvas = nextCanvas;
+    /* reset quality a bit when dimensions drop */
+    quality = Math.min(quality + 0.1, 0.9);
+    out = await encode();
+  }
+
+  return out;
+};
+/* ------------------------------------ */
 
 export default function ImageCropper({
   file,
   isOpen,
   onComplete,
   onCancel,
-  aspect = 1, // default to square crop
+  aspect = 1,
+  maxSizeMB = 10,
 }: ImageCropperProps) {
-  /* ------------ local state ------------ */
+  /* local state */
   const [imgURL, setImgURL] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPx, setCroppedAreaPx] = useState<Area | null>(null);
 
-  const hiddenImgRef = useRef<HTMLImageElement | null>(null); // needed for pixel‑perfect export
+  const imgRef = useRef<HTMLImageElement | null>(null);
 
-  /* refresh preview when a new File object arrives */
+  /* refresh preview when new file selected */
   useEffect(() => {
     if (file) {
       const url = URL.createObjectURL(file);
       setImgURL(url);
-      // housekeeping: revoke URL when modal closes or file changes
       return () => URL.revokeObjectURL(url);
     }
     setImgURL(null);
@@ -113,23 +135,25 @@ export default function ImageCropper({
   );
 
   const handleFinish = async () => {
-    if (!file || !croppedAreaPx || !hiddenImgRef.current) return;
-    const newFile = await getCroppedFile(
-      hiddenImgRef.current,
-      croppedAreaPx,
-      file
-    );
-    onComplete(newFile);
+    if (!file || !croppedAreaPx || !imgRef.current) return;
+
+    /* 1 — render selected pixels to canvas */
+    const canvas = drawImageToCanvas(imgRef.current, croppedAreaPx);
+
+    /* 2 — compress / resize to threshold */
+    const maxBytes = maxSizeMB * 1024 * 1024;
+    const sizedFile = await canvasToSizedFile(canvas, file, maxBytes);
+
+    onComplete(sizedFile);
   };
 
-  /* ------------------------------------- */
   return (
     <Modal isOpen={isOpen} onClose={onCancel} size="xl">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Crop image</ModalHeader>
         <ModalBody>
-          {/* the visual cropper */}
+          {/* live cropper */}
           {imgURL && (
             <Box position="relative" w="100%" h="400px">
               <Cropper
@@ -147,38 +171,26 @@ export default function ImageCropper({
 
           {/* zoom slider */}
           {imgURL && (
-            <Flex mt={4} align="center">
-              <Box w="full">
-                <Slider
-                  aria-label="Zoom"
-                  step={0.1}
-                  min={1}
-                  max={3}
-                  value={zoom}
-                  onChange={(v) => setZoom(v)}
-                >
-                  <SliderTrack>
-                    <SliderFilledTrack />
-                  </SliderTrack>
-                  <SliderThumb />
-                </Slider>
-              </Box>
+            <Flex mt={4}>
+              <Slider
+                aria-label="Zoom"
+                min={1}
+                max={3}
+                step={0.1}
+                value={zoom}
+                onChange={(v) => setZoom(v)}
+              >
+                <SliderTrack>
+                  <SliderFilledTrack />
+                </SliderTrack>
+                <SliderThumb />
+              </Slider>
             </Flex>
           )}
 
-          {/* hidden image element (never displayed) – just for canvas export */}
+          {/* hidden image (never shown) – needed for pixel‑accurate crop */}
           {imgURL && (
-            <img
-              ref={hiddenImgRef}
-              src={imgURL}
-              alt=""
-              style={{ display: "none" }}
-              onLoad={(e) => {
-                // force react‑easy‑crop to recalc after actual bitmap loads
-                // (prevents rare edge cases with small images)
-                setCrop({ x: 0, y: 0 });
-              }}
-            />
+            <img ref={imgRef} src={imgURL} style={{ display: "none" }} alt="" />
           )}
         </ModalBody>
 
