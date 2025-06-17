@@ -1,6 +1,7 @@
 "use client";
 import { Box, Text, Image } from "@chakra-ui/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
+import PerygonCard from "@/components/layout/PerygonCard";
 
 export interface MasonryItemCardProps {
   item: HospitalityItem;
@@ -14,15 +15,16 @@ export default function MasonryItemCard({
   disabled = false,
 }: MasonryItemCardProps) {
   return (
-    <Box
+    <PerygonCard
       position="relative"
+      borderRadius="lg"
+      h="100%"
       cursor={onClick ? "pointer" : undefined}
       onClick={onClick}
-      h="100%"
-      borderRadius="lg"
       overflow="hidden"
       transition="transform 0.3s, box-shadow 0.3s"
-      _hover={{ transform: "scale(1.05)", boxShadow: "2xl" }}
+      _hover={{ transform: "scale(1.03)", boxShadow: "3xl" }}
+      p={0}
     >
       {(item.coverImageUrl || item.logoImageUrl) && (
         <Image
@@ -35,13 +37,22 @@ export default function MasonryItemCard({
       )}
       <Box
         position="absolute"
+        display="flex"
+        flexDirection="column"
+        justifyContent="flex-end"
         bottom={0}
         left={0}
         w="100%"
-        p={4}
-        bgGradient="linear(to-t, rgba(0,0,0,0.7), rgba(0,0,0,0))"
+        p={8}
+        h="50%"
+        bgGradient="linear(to-t, rgba(0,0,0,0.9), rgba(0,0,0,0))"
       >
-        <Text color="white" fontWeight="bold">
+        <Text
+          color="white"
+          fontWeight="bold"
+          fontSize={["lg", "2xl", null, null, null, "4xl"]}
+          fontFamily="metropolis"
+        >
           {item.name}
         </Text>
         {item.description && (
@@ -61,6 +72,6 @@ export default function MasonryItemCard({
           pointerEvents="none"
         />
       )}
-    </Box>
+    </PerygonCard>
   );
 }
