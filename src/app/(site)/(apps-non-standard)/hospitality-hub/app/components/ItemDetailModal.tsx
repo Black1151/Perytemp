@@ -52,7 +52,31 @@ export const ItemDetailModal = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
-      <ModalContent bg="gray.800" color="gray.200" p={4}>
+      <ModalContent
+        position="relative"
+        color="gray.200"
+        p={4}
+        bg={item?.coverImageUrl ? undefined : "gray.800"}
+        backgroundImage={
+          item?.coverImageUrl
+            ? `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${item.coverImageUrl})`
+            : undefined
+        }
+        backgroundSize="cover"
+        backgroundPosition="center"
+      >
+        {item?.logoImageUrl && (
+          <Image
+            src={item.logoImageUrl}
+            alt={item.name}
+            position="absolute"
+            top={2}
+            left={2}
+            boxSize="50px"
+            objectFit="contain"
+            borderRadius="md"
+          />
+        )}
         <ModalHeader
           fontSize="3xl"
           textAlign="center"
