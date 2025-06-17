@@ -49,10 +49,33 @@ export const ItemDetailModal = ({
   loading,
   optionalFields,
 }: ItemDetailModalProps) => {
+  const backgroundImage = item?.coverImageUrl
+    ? `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${item.coverImageUrl})`
+    : undefined;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
-      <ModalContent bg="gray.800" color="gray.200" p={4}>
+      <ModalContent
+        position="relative"
+        bg={backgroundImage ? undefined : "gray.800"}
+        bgImage={backgroundImage}
+        bgSize="cover"
+        bgPos="center"
+        color="gray.200"
+        p={4}
+      >
+        {item?.logoImageUrl && (
+          <Image
+            src={item.logoImageUrl}
+            alt={item.name}
+            position="absolute"
+            top={2}
+            left={2}
+            boxSize="60px"
+            objectFit="contain"
+          />
+        )}
         <ModalHeader
           fontSize="3xl"
           textAlign="center"
@@ -100,26 +123,6 @@ export const ItemDetailModal = ({
                     {field.charAt(0).toUpperCase() + field.slice(1)}: {String((item as any)[field])}
                   </MotionText>
                 ) : null
-              )}
-              {(item?.logoImageUrl || item?.coverImageUrl) && (
-                <SimpleGrid columns={[1, 2]} gap={2} w="100%">
-                  {item?.coverImageUrl && (
-                    <MotionImage
-                      variants={itemVariants}
-                      src={item.coverImageUrl}
-                      alt={item.name}
-                      borderRadius="md"
-                    />
-                  )}
-                  {item?.logoImageUrl && (
-                    <MotionImage
-                      variants={itemVariants}
-                      src={item.logoImageUrl}
-                      alt={item.name}
-                      borderRadius="md"
-                    />
-                  )}
-                </SimpleGrid>
               )}
               {(() => {
                 const additionalImages = Array.isArray(item?.additionalImageUrlList)
