@@ -54,6 +54,15 @@ export default function ImageCropper({
   const [dragging, setDragging] = useState<boolean>(false);
   const [resizing, setResizing] = useState<boolean>(false);
   const [start, setStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [bounds, setBounds] = useState({
+    offsetX: 0,
+    offsetY: 0,
+    width: 0,
+    height: 0,
+    scale: 1,
+    containerWidth: 0,
+    containerHeight: 0,
+  });
 
   useEffect(() => {
     if (file) {
@@ -62,6 +71,33 @@ export default function ImageCropper({
       setImgUrl("");
     }
   }, [file]);
+
+  // compute displayed image bounds
+  useEffect(() => {
+    const updateBounds = () => {
+      if (!imgRef.current || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const nW = imgRef.current.naturalWidth;
+      const nH = imgRef.current.naturalHeight;
+      const scale = Math.min(rect.width / nW, rect.height / nH);
+      const width = nW * scale;
+      const height = nH * scale;
+      const offsetX = (rect.width - width) / 2;
+      const offsetY = (rect.height - height) / 2;
+      setBounds({
+        offsetX,
+        offsetY,
+        width,
+        height,
+        scale,
+        containerWidth: rect.width,
+        containerHeight: rect.height,
+      });
+    };
+    updateBounds();
+    window.addEventListener("resize", updateBounds);
+    return () => window.removeEventListener("resize", updateBounds);
+  }, [imgUrl]);
 
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -82,17 +118,20 @@ export default function ImageCropper({
     setCrop((c) => {
       if (!containerRef.current) return c;
       const rect = containerRef.current.getBoundingClientRect();
-      const maxX = 100;
-      const maxY = 100;
+      const { offsetX, offsetY, width, height, containerWidth } = bounds;
+      const sizePx = (c.size / 100) * rect.width;
       if (resizing) {
-        let newSize = c.size + ((dx + dy) / rect.width) * 100;
-        newSize = Math.max(10, Math.min(newSize, 100));
+        let newSizePx = sizePx + dx + dy;
+        newSizePx = Math.max(20, Math.min(newSizePx, Math.min(width, height)));
+        const newSize = (newSizePx / rect.width) * 100;
         return { ...c, size: newSize };
       }
-      let newX = c.x + (dx / rect.width) * 100;
-      let newY = c.y + (dy / rect.height) * 100;
-      newX = Math.max(0, Math.min(newX, maxX - c.size));
-      newY = Math.max(0, Math.min(newY, maxY - c.size));
+      let newXpx = (c.x / 100) * rect.width + dx;
+      let newYpx = (c.y / 100) * rect.height + dy;
+      newXpx = Math.max(offsetX, Math.min(newXpx, offsetX + width - sizePx));
+      newYpx = Math.max(offsetY, Math.min(newYpx, offsetY + height - sizePx));
+      const newX = (newXpx / rect.width) * 100;
+      const newY = (newYpx / rect.height) * 100;
       return { ...c, x: newX, y: newY };
     });
   };
@@ -103,14 +142,17 @@ export default function ImageCropper({
   };
 
   const handleComplete = async () => {
-    if (!imgRef.current || !file) return;
+    if (!imgRef.current || !file || !containerRef.current) return;
     const img = imgRef.current;
+    const rect = containerRef.current.getBoundingClientRect();
+    const { offsetX, offsetY, scale } = bounds;
+    const cropX = (crop.x / 100) * rect.width;
+    const cropY = (crop.y / 100) * rect.height;
+    const cropSize = (crop.size / 100) * rect.width;
+    const sx = (cropX - offsetX) / scale;
+    const sy = (cropY - offsetY) / scale;
+    const sSize = cropSize / scale;
     const canvas = document.createElement("canvas");
-    const scaleX = img.naturalWidth / img.width;
-    const scaleY = img.naturalHeight / img.height;
-    const sx = (crop.x / 100) * img.naturalWidth;
-    const sy = (crop.y / 100) * img.naturalHeight;
-    const sSize = (crop.size / 100) * img.naturalWidth;
     canvas.width = sSize;
     canvas.height = sSize;
     const ctx = canvas.getContext("2d");
@@ -170,10 +212,10 @@ export default function ImageCropper({
                 style={{
                   border: "2px solid #fff",
                   position: "absolute",
-                  left: `${crop.x}%`,
-                  top: `${crop.y}%`,
-                  width: `${crop.size}%`,
-                  height: `${crop.size}%`,
+                  left: bounds.offsetX + (crop.x / 100) * bounds.containerWidth,
+                  top: bounds.offsetY + (crop.y / 100) * bounds.containerHeight,
+                  width: (crop.size / 100) * bounds.containerWidth,
+                  height: (crop.size / 100) * bounds.containerWidth,
                   cursor: dragging ? "grabbing" : "grab",
                 }}
               >
