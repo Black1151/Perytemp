@@ -13,12 +13,11 @@ import {
   AnimatedListItem,
 } from "@/components/animations/AnimatedList";
 import { useState } from "react";
-import HospitalityItemCard from "../../components/HospitalityItemCard";
+import MasonryItemCard from "./MasonryItemCard";
 import ItemDetailModal from "./ItemDetailModal";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
 import useHospitalityCategories from "../../hooks/useHospitalityCategories";
-// import hospitalityHubConfig, { HospitalityItem } from "../hospitalityHubConfig";
 
 import { HospitalityCategory } from "@/types/hospitalityHub";
 
@@ -74,11 +73,11 @@ export function HospitalityHubMasonry({
         >
           <Text fontWeight="bold">&larr; Back</Text>
         </Box>
-        <SimpleGrid columns={[1, 2, 3]} gap={6} w="100%">
+        <SimpleGrid columns={[1, null, 2, 3]} gap={6} w="100%">
           <AnimatedList>
             {items.map((item, index) => (
               <AnimatedListItem key={item.id} index={index}>
-                <HospitalityItemCard
+                <MasonryItemCard
                   item={item}
                   onClick={() => handleItemClick(item.id)}
                 />
