@@ -18,7 +18,6 @@ import ItemDetailModal from "./ItemDetailModal";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
 import useHospitalityCategories from "../../hooks/useHospitalityCategories";
-// import hospitalityHubConfig, { HospitalityItem } from "../hospitalityHubConfig";
 
 import { HospitalityCategory } from "@/types/hospitalityHub";
 
