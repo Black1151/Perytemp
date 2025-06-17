@@ -18,7 +18,6 @@ import {
 
 interface HospitalityItemsMasonryProps {
   items: HospitalityItem[];
-  optionalFields?: string[];
   onEdit?: (item: HospitalityItem) => void;
   onDelete?: (item: HospitalityItem) => void;
   onToggleActive?: (item: HospitalityItem) => void;
@@ -26,7 +25,6 @@ interface HospitalityItemsMasonryProps {
 
 export default function HospitalityItemsMasonry({
   items,
-  optionalFields = [],
   onEdit,
   onDelete,
   onToggleActive,
@@ -43,11 +41,7 @@ export default function HospitalityItemsMasonry({
         {items.map((item: HospitalityItem, index) => (
           <AnimatedListItem key={item.id} index={index}>
             <Box position="relative">
-              <HospitalityItemCard
-                item={item}
-                optionalFields={optionalFields}
-                disabled={!item.isActive}
-              />
+              <HospitalityItemCard item={item} disabled={!item.isActive} />
               {(onEdit || onDelete || onToggleActive) && (
                 <HStack position="absolute" top={2} right={2} spacing={1}>
                   {onEdit && (
