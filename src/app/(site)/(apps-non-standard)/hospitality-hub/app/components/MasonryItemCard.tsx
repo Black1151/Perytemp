@@ -42,6 +42,7 @@ export default function MasonryItemCard({
       onClick={onClick}
       overflow="hidden"
       transition="transform 0.3s, box-shadow 0.3s"
+      border="3px solid rgb(238, 228, 88)"
       _hover={{ transform: "scale(1.05)", boxShadow: "4xl" }}
       p={0}
     >
@@ -97,7 +98,7 @@ export default function MasonryItemCard({
         bgGradient="linear(to-t, rgba(0,0,0,0.9), rgba(0,0,0,0))"
       >
         <Text
-          color="white"
+          color="rgb(238, 228, 88)"
           fontWeight="bold"
           fontSize={["lg", "2xl", null, null, null, "4xl"]}
           fontFamily="metropolis"
