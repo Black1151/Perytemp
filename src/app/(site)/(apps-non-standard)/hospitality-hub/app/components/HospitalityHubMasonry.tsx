@@ -13,7 +13,7 @@ import {
   AnimatedListItem,
 } from "@/components/animations/AnimatedList";
 import { useState } from "react";
-import HospitalityItemCard from "../../components/HospitalityItemCard";
+import MasonryItemCard from "./MasonryItemCard";
 import ItemDetailModal from "./ItemDetailModal";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
@@ -78,7 +78,7 @@ export function HospitalityHubMasonry({
           <AnimatedList>
             {items.map((item, index) => (
               <AnimatedListItem key={item.id} index={index}>
-                <HospitalityItemCard
+                <MasonryItemCard
                   item={item}
                   onClick={() => handleItemClick(item.id)}
                 />
