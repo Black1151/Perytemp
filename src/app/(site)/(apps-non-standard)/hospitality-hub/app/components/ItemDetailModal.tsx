@@ -13,6 +13,7 @@ import {
   Image,
   SimpleGrid,
 } from "@chakra-ui/react";
+import { motion, Variants } from "framer-motion";
 import { HospitalityItem } from "@/types/hospitalityHub";
 
 interface ItemDetailModalProps {
@@ -22,6 +23,24 @@ interface ItemDetailModalProps {
   loading?: boolean;
   optionalFields?: string[];
 }
+
+const containerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+};
+
+const MotionVStack = motion(VStack);
+const MotionText = motion(Text);
+const MotionImage = motion(Image);
 
 export const ItemDetailModal = ({
   isOpen,
@@ -33,46 +52,68 @@ export const ItemDetailModal = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
-      <ModalContent p={4}>
-        <ModalHeader>{item?.name || "Details"}</ModalHeader>
-        <ModalCloseButton />
+      <ModalContent bg="gray.800" color="gray.200" p={4}>
+        <ModalHeader
+          fontSize="3xl"
+          textAlign="center"
+          color="yellow.400"
+          fontFamily="metropolis"
+        >
+          {item?.name || "Details"}
+        </ModalHeader>
+        <ModalCloseButton color="gray.200" />
         <ModalBody>
           {loading ? (
             <Spinner />
           ) : (
-            <VStack align="start" spacing={2}>
-              {item?.description && <Text>{item.description}</Text>}
+            <MotionVStack
+              align="start"
+              spacing={2}
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {item?.description && (
+                <MotionText variants={itemVariants}>{item.description}</MotionText>
+              )}
               {item?.howToDetails && (
-                <Text>How To: {item.howToDetails}</Text>
+                <MotionText variants={itemVariants}>How To: {item.howToDetails}</MotionText>
               )}
               {item?.extraDetails && (
-                <Text>Extra Details: {item.extraDetails}</Text>
+                <MotionText variants={itemVariants}>Extra Details: {item.extraDetails}</MotionText>
               )}
               {item?.startDate && (
-                <Text>Start Date: {item.startDate}</Text>
+                <MotionText variants={itemVariants}>Start Date: {item.startDate}</MotionText>
               )}
-              {item?.endDate && <Text>End Date: {item.endDate}</Text>}
-              {item?.location && <Text>Location: {item.location}</Text>}
-              {item?.itemType && <Text>Item Type: {item.itemType}</Text>}
+              {item?.endDate && (
+                <MotionText variants={itemVariants}>End Date: {item.endDate}</MotionText>
+              )}
+              {item?.location && (
+                <MotionText variants={itemVariants}>Location: {item.location}</MotionText>
+              )}
+              {item?.itemType && (
+                <MotionText variants={itemVariants}>Item Type: {item.itemType}</MotionText>
+              )}
               {optionalFields?.map((field) =>
                 item && (item as any)[field] ? (
-                  <Text key={field}>
-                    {field.charAt(0).toUpperCase() + field.slice(1)}:{" "}
-                    {String((item as any)[field])}
-                  </Text>
+                  <MotionText key={field} variants={itemVariants}>
+                    {field.charAt(0).toUpperCase() + field.slice(1)}: {String((item as any)[field])}
+                  </MotionText>
                 ) : null
               )}
               {(item?.logoImageUrl || item?.coverImageUrl) && (
                 <SimpleGrid columns={[1, 2]} gap={2} w="100%">
                   {item?.coverImageUrl && (
-                    <Image
+                    <MotionImage
+                      variants={itemVariants}
                       src={item.coverImageUrl}
                       alt={item.name}
                       borderRadius="md"
                     />
                   )}
                   {item?.logoImageUrl && (
-                    <Image
+                    <MotionImage
+                      variants={itemVariants}
                       src={item.logoImageUrl}
                       alt={item.name}
                       borderRadius="md"
@@ -89,12 +130,12 @@ export const ItemDetailModal = ({
                 return additionalImages.length ? (
                   <SimpleGrid columns={[1, 2]} gap={2} w="100%">
                     {additionalImages.map((url) => (
-                      <Image key={url} src={url} alt={item?.name} borderRadius="md" />
+                      <MotionImage variants={itemVariants} key={url} src={url} alt={item?.name} borderRadius="md" />
                     ))}
                   </SimpleGrid>
                 ) : null;
               })()}
-            </VStack>
+            </MotionVStack>
           )}
         </ModalBody>
       </ModalContent>
