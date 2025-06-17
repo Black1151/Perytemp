@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Cropper, { Area } from "react-easy-crop";
 import {
   Modal,
   ModalOverlay,
@@ -8,197 +9,184 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
   Button,
+  Flex,
+  Box,
 } from "@chakra-ui/react";
 
-interface Crop {
-  x: number;
-  y: number;
-  size: number;
-}
-
 interface ImageCropperProps {
+  /** original file selected by the user (may be null while no image picked) */
   file: File | null;
   isOpen: boolean;
+  /** called with the new file once the user hits “Crop” */
   onComplete: (file: File) => void;
+  /** called when the user cancels / closes the modal */
   onCancel: () => void;
+  /**
+   * Desired aspect ratio.
+   * Leave undefined for free‑form, pass `1` for square avatars, `16/9` for banners, etc.
+   */
+  aspect?: number;
 }
 
-// Utility to create File from canvas content
+/* ------------------------------------------------------------ */
+/* utility: turn a canvas into a File (with optional re‑encode) */
 const canvasToFile = async (
   canvas: HTMLCanvasElement,
-  fileName: string,
-  type = "image/jpeg"
-): Promise<File> => {
-  return new Promise((resolve) => {
+  origin: File,
+  quality = 0.9
+): Promise<File> =>
+  new Promise((resolve) => {
     canvas.toBlob(
-      (blob) => {
-        resolve(new File([blob!], fileName, { type }));
-      },
-      type,
-      0.9
+      (blob) => resolve(new File([blob!], origin.name, { type: origin.type })),
+      origin.type,
+      quality
     );
   });
+
+/* render/crop helper adapted from react‑easy‑crop docs */
+const getCroppedFile = async (
+  image: HTMLImageElement,
+  crop: Area,
+  originFile: File
+): Promise<File> => {
+  const canvas = document.createElement("canvas");
+  canvas.width = crop.width;
+  canvas.height = crop.height;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(
+    image,
+    crop.x,
+    crop.y,
+    crop.width,
+    crop.height,
+    0,
+    0,
+    crop.width,
+    crop.height
+  );
+
+  // compress if needed to stay <10 MB
+  let result = await canvasToFile(canvas, originFile);
+  let quality = 0.8;
+  while (result.size > 10 * 1024 * 1024 && quality >= 0.1) {
+    result = await canvasToFile(canvas, originFile, quality);
+    quality -= 0.1;
+  }
+  return result;
 };
+/* ------------------------------------------------------------ */
 
 export default function ImageCropper({
   file,
   isOpen,
   onComplete,
   onCancel,
+  aspect = 1, // default to square crop
 }: ImageCropperProps) {
-  const imgRef = useRef<HTMLImageElement | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [imgUrl, setImgUrl] = useState<string>("");
-  const [crop, setCrop] = useState<Crop>({ x: 10, y: 10, size: 80 });
-  const [dragging, setDragging] = useState<boolean>(false);
-  const [resizing, setResizing] = useState<boolean>(false);
-  const [start, setStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  /* ------------ local state ------------ */
+  const [imgURL, setImgURL] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPx, setCroppedAreaPx] = useState<Area | null>(null);
 
+  const hiddenImgRef = useRef<HTMLImageElement | null>(null); // needed for pixel‑perfect export
+
+  /* refresh preview when a new File object arrives */
   useEffect(() => {
     if (file) {
-      setImgUrl(URL.createObjectURL(file));
-    } else {
-      setImgUrl("");
+      const url = URL.createObjectURL(file);
+      setImgURL(url);
+      // housekeeping: revoke URL when modal closes or file changes
+      return () => URL.revokeObjectURL(url);
     }
+    setImgURL(null);
   }, [file]);
 
-  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setStart({ x: e.clientX, y: e.clientY });
-    const target = e.target as HTMLElement;
-    if (target.dataset.type === "resize") {
-      setResizing(true);
-    } else {
-      setDragging(true);
-    }
-  };
+  const handleCropComplete = useCallback(
+    (_: Area, pixels: Area) => setCroppedAreaPx(pixels),
+    []
+  );
 
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!dragging && !resizing) return;
-    const dx = e.clientX - start.x;
-    const dy = e.clientY - start.y;
-    setStart({ x: e.clientX, y: e.clientY });
-    setCrop((c) => {
-      if (!containerRef.current) return c;
-      const rect = containerRef.current.getBoundingClientRect();
-      const maxX = 100;
-      const maxY = 100;
-      if (resizing) {
-        let newSize = c.size + ((dx + dy) / rect.width) * 100;
-        newSize = Math.max(10, Math.min(newSize, 100));
-        return { ...c, size: newSize };
-      }
-      let newX = c.x + (dx / rect.width) * 100;
-      let newY = c.y + (dy / rect.height) * 100;
-      newX = Math.max(0, Math.min(newX, maxX - c.size));
-      newY = Math.max(0, Math.min(newY, maxY - c.size));
-      return { ...c, x: newX, y: newY };
-    });
-  };
-
-  const onMouseUp = () => {
-    setDragging(false);
-    setResizing(false);
-  };
-
-  const handleComplete = async () => {
-    if (!imgRef.current || !file) return;
-    const img = imgRef.current;
-    const canvas = document.createElement("canvas");
-    const scaleX = img.naturalWidth / img.width;
-    const scaleY = img.naturalHeight / img.height;
-    const sx = (crop.x / 100) * img.naturalWidth;
-    const sy = (crop.y / 100) * img.naturalHeight;
-    const sSize = (crop.size / 100) * img.naturalWidth;
-    canvas.width = sSize;
-    canvas.height = sSize;
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.drawImage(
-        img,
-        sx,
-        sy,
-        sSize,
-        sSize,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-    }
-    let newFile = await canvasToFile(canvas, file.name, file.type);
-    // ensure <10MB
-    let quality = 0.9;
-    while (newFile.size > 10 * 1024 * 1024 && quality > 0.1) {
-      quality -= 0.1;
-      newFile = await new Promise<File>((resolve) => {
-        canvas.toBlob(
-          (blob) => {
-            resolve(new File([blob!], file.name, { type: file.type }));
-          },
-          file.type,
-          quality
-        );
-      });
-    }
+  const handleFinish = async () => {
+    if (!file || !croppedAreaPx || !hiddenImgRef.current) return;
+    const newFile = await getCroppedFile(
+      hiddenImgRef.current,
+      croppedAreaPx,
+      file
+    );
     onComplete(newFile);
   };
 
+  /* ------------------------------------- */
   return (
     <Modal isOpen={isOpen} onClose={onCancel} size="xl">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Crop Image</ModalHeader>
+        <ModalHeader>Crop image</ModalHeader>
         <ModalBody>
-          {imgUrl && (
-            <div
-              ref={containerRef}
-              style={{ position: "relative", width: "100%", height: 400 }}
-              onMouseMove={onMouseMove}
-              onMouseUp={onMouseUp}
-              onMouseLeave={onMouseUp}
-            >
-              <img
-                ref={imgRef}
-                src={imgUrl}
-                alt="crop"
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          {/* the visual cropper */}
+          {imgURL && (
+            <Box position="relative" w="100%" h="400px">
+              <Cropper
+                image={imgURL}
+                crop={crop}
+                zoom={zoom}
+                aspect={aspect}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={handleCropComplete}
+                showGrid={false}
               />
-              <div
-                onMouseDown={onMouseDown}
-                style={{
-                  border: "2px solid #fff",
-                  position: "absolute",
-                  left: `${crop.x}%`,
-                  top: `${crop.y}%`,
-                  width: `${crop.size}%`,
-                  height: `${crop.size}%`,
-                  cursor: dragging ? "grabbing" : "grab",
-                }}
-              >
-                <div
-                  data-type="resize"
-                  style={{
-                    position: "absolute",
-                    width: 10,
-                    height: 10,
-                    right: -5,
-                    bottom: -5,
-                    background: "#fff",
-                    cursor: "nwse-resize",
-                  }}
-                  onMouseDown={onMouseDown}
-                />
-              </div>
-            </div>
+            </Box>
+          )}
+
+          {/* zoom slider */}
+          {imgURL && (
+            <Flex mt={4} align="center">
+              <Box w="full">
+                <Slider
+                  aria-label="Zoom"
+                  step={0.1}
+                  min={1}
+                  max={3}
+                  value={zoom}
+                  onChange={(v) => setZoom(v)}
+                >
+                  <SliderTrack>
+                    <SliderFilledTrack />
+                  </SliderTrack>
+                  <SliderThumb />
+                </Slider>
+              </Box>
+            </Flex>
+          )}
+
+          {/* hidden image element (never displayed) – just for canvas export */}
+          {imgURL && (
+            <img
+              ref={hiddenImgRef}
+              src={imgURL}
+              alt=""
+              style={{ display: "none" }}
+              onLoad={(e) => {
+                // force react‑easy‑crop to recalc after actual bitmap loads
+                // (prevents rare edge cases with small images)
+                setCrop({ x: 0, y: 0 });
+              }}
+            />
           )}
         </ModalBody>
+
         <ModalFooter>
           <Button mr={3} onClick={onCancel}>
             Cancel
           </Button>
-          <Button colorScheme="blue" onClick={handleComplete}>
+          <Button colorScheme="blue" onClick={handleFinish} isDisabled={!file}>
             Crop
           </Button>
         </ModalFooter>
