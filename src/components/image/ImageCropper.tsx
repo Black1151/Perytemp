@@ -103,14 +103,34 @@ export default function ImageCropper({
   };
 
   const handleComplete = async () => {
-    if (!imgRef.current || !file) return;
+    if (!imgRef.current || !containerRef.current || !file) return;
     const img = imgRef.current;
-    const canvas = document.createElement("canvas");
-    const scaleX = img.naturalWidth / img.width;
-    const scaleY = img.naturalHeight / img.height;
-    const sx = (crop.x / 100) * img.naturalWidth;
-    const sy = (crop.y / 100) * img.naturalHeight;
-    const sSize = (crop.size / 100) * img.naturalWidth;
+    const container = containerRef.current;
+
+    const contW = container.clientWidth;
+    const contH = container.clientHeight;
+
+    const displayedW = img.width;
+    const displayedH = img.height;
+    const offsetX = (contW - displayedW) / 2;
+    const offsetY = (contH - displayedH) / 2;
+
+    const scaleX = img.naturalWidth / displayedW;
+    const scaleY = img.naturalHeight / displayedH;
+
+    const cropPx = {
+      x: (crop.x / 100) * contW - offsetX,
+      y: (crop.y / 100) * contH - offsetY,
+      size: (crop.size / 100) * contW,
+    };
+
+    cropPx.x = Math.max(0, Math.min(cropPx.x, displayedW - cropPx.size));
+    cropPx.y = Math.max(0, Math.min(cropPx.y, displayedH - cropPx.size));
+
+    const sx = cropPx.x * scaleX;
+    const sy = cropPx.y * scaleY;
+    const sSize = cropPx.size * scaleX;
+
     canvas.width = sSize;
     canvas.height = sSize;
     const ctx = canvas.getContext("2d");
@@ -154,7 +174,12 @@ export default function ImageCropper({
           {imgUrl && (
             <div
               ref={containerRef}
-              style={{ position: "relative", width: "100%", height: 400 }}
+              style={{
+                position: "relative",
+                width: 400,
+                height: 400,
+                margin: "0 auto",
+              }}
               onMouseMove={onMouseMove}
               onMouseUp={onMouseUp}
               onMouseLeave={onMouseUp}
