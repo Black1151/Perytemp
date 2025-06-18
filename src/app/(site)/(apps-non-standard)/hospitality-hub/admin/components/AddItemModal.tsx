@@ -24,7 +24,6 @@ import { useToast } from "@chakra-ui/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import { BigUpTeamMember } from "../../../big-up/types";
 import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
-import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -72,16 +71,17 @@ export default function AddItemModal({
     if (!customerId) return;
     try {
       const res = await fetch(
-        `/api/user/allBy?customerId=${customerId}&selectColumns=id,firstName,lastName,imageUrl`,
+        `/api/user/allBy?customerId=${customerId}&selectColumns=id,firstName,lastName,imageUrl`
       );
       const data = await res.json();
       if (res.ok) {
         setTeamMembers(
           (data.resource || []).map((u: any) => ({
             id: u.id,
-            fullName: u.fullName || `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim(),
+            fullName:
+              u.fullName || `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim(),
             imageUrl: u.imageUrl,
-          })),
+          }))
         );
       }
     } catch (err) {
