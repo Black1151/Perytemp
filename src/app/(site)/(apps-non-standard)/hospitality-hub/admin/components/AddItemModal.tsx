@@ -95,7 +95,14 @@ export default function AddItemModal({
         );
         const data = await res.json();
         if (res.ok) {
-          setTeamMembers(data.resource || []);
+          const mapped: BigUpTeamMember[] = (data.resource || []).map(
+            (m: any) => ({
+              id: m.userId,
+              fullName: m.userFullname,
+              imageUrl: m.userImageUrl,
+            })
+          );
+          setTeamMembers(mapped);
         } else {
           toast({
             title: data.error || 'Failed to fetch team members.',
