@@ -97,7 +97,7 @@ export default function AddItemModal({
         if (res.ok) {
           const mapped: BigUpTeamMember[] = (data.resource || []).map(
             (m: any) => ({
-              id: m.userId,
+              id: m.userUniqueId,
               fullName: m.userFullname,
               imageUrl: m.userImageUrl,
             })
@@ -105,21 +105,21 @@ export default function AddItemModal({
           setTeamMembers(mapped);
         } else {
           toast({
-            title: data.error || 'Failed to fetch team members.',
-            status: 'error',
+            title: data.error || "Failed to fetch team members.",
+            status: "error",
             duration: 5000,
             isClosable: true,
-            position: 'bottom-right',
+            position: "bottom-right",
           });
         }
       } catch (err) {
         console.error(err);
         toast({
-          title: 'Failed to fetch team members.',
-          status: 'error',
+          title: "Failed to fetch team members.",
+          status: "error",
           duration: 5000,
           isClosable: true,
-          position: 'bottom-right',
+          position: "bottom-right",
         });
       }
     };
