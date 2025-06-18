@@ -9,8 +9,10 @@ import {
   Button,
   Text,
   Image,
+  IconButton,
   useColorModeValue,
 } from "@chakra-ui/react";
+import CloseIcon from "@mui/icons-material/Close";
 import ImageCropper from "./ImageCropper";
 
 interface Props {
@@ -98,6 +100,19 @@ export default function ImageUploadWithCrop({
           onDragOver={onDragOver}
           onDrop={onDrop}
         >
+          {previewUrl && (
+            <IconButton
+              aria-label="Remove"
+              icon={<CloseIcon />}
+              size="sm"
+              color="red.500"
+              variant="ghost"
+              position="absolute"
+              top={2}
+              right={2}
+              onClick={handleRemove}
+            />
+          )}
           <Box mb={4}>
             {previewUrl ? (
               <Image src={previewUrl} alt="preview" maxH="100px" mx="auto" />
@@ -118,11 +133,6 @@ export default function ImageUploadWithCrop({
           >
             {previewUrl ? "Change Image" : "Browse files"}
           </Button>
-          {previewUrl && (
-            <Button size="sm" colorScheme="red" ml={2} onClick={handleRemove}>
-              Remove
-            </Button>
-          )}
           <input
             ref={inputRef}
             type="file"

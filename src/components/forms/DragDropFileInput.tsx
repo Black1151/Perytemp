@@ -7,8 +7,10 @@ import {
   Image,
   Text,
   Button,
+  IconButton,
   useColorModeValue,
 } from "@chakra-ui/react";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface DragDropFileInputProps {
   onFilesSelected: (files: File[]) => void;
@@ -81,6 +83,19 @@ export default function DragDropFileInput({
         onDragOver={onDragOver}
         onDrop={onDrop}
       >
+        {(previewUrl || selectedFiles.length > 0) && (
+          <IconButton
+            aria-label="Remove"
+            icon={<CloseIcon />}
+            size="sm"
+            color="red.500"
+            variant="ghost"
+            position="absolute"
+            top={2}
+            right={2}
+            onClick={handleRemove}
+          />
+        )}
         <Box mb={4}>
           {previewUrl && !multiple ? (
             <Image src={previewUrl} alt="preview" maxH="100px" mx="auto" />
@@ -101,11 +116,6 @@ export default function DragDropFileInput({
         >
           {previewUrl && !multiple ? "Change File" : "Browse files"}
         </Button>
-        {(previewUrl || selectedFiles.length > 0) && (
-          <Button size="sm" colorScheme="red" ml={2} onClick={handleRemove}>
-            Remove
-          </Button>
-        )}
         <input
           ref={inputRef}
           type="file"
