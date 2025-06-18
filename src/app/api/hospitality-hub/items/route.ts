@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
 
     if (contentType.includes("multipart/form-data")) {
       const incoming = await req.formData();
+      const id = incoming.get("id");
       const laravelFormData = new FormData();
       incoming.forEach((value, key) => {
         if (value instanceof Blob) {
@@ -62,7 +63,11 @@ export async function POST(req: NextRequest) {
         }
       });
 
-      response = await fetch(`${process.env.BE_URL}/userHospitalityItem`, {
+      const url = id
+        ? `${process.env.BE_URL}/userHospitalityItem/${id}`
+        : `${process.env.BE_URL}/userHospitalityItem`;
+
+      response = await fetch(url, {
         method: "POST",
         headers: {
           Authorization: authToken ? `Bearer ${authToken}` : "",
@@ -71,7 +76,11 @@ export async function POST(req: NextRequest) {
       });
     } else {
       const payload = await req.json();
-      response = await fetch(`${process.env.BE_URL}/userHospitalityItem`, {
+      const id = payload?.id;
+      const url = id
+        ? `${process.env.BE_URL}/userHospitalityItem/${id}`
+        : `${process.env.BE_URL}/userHospitalityItem`;
+      response = await fetch(url, {
         method: "POST",
         headers: {
           Authorization: authToken ? `Bearer ${authToken}` : "",
