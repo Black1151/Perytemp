@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { HospitalityCategory } from "@/types/hospitalityHub";
 
 export function useHospitalityCategories(initialCategories: HospitalityCategory[] = []) {
-  const [categories, setCategories] = useState<HospitalityCategory[]>(initialCategories);
+  const [categories, setCategories] = useState<HospitalityCategory[]>(
+    initialCategories.filter((c) => c.isActive),
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -12,7 +14,8 @@ export function useHospitalityCategories(initialCategories: HospitalityCategory[
       const res = await fetch('/api/hospitality-hub/categories');
       const data = await res.json();
       if (res.ok) {
-        setCategories(data.resource || []);
+        const fetched: HospitalityCategory[] = data.resource || [];
+        setCategories(fetched.filter((cat) => cat.isActive));
       } else {
         throw new Error(data?.error || 'Failed to fetch categories');
       }

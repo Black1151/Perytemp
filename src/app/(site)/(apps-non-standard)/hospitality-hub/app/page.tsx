@@ -14,7 +14,8 @@ export default async function HospitalityHubPage() {
     });
     const data = await res.json();
     if (res.ok) {
-      initialCategories = data.resource || [];
+      const fetched: HospitalityCategory[] = data.resource || [];
+      initialCategories = fetched.filter((cat) => cat.isActive);
     }
   } catch (err) {
     console.error("Failed to fetch categories", err);
