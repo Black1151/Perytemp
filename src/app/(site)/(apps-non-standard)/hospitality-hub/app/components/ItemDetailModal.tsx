@@ -74,30 +74,45 @@ export const ItemDetailModal = ({
               animate="visible"
             >
               {item?.description && (
-                <MotionText variants={itemVariants}>{item.description}</MotionText>
+                <MotionText variants={itemVariants}>
+                  {item.description}
+                </MotionText>
               )}
               {item?.howToDetails && (
-                <MotionText variants={itemVariants}>How To: {item.howToDetails}</MotionText>
+                <MotionText variants={itemVariants}>
+                  How To: {item.howToDetails}
+                </MotionText>
               )}
               {item?.extraDetails && (
-                <MotionText variants={itemVariants}>Extra Details: {item.extraDetails}</MotionText>
+                <MotionText variants={itemVariants}>
+                  Extra Details: {item.extraDetails}
+                </MotionText>
               )}
               {item?.startDate && (
-                <MotionText variants={itemVariants}>Start Date: {item.startDate}</MotionText>
+                <MotionText variants={itemVariants}>
+                  Start Date: {item.startDate}
+                </MotionText>
               )}
               {item?.endDate && (
-                <MotionText variants={itemVariants}>End Date: {item.endDate}</MotionText>
+                <MotionText variants={itemVariants}>
+                  End Date: {item.endDate}
+                </MotionText>
               )}
               {item?.location && (
-                <MotionText variants={itemVariants}>Location: {item.location}</MotionText>
+                <MotionText variants={itemVariants}>
+                  Location: {item.location}
+                </MotionText>
               )}
               {item?.itemType && (
-                <MotionText variants={itemVariants}>Item Type: {item.itemType}</MotionText>
+                <MotionText variants={itemVariants}>
+                  Item Type: {item.itemType}
+                </MotionText>
               )}
               {optionalFields?.map((field) =>
                 item && (item as any)[field] ? (
                   <MotionText key={field} variants={itemVariants}>
-                    {field.charAt(0).toUpperCase() + field.slice(1)}: {String((item as any)[field])}
+                    {field.charAt(0).toUpperCase() + field.slice(1)}:{" "}
+                    {String((item as any)[field])}
                   </MotionText>
                 ) : null
               )}
@@ -121,20 +136,6 @@ export const ItemDetailModal = ({
                   )}
                 </SimpleGrid>
               )}
-              {(() => {
-                const additionalImages = Array.isArray(item?.additionalImageUrlList)
-                  ? item?.additionalImageUrlList
-                  : typeof item?.additionalImageUrlList === "string"
-                    ? item.additionalImageUrlList.split(',').map((u) => u.trim()).filter(Boolean)
-                    : [];
-                return additionalImages.length ? (
-                  <SimpleGrid columns={[1, 2]} gap={2} w="100%">
-                    {additionalImages.map((url) => (
-                      <MotionImage variants={itemVariants} key={url} src={url} alt={item?.name} borderRadius="md" />
-                    ))}
-                  </SimpleGrid>
-                ) : null;
-              })()}
             </MotionVStack>
           )}
         </ModalBody>
