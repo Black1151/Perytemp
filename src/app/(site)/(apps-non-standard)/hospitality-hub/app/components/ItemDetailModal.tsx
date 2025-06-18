@@ -34,7 +34,6 @@ interface ItemDetailModalProps {
   onClose: () => void;
   item?: HospitalityItem | null;
   loading?: boolean;
-  optionalFields?: string[];
 }
 
 const containerVariants: Variants = {
@@ -52,9 +51,9 @@ const itemVariants: Variants = {
 };
 
 const MotionVStack = motion(VStack);
-const MotionText = motion(Text);
+
 const MotionImage = motion(Image);
-const MotionBox = motion(Box);
+
 const MotionHStack = motion(HStack);
 
 export const ItemDetailModal = ({
@@ -62,7 +61,6 @@ export const ItemDetailModal = ({
   onClose,
   item,
   loading,
-  optionalFields,
 }: ItemDetailModalProps) => {
   const [bookingOpen, setBookingOpen] = useState(false);
 
@@ -174,19 +172,15 @@ export const ItemDetailModal = ({
                         <Text flex="1">{item.location}</Text>
                       </MotionHStack>
                     )}
-
-                    {optionalFields?.map((field) =>
-                      item && (item as any)[field] ? (
-                        <MotionHStack
-                          key={field}
-                          variants={itemVariants}
-                          width="100%"
-                          alignItems="flex-start"
+                    {item && ctaText && (
+                      <Box p={4} textAlign="center">
+                        <Button
+                          colorScheme="yellow"
+                          onClick={() => setBookingOpen(true)}
                         >
-                          <Info />
-                          <Text flex="1">{String((item as any)[field])}</Text>
-                        </MotionHStack>
-                      ) : null
+                          {ctaText}
+                        </Button>
+                      </Box>
                     )}
                   </VStack>
                 </MotionVStack>
@@ -213,13 +207,6 @@ export const ItemDetailModal = ({
               </SimpleGrid>
             )}
           </ModalBody>
-          {item && ctaText && (
-            <Box p={4} textAlign="center">
-              <Button colorScheme="yellow" onClick={() => setBookingOpen(true)}>
-                {ctaText}
-              </Button>
-            </Box>
-          )}
         </VStack>
         {item && (
           <BookingModal
