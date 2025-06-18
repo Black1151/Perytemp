@@ -15,11 +15,14 @@ import {
   Input,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { useMediaUploader } from "@/hooks/useMediaUploader";
 import { HospitalityCategory } from "@/types/hospitalityHub";
+import UserSearchAutocomplete, {
+  AutocompleteUser,
+} from "@/components/forms/UserSearchAutocomplete";
 
 interface AddCategoryModalProps {
   isOpen: boolean;
@@ -43,7 +46,8 @@ export default function AddCategoryModal({
   onCreated,
   category,
 }: AddCategoryModalProps) {
-  const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
+  const { register, handleSubmit, reset, setValue, control } =
+    useForm<FormValues>();
   const toast = useToast();
 
   const { user } = useUser();
@@ -106,7 +110,9 @@ export default function AddCategoryModal({
       toast({
         title:
           result.error ||
-          (category ? "Failed to update category." : "Failed to create category."),
+          (category
+            ? "Failed to update category."
+            : "Failed to create category."),
         description: result.details,
         status: "error",
         duration: 5000,
@@ -117,7 +123,9 @@ export default function AddCategoryModal({
     }
 
     toast({
-      title: category ? "Category updated successfully." : "Category created successfully.",
+      title: category
+        ? "Category updated successfully."
+        : "Category created successfully.",
       status: "success",
       duration: 5000,
       isClosable: true,
@@ -133,7 +141,9 @@ export default function AddCategoryModal({
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{category ? "Update Category" : "Create Category"}</ModalHeader>
+        <ModalHeader>
+          {category ? "Update Category" : "Create Category"}
+        </ModalHeader>
         <ModalCloseButton />
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalBody>
@@ -148,8 +158,20 @@ export default function AddCategoryModal({
               <Input {...register("description", { required: true })} />
             </FormControl>
             <FormControl mb={4}>
-              <FormLabel>Handler Email</FormLabel>
-              <Input {...register("handlerEmail")} type="email" />
+              <FormLabel>Owner Email</FormLabel>
+              <Controller
+                name="handlerEmail"
+                control={control}
+                render={({ field: { value } }) => (
+                  <UserSearchAutocomplete
+                    value={value}
+                    onSelect={(u: AutocompleteUser) => {
+                      setValue("handlerEmail", u.email);
+                      setValue("catOwnerUserId", u.id);
+                    }}
+                  />
+                )}
+              />
             </FormControl>
             <ImageUploadWithCrop
               label="Image"

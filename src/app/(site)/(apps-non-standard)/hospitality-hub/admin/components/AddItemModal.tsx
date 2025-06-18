@@ -18,10 +18,13 @@ import {
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import DragDropFileInput from "@/components/forms/DragDropFileInput";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
+import UserSearchAutocomplete, {
+  AutocompleteUser,
+} from "@/components/forms/UserSearchAutocomplete";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -52,7 +55,8 @@ export default function AddItemModal({
   onCreated,
   item,
 }: AddItemModalProps) {
-  const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
+  const { register, handleSubmit, reset, setValue, control } =
+    useForm<FormValues>();
   const toast = useToast();
 
   const { user } = useUser();
@@ -80,7 +84,7 @@ export default function AddItemModal({
         setValue("handlerEmail", item.handlerEmail || "");
         setValue(
           "startDate",
-          item.startDate ? item.startDate.slice(0, 10) : ""
+          item.startDate ? item.startDate.slice(0, 10) : "",
         );
         setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
         setValue("location", item.location);
@@ -227,8 +231,20 @@ export default function AddItemModal({
               <Input {...register("location")} />
             </FormControl>
             <FormControl mb={4}>
-              <FormLabel>Handler Email</FormLabel>
-              <Input {...register("handlerEmail")} type="email" />
+              <FormLabel>Owner Email</FormLabel>
+              <Controller
+                name="handlerEmail"
+                control={control}
+                render={({ field: { value } }) => (
+                  <UserSearchAutocomplete
+                    value={value}
+                    onSelect={(u: AutocompleteUser) => {
+                      setValue("handlerEmail", u.email);
+                      setValue("itemOwnerUserId", u.id);
+                    }}
+                  />
+                )}
+              />
             </FormControl>
             <ImageUploadWithCrop
               label="Logo Image"
