@@ -11,7 +11,12 @@ export interface HospitalityItem {
   startDate: string;
   endDate: string | null;
   location: string;
-  itemType: string;
+  itemType:
+    | "singleDayBookable"
+    | "singleDayBookableWithStartEnd"
+    | "multiDayBookable"
+    | "registerInterest"
+    | "info";
   logoImageUrl: string;
   coverImageUrl: string;
   additionalImageUrlList: string[] | null;
@@ -32,4 +37,17 @@ export interface HospitalityCategory {
   isActive: boolean;
   imageUrl?: string;
   handlerEmail?: string;
+}
+
+export interface HospitalityBooking {
+  userHospitalityItemId: number;
+  info?: string;
+  customerId: number;
+  bookingType: string;
+  startDate?: string; // Format: YYYY-MM-DD
+  endDate?: string; // Format: YYYY-MM-DD
+  startTime?: string; // Format: YYYY-MM-DD HH:mm:ss
+  endTime?: string; // Format: YYYY-MM-DD HH:mm:ss
+  numberOfPeople?: number;
+  specialRequests?: string;
 }
