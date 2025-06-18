@@ -35,8 +35,6 @@ interface AddItemModalProps {
   onClose: () => void;
   categoryId: string;
   onCreated: () => void;
-  /** Available team members shown in the autocomplete */
-  teamMembers: BigUpTeamMember[];
   /** Existing item when editing; null when creating */
   item?: HospitalityItem | null;
 }
@@ -61,7 +59,6 @@ export default function AddItemModal({
   onClose,
   categoryId,
   onCreated,
-  teamMembers,
   item,
 }: AddItemModalProps) {
   const { register, control, handleSubmit, reset, setValue } =
@@ -81,13 +78,47 @@ export default function AddItemModal({
 
   const toast = useToast();
   const { user } = useUser();
+  const customerId = user?.customerId;
+  const userId = user?.userId;
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
+  const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
 
-  const customerId = user?.customerId;
-  const userId = user?.userId;
+  useEffect(() => {
+    const fetchMembers = async () => {
+      if (!customerId) return;
+      try {
+        const res = await fetch(
+          `/api/getForTeamMemberInput?customerId=${customerId}`
+        );
+        const data = await res.json();
+        if (res.ok) {
+          setTeamMembers(data.resource || []);
+        } else {
+          toast({
+            title: data.error || 'Failed to fetch team members.',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+            position: 'bottom-right',
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        toast({
+          title: 'Failed to fetch team members.',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+          position: 'bottom-right',
+        });
+      }
+    };
+
+    fetchMembers();
+  }, [customerId, toast]);
 
   /**
    * Sync hidden defaults once customer & user IDs become available
@@ -290,7 +321,7 @@ export default function AddItemModal({
             </FormControl>
 
             {/* Handler (Team Member Autocomplete) */}
-            {/* <FormControl mb={4} isRequired>
+            <FormControl mb={4} isRequired>
               <FormLabel>Handler</FormLabel>
               <Controller
                 name="handlerUserId"
@@ -306,7 +337,7 @@ export default function AddItemModal({
                   />
                 )}
               />
-            </FormControl> */}
+            </FormControl>
 
             {/* Images */}
             <ImageUploadWithCrop
