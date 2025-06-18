@@ -15,7 +15,8 @@ export function useHospitalityItems(categoryKey?: string | null) {
       );
       const data = await res.json();
       if (res.ok) {
-        setItems(data.resource || []);
+        const fetched: HospitalityItem[] = data.resource || [];
+        setItems(fetched.filter((item) => item.isActive));
       } else {
         throw new Error(data?.error || "Failed to fetch items");
       }
