@@ -9,13 +9,18 @@ export interface HospitalityItem {
   hospitalityCatId: string;
   isActive: boolean;
   startDate: string;
-  endDate: string;
+  endDate: string | null;
   location: string;
   itemType: string;
   logoImageUrl: string;
   coverImageUrl: string;
-  additionalImageUrlList: string[];
+  additionalImageUrlList: string[] | null;
   handlerEmail?: string;
+  fullAddress?: string | null;
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface HospitalityCategory {
