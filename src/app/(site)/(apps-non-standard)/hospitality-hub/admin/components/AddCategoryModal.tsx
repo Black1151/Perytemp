@@ -15,11 +15,13 @@ import {
   Input,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { useMediaUploader } from "@/hooks/useMediaUploader";
 import { HospitalityCategory } from "@/types/hospitalityHub";
+import { BigUpTeamMember } from "../../../big-up/types";
+import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
 
 interface AddCategoryModalProps {
   isOpen: boolean;
@@ -49,6 +51,7 @@ export default function AddCategoryModal({
   const { user } = useUser();
 
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
 
   const { uploadMediaFile } = useMediaUploader(
     "/api/hospitality-hub/uploadImage",
@@ -60,18 +63,40 @@ export default function AddCategoryModal({
   const customerId = user?.customerId;
   const userId = user?.userId;
 
+  const fetchTeamMembers = async () => {
+    if (!customerId) return;
+    try {
+      const res = await fetch(
+        `/api/user/allBy?customerId=${customerId}&selectColumns=id,firstName,lastName,imageUrl`,
+      );
+      const data = await res.json();
+      if (res.ok) {
+        setTeamMembers(
+          (data.resource || []).map((u: any) => ({
+            id: u.id,
+            fullName: u.fullName || `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim(),
+            imageUrl: u.imageUrl,
+          })),
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     if (customerId !== undefined) setValue("customerId", customerId);
-    if (userId !== undefined) setValue("catOwnerUserId", userId);
-  }, [customerId, userId, setValue]);
+  }, [customerId, setValue]);
 
   useEffect(() => {
     if (isOpen) {
+      fetchTeamMembers();
       if (category) {
         setValue("name", category.name);
         setValue("description", category.description);
         setValue("handlerEmail", category.handlerEmail || "");
         setImageUrl(category.imageUrl || "");
+        setValue("catOwnerUserId", Number(category.catOwnerUserId));
       } else {
         reset();
         setImageUrl("");
@@ -89,7 +114,7 @@ export default function AddCategoryModal({
       ...data,
       imageUrl,
       customerId,
-      catOwnerUserId: userId,
+      catOwnerUserId: data.catOwnerUserId,
     } as any;
     if (category) {
       (body as any).id = category.id;
@@ -138,7 +163,23 @@ export default function AddCategoryModal({
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalBody>
             <input type="hidden" {...register("customerId")} />
-            <input type="hidden" {...register("catOwnerUserId")} />
+            <FormControl mb={4} isRequired>
+              <FormLabel>Owner</FormLabel>
+              <Controller
+                name="catOwnerUserId"
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TeamMemberAutocomplete
+                    value={value ? String(value) : ""}
+                    onChange={(val) => onChange(Number(val))}
+                    onBlur={onBlur}
+                    teamMembers={teamMembers}
+                    placeholder="Start typing to search..."
+                  />
+                )}
+              />
+            </FormControl>
             <FormControl mb={4} isRequired>
               <FormLabel>Name</FormLabel>
               <Input {...register("name", { required: true })} />
