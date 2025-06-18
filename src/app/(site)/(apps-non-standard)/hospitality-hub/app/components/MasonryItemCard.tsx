@@ -1,5 +1,5 @@
 "use client";
-import { Box, Text, Image } from "@chakra-ui/react";
+import { Box, Text, Image, Spinner } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import PerygonCard from "@/components/layout/PerygonCard";
@@ -25,12 +25,14 @@ export interface MasonryItemCardProps {
   item: HospitalityItem;
   onClick?: () => void;
   disabled?: boolean;
+  loading?: boolean;
 }
 
 export default function MasonryItemCard({
   item,
   onClick,
   disabled = false,
+  loading = false,
 }: MasonryItemCardProps) {
   return (
     <PerygonCard
@@ -120,7 +122,7 @@ export default function MasonryItemCard({
           </Text>
         )}
       </Box>
-      {disabled && (
+      {(disabled || loading) && (
         <Box
           position="absolute"
           top={0}
@@ -128,8 +130,13 @@ export default function MasonryItemCard({
           w="100%"
           h="100%"
           bg="rgba(128,128,128,0.5)"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
           pointerEvents="none"
-        />
+        >
+          {loading && <Spinner />}
+        </Box>
       )}
     </PerygonCard>
   );

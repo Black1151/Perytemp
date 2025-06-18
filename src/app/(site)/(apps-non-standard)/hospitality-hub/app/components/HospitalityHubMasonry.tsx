@@ -13,6 +13,17 @@ import {
   AnimatedListItem,
 } from "@/components/animations/AnimatedList";
 import { useState } from "react";
+
+const preloadImage = (url: string) =>
+  new Promise<void>((resolve) => {
+    const img = new window.Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = url;
+  });
+
+const preloadImages = (urls: string[]) =>
+  Promise.all(urls.filter(Boolean).map(preloadImage));
 import MasonryItemCard from "./MasonryItemCard";
 import ItemDetailModal from "./ItemDetailModal";
 import { HospitalityItem } from "@/types/hospitalityHub";
@@ -34,24 +45,41 @@ export function HospitalityHubMasonry({
   const { items, loading } = useHospitalityItems(selected);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
+  const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(
     null
   );
 
   const handleItemClick = async (itemId: string) => {
     if (!selected) return;
-    setModalOpen(true);
+    setLoadingItemId(itemId);
     setModalLoading(true);
     try {
       const res = await fetch(`/api/hospitality-hub/items?id=${itemId}`);
       const data = await res.json();
       if (res.ok) {
-        setSelectedItem(data.resource);
+        const item = data.resource;
+        setSelectedItem(item);
+        const urls: string[] = [];
+        if (item.coverImageUrl) urls.push(item.coverImageUrl);
+        if (item.logoImageUrl) urls.push(item.logoImageUrl);
+        const additional = Array.isArray(item.additionalImageUrlList)
+          ? item.additionalImageUrlList
+          : typeof item.additionalImageUrlList === "string"
+            ? item.additionalImageUrlList
+                .split(',')
+                .map((u: string) => u.trim())
+                .filter(Boolean)
+            : [];
+        urls.push(...additional);
+        await preloadImages(urls);
+        setModalOpen(true);
       }
     } catch (err) {
       console.error(err);
     } finally {
       setModalLoading(false);
+      setLoadingItemId(null);
     }
   };
 
@@ -80,6 +108,7 @@ export function HospitalityHubMasonry({
                 <MasonryItemCard
                   item={item}
                   onClick={() => handleItemClick(item.id)}
+                  loading={loadingItemId === item.id}
                 />
               </AnimatedListItem>
             ))}
