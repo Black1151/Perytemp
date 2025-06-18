@@ -22,7 +22,9 @@ import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
-import UserSearchAutocomplete, { AutocompleteUser } from "@/components/forms/UserSearchAutocomplete";
+import UserSearchAutocomplete, {
+  AutocompleteUser,
+} from "@/components/forms/UserSearchAutocomplete";
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -53,7 +55,8 @@ export default function AddItemModal({
   onCreated,
   item,
 }: AddItemModalProps) {
-  const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
+  const { register, handleSubmit, reset, setValue, control } =
+    useForm<FormValues>();
   const toast = useToast();
 
   const { user } = useUser();
@@ -81,7 +84,7 @@ export default function AddItemModal({
         setValue("handlerEmail", item.handlerEmail || "");
         setValue(
           "startDate",
-          item.startDate ? item.startDate.slice(0, 10) : ""
+          item.startDate ? item.startDate.slice(0, 10) : "",
         );
         setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
         setValue("location", item.location);

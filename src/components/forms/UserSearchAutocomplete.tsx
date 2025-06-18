@@ -1,7 +1,17 @@
-import React, { FC, useState, useEffect, useMemo, useCallback, ChangeEvent } from "react";
+import React, {
+  FC,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  ChangeEvent,
+} from "react";
 import { Box, Input, HStack, Avatar, Text } from "@chakra-ui/react";
 import debounce from "lodash/debounce";
-import { AnimatedList, AnimatedListItem } from "@/components/animations/AnimatedList";
+import {
+  AnimatedList,
+  AnimatedListItem,
+} from "@/components/animations/AnimatedList";
 import { useUser } from "@/providers/UserProvider";
 
 export interface AutocompleteUser {
@@ -114,7 +124,11 @@ const UserSearchAutocomplete: FC<UserSearchAutocompleteProps> = ({
                   onMouseDown={() => handleSelect(option)}
                 >
                   <HStack>
-                    <Avatar name={option.fullName} src={option.imageUrl} size="sm" />
+                    <Avatar
+                      name={option.fullName}
+                      src={option.imageUrl}
+                      size="sm"
+                    />
                     <Text color="primary" ml={2}>
                       {option.fullName} ({option.email})
                     </Text>
