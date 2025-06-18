@@ -15,11 +15,12 @@ import {
   Input,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { useMediaUploader } from "@/hooks/useMediaUploader";
 import { HospitalityCategory } from "@/types/hospitalityHub";
+import UserSearchAutocomplete, { AutocompleteUser } from "@/components/forms/UserSearchAutocomplete";
 
 interface AddCategoryModalProps {
   isOpen: boolean;
@@ -148,8 +149,20 @@ export default function AddCategoryModal({
               <Input {...register("description", { required: true })} />
             </FormControl>
             <FormControl mb={4}>
-              <FormLabel>Handler Email</FormLabel>
-              <Input {...register("handlerEmail")} type="email" />
+              <FormLabel>Owner Email</FormLabel>
+              <Controller
+                name="handlerEmail"
+                control={control}
+                render={({ field: { value } }) => (
+                  <UserSearchAutocomplete
+                    value={value}
+                    onSelect={(u: AutocompleteUser) => {
+                      setValue("handlerEmail", u.email);
+                      setValue("catOwnerUserId", u.id);
+                    }}
+                  />
+                )}
+              />
             </FormControl>
             <ImageUploadWithCrop
               label="Image"
