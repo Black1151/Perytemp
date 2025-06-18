@@ -34,7 +34,7 @@ export const HospitalityHubAdminClientInner = () => {
   const [editingCategory, setEditingCategory] =
     useState<HospitalityCategory | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const { categories, loading, refresh } = useHospitalityCategories();
+  const { categories, loading, refresh } = useHospitalityCategories([], true);
   const [selectedCategory, setSelectedCategory] =
     useState<HospitalityCategory | null>(null);
   const itemTabRef = useRef<CategoryTabContentRef>(null);
