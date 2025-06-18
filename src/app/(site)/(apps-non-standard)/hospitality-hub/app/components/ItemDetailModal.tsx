@@ -12,10 +12,13 @@ import {
   Image,
   SimpleGrid,
   Box,
+  Button,
   HStack,
 } from "@chakra-ui/react";
 import { motion, Variants } from "framer-motion";
 import { HospitalityItem } from "@/types/hospitalityHub";
+import { useState } from "react";
+import BookingModal from "./BookingModal";
 import {
   Description,
   HowToReg,
@@ -61,6 +64,17 @@ export const ItemDetailModal = ({
   loading,
   optionalFields,
 }: ItemDetailModalProps) => {
+  const [bookingOpen, setBookingOpen] = useState(false);
+
+  const ctaText =
+    item?.itemType === "singleDayBookable"
+      ? "Book Now"
+      : item?.itemType === "singleDayBookableWithStartEnd"
+        ? "Book Slot"
+        : item?.itemType === "multiDayBookable"
+          ? "Book Event"
+          : "";
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="4xl">
       <ModalOverlay />
@@ -199,7 +213,21 @@ export const ItemDetailModal = ({
               </SimpleGrid>
             )}
           </ModalBody>
+          {item && ctaText && (
+            <Box p={4} textAlign="center">
+              <Button colorScheme="yellow" onClick={() => setBookingOpen(true)}>
+                {ctaText}
+              </Button>
+            </Box>
+          )}
         </VStack>
+        {item && (
+          <BookingModal
+            item={item}
+            isOpen={bookingOpen}
+            onClose={() => setBookingOpen(false)}
+          />
+        )}
       </ModalContent>
     </Modal>
   );
