@@ -20,7 +20,7 @@ export interface HospitalityItem {
   logoImageUrl: string;
   coverImageUrl: string;
   additionalImageUrlList: string[] | null;
-  handlerEmail?: string;
+  // handlerEmail?: string; - REMOVE
   fullAddress?: string | null;
   createdAt?: string;
   createdBy?: string;
@@ -36,7 +36,7 @@ export interface HospitalityCategory {
   catOwnerUserId: string;
   isActive: boolean;
   imageUrl?: string;
-  handlerEmail?: string;
+  // handlerEmail?: string; - REMOVE
 }
 
 export interface HospitalityBooking {

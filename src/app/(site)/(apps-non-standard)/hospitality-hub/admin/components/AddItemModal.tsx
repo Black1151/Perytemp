@@ -15,18 +15,21 @@ import {
   Input,
   Textarea,
   Select,
+  FormHelperText,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import DragDropFileInput from "@/components/forms/DragDropFileInput";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
-
+import { BigUpTeamMember } from "../../../big-up/types";
+import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
 interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   categoryId: string;
+  categoryOwnerId: number;
   onCreated: () => void;
   item?: HospitalityItem | null;
 }
@@ -40,7 +43,6 @@ interface FormValues {
   startDate: string;
   endDate: string;
   location: string;
-  handlerEmail?: string;
   customerId?: number;
   itemOwnerUserId?: number;
 }
@@ -49,10 +51,12 @@ export default function AddItemModal({
   isOpen,
   onClose,
   categoryId,
+  categoryOwnerId,
   onCreated,
   item,
 }: AddItemModalProps) {
-  const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
+  const { register, handleSubmit, reset, setValue, control } =
+    useForm<FormValues>();
   const toast = useToast();
 
   const { user } = useUser();
@@ -60,17 +64,37 @@ export default function AddItemModal({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
+  const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
 
   const customerId = user?.customerId;
-  const userId = user?.userId;
+
+  const fetchTeamMembers = async () => {
+    if (!customerId) return;
+    try {
+      const res = await fetch(
+        setValue("itemOwnerUserId", categoryOwnerId);
+  }, [item, isOpen, categoryOwnerId]);
+        setTeamMembers(
+          (data.resource || []).map((u: any) => ({
+            id: u.id,
+            fullName:
+              u.fullName || `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim(),
+            imageUrl: u.imageUrl,
+          }))
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     if (customerId !== undefined) setValue("customerId", customerId);
-    if (userId !== undefined) setValue("itemOwnerUserId", userId);
-  }, [customerId, userId, setValue]);
+  }, [customerId, setValue]);
 
   useEffect(() => {
     if (isOpen) {
+      fetchTeamMembers();
       if (item) {
         setValue("name", item.name);
         setValue("description", item.description);
@@ -84,6 +108,7 @@ export default function AddItemModal({
         );
         setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
         setValue("location", item.location);
+        setValue("itemOwnerUserId", Number(item.itemOwnerUserId));
         // Existing images are ignored when editing; handled server-side
       } else {
         reset();
@@ -123,8 +148,8 @@ export default function AddItemModal({
 
       if (customerId !== undefined)
         formData.append("customerId", String(customerId));
-      if (userId !== undefined)
-        formData.append("itemOwnerUserId", String(userId));
+      if (data.itemOwnerUserId !== undefined)
+        formData.append("itemOwnerUserId", String(data.itemOwnerUserId));
       formData.append("hospitalityCatId", categoryId);
       if (logoFile) formData.append("logoImageUpload", logoFile);
       if (coverFile) formData.append("coverImageUpload", coverFile);
@@ -188,7 +213,26 @@ export default function AddItemModal({
         <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
           <ModalBody>
             <input type="hidden" {...register("customerId")} />
-            <input type="hidden" {...register("itemOwnerUserId")} />
+            <FormControl mb={4} isRequired>
+              <FormLabel>Owner</FormLabel>
+              <Controller
+                name="itemOwnerUserId"
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TeamMemberAutocomplete
+                    value={value ? String(value) : ""}
+                    onChange={(val) => onChange(Number(val))}
+                    onBlur={onBlur}
+                    teamMembers={teamMembers}
+                    placeholder="Start typing to search..."
+                  />
+                )}
+              />
+              <FormHelperText>
+                If left unchanged, the category owner will be used.
+              </FormHelperText>
+            </FormControl>
             <FormControl mb={4} isRequired>
               <FormLabel>Name</FormLabel>
               <Input {...register("name", { required: true })} />
@@ -225,10 +269,6 @@ export default function AddItemModal({
             <FormControl mb={4}>
               <FormLabel>Location</FormLabel>
               <Input {...register("location")} />
-            </FormControl>
-            <FormControl mb={4}>
-              <FormLabel>Handler Email</FormLabel>
-              <Input {...register("handlerEmail")} type="email" />
             </FormControl>
             <ImageUploadWithCrop
               label="Logo Image"
