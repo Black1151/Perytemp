@@ -15,19 +15,29 @@ import {
   Input,
   Textarea,
   Select,
+  useToast,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import DragDropFileInput from "@/components/forms/DragDropFileInput";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { useToast } from "@chakra-ui/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
+import { BigUpTeamMember } from "../../../big-up/types";
+import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
+
+/**
+ * Updated AddItemModal that integrates TeamMemberAutocomplete as a controlled
+ * input managed by React‑Hook‑Form's Controller.
+ */
 
 interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   categoryId: string;
   onCreated: () => void;
+  /** Available team members shown in the autocomplete */
+  teamMembers: BigUpTeamMember[];
+  /** Existing item when editing; null when creating */
   item?: HospitalityItem | null;
 }
 
@@ -40,7 +50,8 @@ interface FormValues {
   startDate: string;
   endDate: string;
   location: string;
-  handlerEmail?: string;
+  /** Selected handler user (team member) */
+  handlerUserId: string | null;
   customerId?: number;
   itemOwnerUserId?: number;
 }
@@ -50,11 +61,25 @@ export default function AddItemModal({
   onClose,
   categoryId,
   onCreated,
+  teamMembers,
   item,
 }: AddItemModalProps) {
-  const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
-  const toast = useToast();
+  const { register, control, handleSubmit, reset, setValue } =
+    useForm<FormValues>({
+      defaultValues: {
+        name: "",
+        description: "",
+        itemType: "singleDayBookable",
+        howToDetails: "",
+        extraDetails: "",
+        startDate: "",
+        endDate: "",
+        location: "",
+        handlerUserId: null,
+      },
+    });
 
+  const toast = useToast();
   const { user } = useUser();
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -64,37 +89,51 @@ export default function AddItemModal({
   const customerId = user?.customerId;
   const userId = user?.userId;
 
+  /**
+   * Sync hidden defaults once customer & user IDs become available
+   */
   useEffect(() => {
     if (customerId !== undefined) setValue("customerId", customerId);
     if (userId !== undefined) setValue("itemOwnerUserId", userId);
   }, [customerId, userId, setValue]);
 
+  /**
+   * Populate form when opening modal for editing / reset when creating
+   */
   useEffect(() => {
-    if (isOpen) {
-      if (item) {
-        setValue("name", item.name);
-        setValue("description", item.description);
-        setValue("howToDetails", item.howToDetails || "");
-        setValue("itemType", item.itemType);
-        setValue("extraDetails", item.extraDetails || "");
-        setValue(
-          "startDate",
-          item.startDate ? item.startDate.slice(0, 10) : ""
-        );
-        setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
-        setValue("location", item.location || "");
-        // Existing images are ignored when editing; handled server-side
-      } else {
-        reset();
-        // reset image selections
-        if (customerId !== undefined) setValue("customerId", customerId);
-        if (userId !== undefined) setValue("itemOwnerUserId", userId);
-      }
-      setLogoFile(null);
-      setCoverFile(null);
-      setAdditionalFiles([]);
+    if (!isOpen) return;
+
+    if (item) {
+      setValue("name", item.name);
+      setValue("description", item.description);
+      setValue("howToDetails", item.howToDetails || "");
+      setValue("itemType", item.itemType);
+      setValue("extraDetails", item.extraDetails || "");
+      setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
+      setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
+      setValue("location", item.location || "");
+      setValue("handlerUserId", item.itemOwnerUserId ?? null);
+      // Existing images are server‑side only, ignore client‑side
+    } else {
+      reset({
+        name: "",
+        description: "",
+        itemType: "singleDayBookable",
+        howToDetails: "",
+        extraDetails: "",
+        startDate: "",
+        endDate: "",
+        location: "",
+        handlerUserId: null,
+        customerId: customerId ?? undefined,
+        itemOwnerUserId: userId ?? undefined,
+      });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    setLogoFile(null);
+    setCoverFile(null);
+    setAdditionalFiles([]);
+    // eslint‑disable‑next‑line react‑hooks/exhaustive‑deps
   }, [item, isOpen]);
 
   const onSubmit = async (data: FormValues) => {
@@ -113,20 +152,27 @@ export default function AddItemModal({
       const method = item ? "PUT" : "POST";
       const formData = new FormData();
 
+      // Append simple primitives first
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
-          formData.append(key, value as any);
+          formData.append(key, String(value));
         }
       });
 
+      // Append IDs that may not be present in data yet
       if (customerId !== undefined)
         formData.append("customerId", String(customerId));
       if (userId !== undefined)
         formData.append("itemOwnerUserId", String(userId));
       formData.append("hospitalityCatId", categoryId);
+      if (item) formData.append("id", item.id);
+
+      // Images
       if (logoFile) formData.append("logoImageUpload", logoFile);
       if (coverFile) formData.append("coverImageUpload", coverFile);
-      if (item) formData.append("id", item.id);
+      additionalFiles.forEach((file) =>
+        formData.append("additionalImages", file)
+      );
 
       const res = await fetch("/api/hospitality-hub/items", {
         method,
@@ -185,16 +231,23 @@ export default function AddItemModal({
         <ModalCloseButton />
         <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
           <ModalBody>
+            {/* Hidden fields */}
             <input type="hidden" {...register("customerId")} />
             <input type="hidden" {...register("itemOwnerUserId")} />
+
+            {/* Name */}
             <FormControl mb={4} isRequired>
               <FormLabel>Name</FormLabel>
               <Input {...register("name", { required: true })} />
             </FormControl>
+
+            {/* Description */}
             <FormControl mb={4} isRequired>
               <FormLabel>Description</FormLabel>
               <Textarea {...register("description", { required: true })} />
             </FormControl>
+
+            {/* Item Type */}
             <FormControl mb={4}>
               <FormLabel>Item Type</FormLabel>
               <Select {...register("itemType")}>
@@ -207,14 +260,20 @@ export default function AddItemModal({
                 <option value="info">Info</option>
               </Select>
             </FormControl>
+
+            {/* How To Details */}
             <FormControl mb={4}>
               <FormLabel>How To Details</FormLabel>
               <Textarea {...register("howToDetails")} />
             </FormControl>
+
+            {/* Extra Details */}
             <FormControl mb={4}>
               <FormLabel>Extra Details</FormLabel>
               <Textarea {...register("extraDetails")} />
             </FormControl>
+
+            {/* Start/End Dates */}
             <FormControl mb={4}>
               <FormLabel>Start Date</FormLabel>
               <Input type="date" {...register("startDate")} />
@@ -223,10 +282,33 @@ export default function AddItemModal({
               <FormLabel>End Date</FormLabel>
               <Input type="date" {...register("endDate")} />
             </FormControl>
+
+            {/* Location */}
             <FormControl mb={4}>
               <FormLabel>Location</FormLabel>
               <Input {...register("location")} />
             </FormControl>
+
+            {/* Handler (Team Member Autocomplete) */}
+            <FormControl mb={4} isRequired>
+              <FormLabel>Handler</FormLabel>
+              <Controller
+                name="handlerUserId"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <TeamMemberAutocomplete
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    teamMembers={teamMembers}
+                    placeholder="Search team member..."
+                  />
+                )}
+              />
+            </FormControl>
+
+            {/* Images */}
             <ImageUploadWithCrop
               label="Logo Image"
               onFileSelected={(file) => setLogoFile(file)}
@@ -244,6 +326,7 @@ export default function AddItemModal({
               />
             </FormControl>
           </ModalBody>
+
           <ModalFooter>
             <Button type="submit" colorScheme="blue">
               {item ? "Update" : "Create"}
