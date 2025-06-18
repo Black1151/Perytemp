@@ -40,13 +40,13 @@ export function HospitalityHubMasonry({
 
   const handleItemClick = async (itemId: string) => {
     if (!selected) return;
-    setModalOpen(true);
     setModalLoading(true);
     try {
       const res = await fetch(`/api/hospitality-hub/items?id=${itemId}`);
       const data = await res.json();
       if (res.ok) {
         setSelectedItem(data.resource);
+        setModalOpen(true);
       }
     } catch (err) {
       console.error(err);
