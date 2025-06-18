@@ -2,25 +2,24 @@ export interface HospitalityItem {
   id: string;
   name: string;
   description: string;
-  howToDetails: string;
-  extraDetails: string;
+  howToDetails?: string;
+  extraDetails?: string;
   customerId: string;
   itemOwnerUserId: string;
   hospitalityCatId: string;
   isActive: boolean;
-  startDate: string;
-  endDate: string | null;
-  location: string;
+  startDate?: string;
+  endDate?: string | null;
+  location?: string;
   itemType:
     | "singleDayBookable"
     | "singleDayBookableWithStartEnd"
     | "multiDayBookable"
     | "registerInterest"
     | "info";
-  logoImageUrl: string;
+  logoImageUrl?: string;
   coverImageUrl: string;
-  additionalImageUrlList: string[] | null;
-  handlerEmail?: string;
+  additionalImageUrlList?: string[] | null;
   fullAddress?: string | null;
   createdAt?: string;
   createdBy?: string;
@@ -36,7 +35,6 @@ export interface HospitalityCategory {
   catOwnerUserId: string;
   isActive: boolean;
   imageUrl?: string;
-  handlerEmail?: string;
 }
 
 export interface HospitalityBooking {

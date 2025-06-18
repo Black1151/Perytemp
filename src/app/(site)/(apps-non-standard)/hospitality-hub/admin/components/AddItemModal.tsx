@@ -74,21 +74,19 @@ export default function AddItemModal({
       if (item) {
         setValue("name", item.name);
         setValue("description", item.description);
-        setValue("howToDetails", item.howToDetails);
+        setValue("howToDetails", item.howToDetails || "");
         setValue("itemType", item.itemType);
-        setValue("extraDetails", item.extraDetails);
-        setValue("handlerEmail", item.handlerEmail || "");
+        setValue("extraDetails", item.extraDetails || "");
         setValue(
           "startDate",
           item.startDate ? item.startDate.slice(0, 10) : ""
         );
         setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
-        setValue("location", item.location);
+        setValue("location", item.location || "");
         // Existing images are ignored when editing; handled server-side
       } else {
         reset();
         // reset image selections
-        setValue("handlerEmail", "");
         if (customerId !== undefined) setValue("customerId", customerId);
         if (userId !== undefined) setValue("itemOwnerUserId", userId);
       }
@@ -200,10 +198,13 @@ export default function AddItemModal({
             <FormControl mb={4}>
               <FormLabel>Item Type</FormLabel>
               <Select {...register("itemType")}>
-                <option value="event">Event</option>
-                <option value="booking">Booking</option>
-                <option value="information">Information</option>
-                <option value="other">Other</option>
+                <option value="singleDayBookable">Single Day Bookable</option>
+                <option value="singleDayBookableWithStartEnd">
+                  Single Day Bookable With Start and End
+                </option>
+                <option value="multiDayBookable">Multi Day Bookable</option>
+                <option value="registerInterest">Register Interest</option>
+                <option value="info">Info</option>
               </Select>
             </FormControl>
             <FormControl mb={4}>
@@ -225,10 +226,6 @@ export default function AddItemModal({
             <FormControl mb={4}>
               <FormLabel>Location</FormLabel>
               <Input {...register("location")} />
-            </FormControl>
-            <FormControl mb={4}>
-              <FormLabel>Handler Email</FormLabel>
-              <Input {...register("handlerEmail")} type="email" />
             </FormControl>
             <ImageUploadWithCrop
               label="Logo Image"
