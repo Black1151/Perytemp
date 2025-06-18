@@ -33,6 +33,8 @@ const TeamMemberAutocomplete: FC<TeamMemberAutocompleteProps> = ({
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
+  console.log("teamMembers", teamMembers);
+
   const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     setShowDropdown(true);
