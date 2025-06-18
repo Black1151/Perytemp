@@ -45,12 +45,14 @@ export function HospitalityHubMasonry({
   const { items, loading } = useHospitalityItems(selected);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
+  const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(
     null
   );
 
   const handleItemClick = async (itemId: string) => {
     if (!selected) return;
+    setLoadingItemId(itemId);
     setModalLoading(true);
     try {
       const res = await fetch(`/api/hospitality-hub/items?id=${itemId}`);
@@ -77,6 +79,7 @@ export function HospitalityHubMasonry({
       console.error(err);
     } finally {
       setModalLoading(false);
+      setLoadingItemId(null);
     }
   };
 
@@ -105,6 +108,7 @@ export function HospitalityHubMasonry({
                 <MasonryItemCard
                   item={item}
                   onClick={() => handleItemClick(item.id)}
+                  loading={loadingItemId === item.id}
                 />
               </AnimatedListItem>
             ))}
