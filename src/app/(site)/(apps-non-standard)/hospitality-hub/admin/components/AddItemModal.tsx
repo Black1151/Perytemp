@@ -15,6 +15,7 @@ import {
   Input,
   Textarea,
   Select,
+  FormHelperText,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import DragDropFileInput from "@/components/forms/DragDropFileInput";
@@ -24,11 +25,11 @@ import { useToast } from "@chakra-ui/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import { BigUpTeamMember } from "../../../big-up/types";
 import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
-
 interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   categoryId: string;
+  categoryOwnerId: number;
   onCreated: () => void;
   item?: HospitalityItem | null;
 }
@@ -42,7 +43,6 @@ interface FormValues {
   startDate: string;
   endDate: string;
   location: string;
-  handlerEmail?: string;
   customerId?: number;
   itemOwnerUserId?: number;
 }
@@ -51,10 +51,12 @@ export default function AddItemModal({
   isOpen,
   onClose,
   categoryId,
+  categoryOwnerId,
   onCreated,
   item,
 }: AddItemModalProps) {
-  const { register, handleSubmit, reset, setValue } = useForm<FormValues>();
+  const { register, handleSubmit, reset, setValue, control } =
+    useForm<FormValues>();
   const toast = useToast();
 
   const { user } = useUser();
@@ -65,16 +67,13 @@ export default function AddItemModal({
   const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
 
   const customerId = user?.customerId;
-  const userId = user?.userId;
 
   const fetchTeamMembers = async () => {
     if (!customerId) return;
     try {
       const res = await fetch(
-        `/api/user/allBy?customerId=${customerId}&selectColumns=id,firstName,lastName,imageUrl`
-      );
-      const data = await res.json();
-      if (res.ok) {
+        setValue("itemOwnerUserId", categoryOwnerId);
+  }, [item, isOpen, categoryOwnerId]);
         setTeamMembers(
           (data.resource || []).map((u: any) => ({
             id: u.id,
@@ -230,6 +229,9 @@ export default function AddItemModal({
                   />
                 )}
               />
+              <FormHelperText>
+                If left unchanged, the category owner will be used.
+              </FormHelperText>
             </FormControl>
             <FormControl mb={4} isRequired>
               <FormLabel>Name</FormLabel>
@@ -267,10 +269,6 @@ export default function AddItemModal({
             <FormControl mb={4}>
               <FormLabel>Location</FormLabel>
               <Input {...register("location")} />
-            </FormControl>
-            <FormControl mb={4}>
-              <FormLabel>Handler Email</FormLabel>
-              <Input {...register("handlerEmail")} type="email" />
             </FormControl>
             <ImageUploadWithCrop
               label="Logo Image"
