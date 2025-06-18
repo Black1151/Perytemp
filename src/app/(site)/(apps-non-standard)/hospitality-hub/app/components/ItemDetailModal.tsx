@@ -65,13 +65,15 @@ export const ItemDetailModal = ({
   const [bookingOpen, setBookingOpen] = useState(false);
 
   const ctaText =
-    item?.itemType === "singleDayBookable"
-      ? "Book Now"
-      : item?.itemType === "singleDayBookableWithStartEnd"
-        ? "Book Slot"
-        : item?.itemType === "multiDayBookable"
-          ? "Book Event"
-          : "";
+    item?.itemType === "info"
+      ? ""
+      : item?.itemType === "singleDayBookable"
+        ? "Book Now"
+        : item?.itemType === "singleDayBookableWithStartEnd"
+          ? "Book Slot"
+          : item?.itemType === "multiDayBookable"
+            ? "Book Event"
+            : "";
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="4xl">
