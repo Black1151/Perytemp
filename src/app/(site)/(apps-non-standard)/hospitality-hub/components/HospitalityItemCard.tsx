@@ -20,8 +20,6 @@ export default function HospitalityItemCard({
       cursor={onClick ? "pointer" : undefined}
       onClick={onClick}
       h="100%"
-      transition="transform 0.3s, box-shadow 0.3s"
-      _hover={{ transform: "scale(1.03)", boxShadow: "2xl" }}
     >
       <PerygonCard
         width="100%"
@@ -29,9 +27,6 @@ export default function HospitalityItemCard({
         p={4}
         display="flex"
         flexDirection="column"
-        border="4px solid rgb(238, 228, 88)"
-        bgColor="rgb(60, 60, 60)"
-        borderRadius="md"
       >
         {(item.coverImageUrl || item.logoImageUrl) && (
           <Image
@@ -42,9 +37,7 @@ export default function HospitalityItemCard({
           />
         )}
         <VStack align="start" spacing={1} flex={1}>
-          <Text fontWeight="bold" color="white">
-            {item.name}
-          </Text>
+          <Text fontWeight="bold">{item.name}</Text>
           {item.description && <Text fontSize="sm">{item.description}</Text>}
         </VStack>
       </PerygonCard>

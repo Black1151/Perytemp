@@ -5,16 +5,26 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
   ModalBody,
   Text,
   Spinner,
   VStack,
   Image,
   SimpleGrid,
+  Box,
+  HStack,
 } from "@chakra-ui/react";
 import { motion, Variants } from "framer-motion";
 import { HospitalityItem } from "@/types/hospitalityHub";
+import {
+  Description,
+  HowToReg,
+  Info,
+  CalendarToday,
+  EventAvailable,
+  LocationOn,
+  Category,
+} from "@mui/icons-material";
 
 interface ItemDetailModalProps {
   isOpen: boolean;
@@ -41,6 +51,8 @@ const itemVariants: Variants = {
 const MotionVStack = motion(VStack);
 const MotionText = motion(Text);
 const MotionImage = motion(Image);
+const MotionBox = motion(Box);
+const MotionHStack = motion(HStack);
 
 export const ItemDetailModal = ({
   isOpen,
@@ -50,94 +62,144 @@ export const ItemDetailModal = ({
   optionalFields,
 }: ItemDetailModalProps) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} size="4xl">
       <ModalOverlay />
-      <ModalContent bg="gray.800" color="gray.200" p={4}>
-        <ModalHeader
-          fontSize="3xl"
-          textAlign="center"
-          color="yellow.400"
-          fontFamily="metropolis"
+      <ModalContent
+        bg="gray.800"
+        color="gray.200"
+        p={0}
+        border="2px solid yellow"
+        borderRadius="lg"
+      >
+        <VStack
+          bg="rgba(0,0,0,0.6)"
+          align="stretch"
+          spacing={0}
+          borderRadius="lg"
         >
-          {item?.name || "Details"}
-        </ModalHeader>
-        <ModalCloseButton color="gray.200" />
-        <ModalBody>
-          {loading ? (
-            <Spinner />
-          ) : (
-            <MotionVStack
-              align="start"
-              spacing={2}
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {item?.description && (
-                <MotionText variants={itemVariants}>{item.description}</MotionText>
-              )}
-              {item?.howToDetails && (
-                <MotionText variants={itemVariants}>How To: {item.howToDetails}</MotionText>
-              )}
-              {item?.extraDetails && (
-                <MotionText variants={itemVariants}>Extra Details: {item.extraDetails}</MotionText>
-              )}
-              {item?.startDate && (
-                <MotionText variants={itemVariants}>Start Date: {item.startDate}</MotionText>
-              )}
-              {item?.endDate && (
-                <MotionText variants={itemVariants}>End Date: {item.endDate}</MotionText>
-              )}
-              {item?.location && (
-                <MotionText variants={itemVariants}>Location: {item.location}</MotionText>
-              )}
-              {item?.itemType && (
-                <MotionText variants={itemVariants}>Item Type: {item.itemType}</MotionText>
-              )}
-              {optionalFields?.map((field) =>
-                item && (item as any)[field] ? (
-                  <MotionText key={field} variants={itemVariants}>
-                    {field.charAt(0).toUpperCase() + field.slice(1)}: {String((item as any)[field])}
-                  </MotionText>
-                ) : null
-              )}
-              {(item?.logoImageUrl || item?.coverImageUrl) && (
-                <SimpleGrid columns={[1, 2]} gap={2} w="100%">
-                  {item?.coverImageUrl && (
+          <ModalBody p={0}>
+            {loading ? (
+              <Spinner />
+            ) : (
+              <SimpleGrid columns={2} spacing={4}>
+                <MotionVStack
+                  align="start"
+                  spacing={2}
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  p={4}
+                >
+                  <ModalHeader
+                    fontSize="3xl"
+                    textAlign="left"
+                    color="yellow.400"
+                    fontFamily="metropolis"
+                    p={0}
+                  >
+                    {item?.name || "Details"}
+                  </ModalHeader>
+                  <VStack align="start" spacing={6} width="100%">
+                    {item?.description && (
+                      <MotionHStack
+                        variants={itemVariants}
+                        width="100%"
+                        alignItems="flex-start"
+                      >
+                        <Description />
+                        <Text flex="1">{item.description}</Text>
+                      </MotionHStack>
+                    )}
+                    {item?.howToDetails && (
+                      <MotionHStack
+                        variants={itemVariants}
+                        width="100%"
+                        alignItems="flex-start"
+                      >
+                        <HowToReg />
+                        <Text flex="1">{item.howToDetails}</Text>
+                      </MotionHStack>
+                    )}
+                    {item?.extraDetails && (
+                      <MotionHStack
+                        variants={itemVariants}
+                        width="100%"
+                        alignItems="flex-start"
+                      >
+                        <Info />
+                        <Text flex="1">{item.extraDetails}</Text>
+                      </MotionHStack>
+                    )}
+                    {item?.startDate && (
+                      <MotionHStack
+                        variants={itemVariants}
+                        width="100%"
+                        alignItems="flex-start"
+                      >
+                        <CalendarToday />
+                        <Text flex="1">{item.startDate}</Text>
+                      </MotionHStack>
+                    )}
+                    {item?.endDate && (
+                      <MotionHStack
+                        variants={itemVariants}
+                        width="100%"
+                        alignItems="flex-start"
+                      >
+                        <EventAvailable />
+                        <Text flex="1">{item.endDate}</Text>
+                      </MotionHStack>
+                    )}
+                    {item?.location && (
+                      <MotionHStack
+                        variants={itemVariants}
+                        width="100%"
+                        alignItems="flex-start"
+                      >
+                        <LocationOn />
+                        <Text flex="1">{item.location}</Text>
+                      </MotionHStack>
+                    )}
+
+                    {optionalFields?.map((field) =>
+                      item && (item as any)[field] ? (
+                        <MotionHStack
+                          key={field}
+                          variants={itemVariants}
+                          width="100%"
+                          alignItems="flex-start"
+                        >
+                          <Info />
+                          <Text flex="1">{String((item as any)[field])}</Text>
+                        </MotionHStack>
+                      ) : null
+                    )}
+                  </VStack>
+                </MotionVStack>
+                {item?.coverImageUrl && (
+                  <Box position="relative">
                     <MotionImage
-                      variants={itemVariants}
                       src={item.coverImageUrl}
                       alt={item.name}
-                      borderRadius="md"
-                    />
-                  )}
-                  {item?.logoImageUrl && (
-                    <MotionImage
                       variants={itemVariants}
-                      src={item.logoImageUrl}
-                      alt={item.name}
+                      objectFit="cover"
                       borderRadius="md"
                     />
-                  )}
-                </SimpleGrid>
-              )}
-              {(() => {
-                const additionalImages = Array.isArray(item?.additionalImageUrlList)
-                  ? item?.additionalImageUrlList
-                  : typeof item?.additionalImageUrlList === "string"
-                    ? item.additionalImageUrlList.split(',').map((u) => u.trim()).filter(Boolean)
-                    : [];
-                return additionalImages.length ? (
-                  <SimpleGrid columns={[1, 2]} gap={2} w="100%">
-                    {additionalImages.map((url) => (
-                      <MotionImage variants={itemVariants} key={url} src={url} alt={item?.name} borderRadius="md" />
-                    ))}
-                  </SimpleGrid>
-                ) : null;
-              })()}
-            </MotionVStack>
-          )}
-        </ModalBody>
+                    <Box
+                      position="absolute"
+                      top={0}
+                      left={0}
+                      right={0}
+                      bottom={0}
+                      bgGradient="linear(90deg, rgba(0,0,0,0.95), transparent)"
+                      borderRadius="md"
+                    />
+                  </Box>
+                )}
+              </SimpleGrid>
+            )}
+          </ModalBody>
+        </VStack>
       </ModalContent>
     </Modal>
   );
