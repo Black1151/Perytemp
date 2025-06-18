@@ -22,6 +22,7 @@ export default function DragDropFileInput({
   multiple = false,
 }: DragDropFileInputProps) {
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const borderColor = useColorModeValue("gray.400", "gray.600");
   const hoverBorderColor = useColorModeValue("gray.200", "gray.400");
@@ -31,6 +32,7 @@ export default function DragDropFileInput({
     if (!multiple && arr[0]) {
       setPreviewUrl(URL.createObjectURL(arr[0]));
     }
+    setSelectedFiles(arr);
     onFilesSelected(arr);
   };
 
@@ -38,16 +40,13 @@ export default function DragDropFileInput({
     e.preventDefault();
   }, []);
 
-  const onDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      const files = e.dataTransfer.files;
-      if (files && files.length > 0) {
-        handleFiles(files);
-      }
-    },
-    []
-  );
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleFiles(files);
+    }
+  }, []);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -55,6 +54,13 @@ export default function DragDropFileInput({
       handleFiles(files);
     }
     e.target.value = "";
+  };
+
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPreviewUrl("");
+    setSelectedFiles([]);
+    onFilesSelected([]);
   };
 
   return (
@@ -95,6 +101,11 @@ export default function DragDropFileInput({
         >
           {previewUrl && !multiple ? "Change File" : "Browse files"}
         </Button>
+        {(previewUrl || selectedFiles.length > 0) && (
+          <Button size="sm" colorScheme="red" ml={2} onClick={handleRemove}>
+            Remove
+          </Button>
+        )}
         <input
           ref={inputRef}
           type="file"

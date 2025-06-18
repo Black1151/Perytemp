@@ -71,6 +71,13 @@ export default function ImageUploadWithCrop({
     setFile(null);
   };
 
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPreviewUrl("");
+    setFile(null);
+    onFileSelected(null);
+  };
+
   return (
     <FormControl mb={4} isRequired={isRequired}>
       <FormLabel>{label}</FormLabel>
@@ -111,6 +118,11 @@ export default function ImageUploadWithCrop({
           >
             {previewUrl ? "Change Image" : "Browse files"}
           </Button>
+          {previewUrl && (
+            <Button size="sm" colorScheme="red" ml={2} onClick={handleRemove}>
+              Remove
+            </Button>
+          )}
           <input
             ref={inputRef}
             type="file"
