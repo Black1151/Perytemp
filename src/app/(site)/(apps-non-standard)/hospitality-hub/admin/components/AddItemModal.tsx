@@ -290,7 +290,7 @@ export default function AddItemModal({
             </FormControl>
 
             {/* Handler (Team Member Autocomplete) */}
-            <FormControl mb={4} isRequired>
+            {/* <FormControl mb={4} isRequired>
               <FormLabel>Handler</FormLabel>
               <Controller
                 name="handlerUserId"
@@ -306,7 +306,7 @@ export default function AddItemModal({
                   />
                 )}
               />
-            </FormControl>
+            </FormControl> */}
 
             {/* Images */}
             <ImageUploadWithCrop
