@@ -20,8 +20,6 @@ export default function HospitalityItemCard({
       cursor={onClick ? "pointer" : undefined}
       onClick={onClick}
       h="100%"
-      transition="transform 0.3s, box-shadow 0.3s"
-      _hover={{ transform: "scale(1.03)", boxShadow: "2xl" }}
     >
       <PerygonCard
         width="100%"
