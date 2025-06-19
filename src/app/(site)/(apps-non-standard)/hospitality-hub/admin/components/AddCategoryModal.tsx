@@ -18,7 +18,6 @@ import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
-import { useMediaUploader } from "@/hooks/useMediaUploader";
 import { HospitalityCategory } from "@/types/hospitalityHub";
 
 interface AddCategoryModalProps {
@@ -34,7 +33,6 @@ interface FormValues {
   handlerEmail?: string;
   customerId?: number;
   catOwnerUserId?: number;
-  imageUrl?: string;
 }
 
 export default function AddCategoryModal({
@@ -48,14 +46,7 @@ export default function AddCategoryModal({
 
   const { user } = useUser();
 
-  const [imageUrl, setImageUrl] = useState<string>("");
-
-  const { uploadMediaFile } = useMediaUploader(
-    "/api/hospitality-hub/uploadImage",
-    "imageUrl",
-    () => {},
-    10 * 1024 * 1024
-  );
+  const [coverFile, setCoverFile] = useState<File | null>(null);
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -67,13 +58,12 @@ export default function AddCategoryModal({
 
   useEffect(() => {
     if (isOpen) {
+      setCoverFile(null);
       if (category) {
         setValue("name", category.name);
         setValue("description", category.description);
-        setImageUrl(category.imageUrl || "");
       } else {
         reset();
-        setImageUrl("");
         setValue("handlerEmail", "");
         if (customerId !== undefined) setValue("customerId", customerId);
         if (userId !== undefined) setValue("catOwnerUserId", userId);
@@ -84,19 +74,24 @@ export default function AddCategoryModal({
 
   const onSubmit = async (data: FormValues) => {
     const method = category ? "PUT" : "POST";
-    const body = {
-      ...data,
-      imageUrl,
-      customerId,
-      catOwnerUserId: userId,
-    } as any;
-    if (category) {
-      (body as any).id = category.id;
-    }
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        formData.append(key, String(value));
+      }
+    });
+
+    if (customerId !== undefined)
+      formData.append("customerId", String(customerId));
+    if (userId !== undefined)
+      formData.append("catOwnerUserId", String(userId));
+    if (category) formData.append("id", category.id);
+    if (coverFile) formData.append("coverImageUpload", coverFile);
 
     const res = await fetch("/api/hospitality-hub/categories", {
       method,
-      body: JSON.stringify(body),
+      body: formData,
     });
 
     const result = await res.json();
@@ -129,6 +124,7 @@ export default function AddCategoryModal({
 
     onCreated();
     reset();
+    setCoverFile(null);
     onClose();
   };
 
@@ -140,7 +136,7 @@ export default function AddCategoryModal({
           {category ? "Update Category" : "Create Category"}
         </ModalHeader>
         <ModalCloseButton />
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
           <ModalBody>
             <input type="hidden" {...register("customerId")} />
             <input type="hidden" {...register("catOwnerUserId")} />
@@ -158,11 +154,7 @@ export default function AddCategoryModal({
             </FormControl>
             <ImageUploadWithCrop
               label="Image"
-              onFileSelected={async (file) => {
-                if (!file) return;
-                const data = await uploadMediaFile(file);
-                setImageUrl(data.imageUrl);
-              }}
+              onFileSelected={(file) => setCoverFile(file)}
             />
           </ModalBody>
           <ModalFooter>
