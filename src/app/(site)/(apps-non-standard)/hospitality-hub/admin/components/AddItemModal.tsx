@@ -126,7 +126,6 @@ export default function AddItemModal({
         if (res.ok) {
           const list = (data.resource ?? data) as any[];
 
-          console.log("list", list);
           setTeamMembers(list);
         } else {
           toast({
