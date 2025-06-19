@@ -85,6 +85,10 @@ export default function AddItemModal({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
+  const [existingLogoUrl, setExistingLogoUrl] = useState<string | null>(null);
+  const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null);
+  const [removeLogoUrl, setRemoveLogoUrl] = useState<string | null>(null);
+  const [removeCoverUrl, setRemoveCoverUrl] = useState<string | null>(null);
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -113,7 +117,8 @@ export default function AddItemModal({
       setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
       setValue("location", item.location || "");
       setValue("handlerUserId", item.itemOwnerUserId ?? null);
-      // Existing images are server‑side only, ignore client‑side
+      setExistingLogoUrl(item.logoImageUrl || null);
+      setExistingCoverUrl(item.coverImageUrl || null);
     } else {
       reset({
         name: "",
@@ -128,11 +133,15 @@ export default function AddItemModal({
         customerId: customerId ?? undefined,
         itemOwnerUserId: userId ?? undefined,
       });
+      setExistingLogoUrl(null);
+      setExistingCoverUrl(null);
     }
 
     setLogoFile(null);
     setCoverFile(null);
     setAdditionalFiles([]);
+    setRemoveLogoUrl(null);
+    setRemoveCoverUrl(null);
     // eslint‑disable‑next‑line react‑hooks/exhaustive‑deps
   }, [item, isOpen]);
 
@@ -140,6 +149,30 @@ export default function AddItemModal({
     if (!user?.customerUniqueId) {
       toast({
         title: "Missing customer information.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-right",
+      });
+      return;
+    }
+
+    if (removeLogoUrl && !logoFile) {
+      toast({
+        title: "Logo image required",
+        description: "Please upload a new logo image after removing the existing one.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-right",
+      });
+      return;
+    }
+
+    if (removeCoverUrl && !coverFile) {
+      toast({
+        title: "Cover image required",
+        description: "Please upload a new cover image after removing the existing one.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -170,6 +203,8 @@ export default function AddItemModal({
       // Images
       if (logoFile) formData.append("logoImageUpload", logoFile);
       if (coverFile) formData.append("coverImageUpload", coverFile);
+      if (removeLogoUrl) formData.append("removeLogoImage", removeLogoUrl);
+      if (removeCoverUrl) formData.append("removeCoverImage", removeCoverUrl);
       additionalFiles.forEach((file) =>
         formData.append("additionalImages", file)
       );
@@ -312,10 +347,22 @@ export default function AddItemModal({
             <ImageUploadWithCrop
               label="Logo Image"
               onFileSelected={(file) => setLogoFile(file)}
+              isRequired={!existingLogoUrl}
+              existingUrl={existingLogoUrl || undefined}
+              onRemoveExisting={() => {
+                if (existingLogoUrl) setRemoveLogoUrl(existingLogoUrl);
+                setExistingLogoUrl(null);
+              }}
             />
             <ImageUploadWithCrop
               label="Cover Image"
               onFileSelected={(file) => setCoverFile(file)}
+              isRequired={!existingCoverUrl}
+              existingUrl={existingCoverUrl || undefined}
+              onRemoveExisting={() => {
+                if (existingCoverUrl) setRemoveCoverUrl(existingCoverUrl);
+                setExistingCoverUrl(null);
+              }}
             />
             <FormControl mb={4}>
               <FormLabel>Additional Images</FormLabel>
