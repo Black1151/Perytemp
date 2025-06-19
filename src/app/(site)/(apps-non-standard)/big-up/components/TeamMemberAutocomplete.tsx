@@ -63,7 +63,7 @@ const TeamMemberAutocomplete: FC<TeamMemberAutocompleteProps> = ({
   }, [search]);
 
   const filteredMembers = useMemo(() => {
-    if (!debouncedSearch.trim()) return [];
+    if (!debouncedSearch.trim() || !Array.isArray(teamMembers)) return [];
     const lowerSearch = debouncedSearch.toLowerCase();
     return teamMembers.filter((member) => {
       const name = member.fullName ?? "";
