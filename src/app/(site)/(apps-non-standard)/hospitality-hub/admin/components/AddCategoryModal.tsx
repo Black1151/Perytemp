@@ -54,7 +54,7 @@ export default function AddCategoryModal({
     "/api/hospitality-hub/uploadImage",
     "imageUrl",
     () => {},
-    10 * 1024 * 1024,
+    10 * 1024 * 1024
   );
 
   const customerId = user?.customerId;
@@ -70,7 +70,6 @@ export default function AddCategoryModal({
       if (category) {
         setValue("name", category.name);
         setValue("description", category.description);
-        setValue("handlerEmail", category.handlerEmail || "");
         setImageUrl(category.imageUrl || "");
       } else {
         reset();
@@ -106,7 +105,9 @@ export default function AddCategoryModal({
       toast({
         title:
           result.error ||
-          (category ? "Failed to update category." : "Failed to create category."),
+          (category
+            ? "Failed to update category."
+            : "Failed to create category."),
         description: result.details,
         status: "error",
         duration: 5000,
@@ -117,7 +118,9 @@ export default function AddCategoryModal({
     }
 
     toast({
-      title: category ? "Category updated successfully." : "Category created successfully.",
+      title: category
+        ? "Category updated successfully."
+        : "Category created successfully.",
       status: "success",
       duration: 5000,
       isClosable: true,
@@ -133,7 +136,9 @@ export default function AddCategoryModal({
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{category ? "Update Category" : "Create Category"}</ModalHeader>
+        <ModalHeader>
+          {category ? "Update Category" : "Create Category"}
+        </ModalHeader>
         <ModalCloseButton />
         <form onSubmit={handleSubmit(onSubmit)}>
           <ModalBody>
