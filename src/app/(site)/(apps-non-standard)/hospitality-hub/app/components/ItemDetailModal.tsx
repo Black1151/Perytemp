@@ -187,13 +187,15 @@ export const ItemDetailModal = ({
                   </VStack>
                 </MotionVStack>
                 {item?.coverImageUrl && (
-                  <Box position="relative">
+                  <Box position="relative" h="100%">
                     <MotionImage
                       src={item.coverImageUrl}
                       alt={item.name}
                       variants={itemVariants}
                       objectFit="cover"
                       borderRadius="md"
+                      w="100%"
+                      h="100%"
                     />
                     <Box
                       position="absolute"
