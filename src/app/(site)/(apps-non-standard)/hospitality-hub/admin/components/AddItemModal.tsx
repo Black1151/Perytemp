@@ -35,7 +35,7 @@ interface AddItemModalProps {
   onClose: () => void;
   categoryId: string;
   onCreated: () => void;
-  teamMembers: BigUpTeamMember[];
+  // teamMembers: BigUpTeamMember[];
   item?: HospitalityItem | null;
 }
 
@@ -45,8 +45,8 @@ interface FormValues {
   itemType: string;
   howToDetails: string;
   extraDetails: string;
-  startDate: string;
-  endDate: string;
+  // startDate: string;
+  // endDate: string;
   location: string;
   customerId?: number;
   itemOwnerUserId?: number;
@@ -57,7 +57,6 @@ export default function AddItemModal({
   onClose,
   categoryId,
   onCreated,
-  teamMembers,
   item,
 }: AddItemModalProps) {
   const { register, control, handleSubmit, reset, setValue } =
@@ -68,8 +67,8 @@ export default function AddItemModal({
         itemType: "singleDayBookable",
         howToDetails: "",
         extraDetails: "",
-        startDate: "",
-        endDate: "",
+        // startDate: "",
+        // endDate: "",
         location: "",
       },
     });
@@ -84,6 +83,7 @@ export default function AddItemModal({
   const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null);
   const [removeLogoUrl, setRemoveLogoUrl] = useState<string | null>(null);
   const [removeCoverUrl, setRemoveCoverUrl] = useState<string | null>(null);
+  const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -97,6 +97,46 @@ export default function AddItemModal({
   }, [customerId, userId, setValue]);
 
   /**
+   * Fetch team members for the autocomplete when the modal opens
+   */
+  useEffect(() => {
+    const fetchMembers = async () => {
+      if (!isOpen || !customerId) return;
+      try {
+        const res = await fetch(
+          `/api/getForTeamMemberInput?customerId=${customerId}`
+        );
+        const data = await res.json();
+        if (res.ok) {
+          const list = (data.resource ?? data) as any[];
+
+          console.log("list", list);
+          setTeamMembers(list);
+        } else {
+          toast({
+            title: "Failed to fetch team members.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom-right",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        toast({
+          title: "Failed to fetch team members.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-right",
+        });
+      }
+    };
+
+    fetchMembers();
+  }, [isOpen, customerId, toast]);
+
+  /**
    * Populate form when opening modal for editing / reset when creating
    */
   useEffect(() => {
@@ -108,9 +148,10 @@ export default function AddItemModal({
       setValue("howToDetails", item.howToDetails || "");
       setValue("itemType", item.itemType);
       setValue("extraDetails", item.extraDetails || "");
-      setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
-      setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
+      // setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
+      // setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
       setValue("location", item.location || "");
+      setValue("itemOwnerUserId", Number(item.itemOwnerUserId));
       setExistingLogoUrl(item.logoImageUrl || null);
       setExistingCoverUrl(item.coverImageUrl || null);
     } else {
@@ -120,8 +161,8 @@ export default function AddItemModal({
         itemType: "singleDayBookable",
         howToDetails: "",
         extraDetails: "",
-        startDate: "",
-        endDate: "",
+        // startDate: "",
+        // endDate: "",
         location: "",
         customerId: customerId ?? undefined,
         itemOwnerUserId: userId ?? undefined,
@@ -190,17 +231,17 @@ export default function AddItemModal({
       // Append IDs that may not be present in data yet
       if (customerId !== undefined)
         formData.append("customerId", String(customerId));
-      if (userId !== undefined)
-        formData.append("itemOwnerUserId", String(userId));
+      if (data.itemOwnerUserId !== undefined)
+        formData.append("itemOwnerUserId", String(data.itemOwnerUserId));
       formData.append("hospitalityCatId", categoryId);
       if (item) formData.append("id", item.id);
 
       // Images
       if (logoFile) formData.append("logoImageUpload", logoFile);
       if (coverFile) formData.append("coverImageUpload", coverFile);
-      additionalFiles.forEach((file) =>
-        formData.append("additionalImages", file)
-      );
+      additionalFiles.forEach((file) => {
+        formData.append("AdditionalImagesListUpload[]", file);
+      });
 
       const res = await fetch("/api/hospitality-hub/items", {
         method,
@@ -302,14 +343,14 @@ export default function AddItemModal({
             </FormControl>
 
             {/* Start/End Dates */}
-            <FormControl mb={4}>
+            {/* <FormControl mb={4}>
               <FormLabel>Start Date</FormLabel>
               <Input type="date" {...register("startDate")} />
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>End Date</FormLabel>
               <Input type="date" {...register("endDate")} />
-            </FormControl>
+            </FormControl> */}
 
             {/* Location */}
             <FormControl mb={4}>
@@ -317,16 +358,17 @@ export default function AddItemModal({
               <Input {...register("location")} />
             </FormControl>
 
-            {/* Handler (Team Member Autocomplete) */}
-            {/* <FormControl mb={4} isRequired>
-              <FormLabel>Handler</FormLabel>
+            {/* Item Owner (Team Member Autocomplete) */}
+            <FormControl mb={4} isRequired>
+              <FormLabel>Item Owner</FormLabel>
+
               <Controller
-                name="handlerUserId"
+                name="itemOwnerUserId"
                 control={control}
                 rules={{ required: true }}
                 render={({ field }) => (
                   <TeamMemberAutocomplete
-                    value={field.value || ""}
+                    value={field.value?.toString() || ""}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
                     teamMembers={teamMembers}
@@ -334,7 +376,7 @@ export default function AddItemModal({
                   />
                 )}
               />
-            </FormControl> */}
+            </FormControl>
 
             {/* Images */}
             <ImageUploadWithCrop

@@ -13,19 +13,15 @@ export async function GET(req: Request) {
       );
     }
 
-    // Build the upstream URL exactly like the Postman example
-    const upstreamPath =
-      `/getAllView?view=vwUserTeamMembersList` +
-      `&customerId=${encodeURIComponent(customerId)}` +
-      `&selectColumns=siteName,userFullname`;
-
-    // Call the Perygon service
-    const response = await apiClient(upstreamPath, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await apiClient(
+      `/user/findTeamMemberAutoCompleteData/${customerId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });

@@ -4,6 +4,7 @@ import React, { useState, useRef, useCallback } from "react";
 import {
   Box,
   VStack,
+  HStack,
   Image,
   Text,
   Button,
@@ -24,6 +25,7 @@ export default function DragDropFileInput({
   multiple = false,
 }: DragDropFileInputProps) {
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const borderColor = useColorModeValue("gray.400", "gray.600");
@@ -31,11 +33,21 @@ export default function DragDropFileInput({
 
   const handleFiles = (files: FileList | File[]) => {
     const arr = Array.from(files);
-    if (!multiple && arr[0]) {
+    if (multiple) {
+      setSelectedFiles((prev) => {
+        const newFiles = [...prev, ...arr];
+        onFilesSelected(newFiles);
+        return newFiles;
+      });
+      setPreviewUrls((prev) => [
+        ...prev,
+        ...arr.map((f) => URL.createObjectURL(f)),
+      ]);
+    } else if (arr[0]) {
       setPreviewUrl(URL.createObjectURL(arr[0]));
+      setSelectedFiles([arr[0]]);
+      onFilesSelected([arr[0]]);
     }
-    setSelectedFiles(arr);
-    onFilesSelected(arr);
   };
 
   const onDragOver = useCallback((e: React.DragEvent) => {
@@ -58,11 +70,28 @@ export default function DragDropFileInput({
     e.target.value = "";
   };
 
-  const handleRemove = (e: React.MouseEvent) => {
+  const handleRemove = (e: React.MouseEvent, index?: number) => {
     e.stopPropagation();
-    setPreviewUrl("");
-    setSelectedFiles([]);
-    onFilesSelected([]);
+    if (multiple) {
+      setSelectedFiles((prev) => {
+        const newFiles =
+          index === undefined ? [] : prev.filter((_, i) => i !== index);
+        onFilesSelected(newFiles);
+        return newFiles;
+      });
+      setPreviewUrls((prev) => {
+        if (index === undefined) {
+          prev.forEach((url) => URL.revokeObjectURL(url));
+          return [];
+        }
+        URL.revokeObjectURL(prev[index]);
+        return prev.filter((_, i) => i !== index);
+      });
+    } else {
+      setPreviewUrl("");
+      setSelectedFiles([]);
+      onFilesSelected([]);
+    }
   };
 
   return (
@@ -93,7 +122,7 @@ export default function DragDropFileInput({
             position="absolute"
             top={2}
             right={2}
-            onClick={handleRemove}
+            onClick={(e) => handleRemove(e)}
           />
         )}
         <Box mb={4}>
@@ -125,6 +154,26 @@ export default function DragDropFileInput({
           onChange={onFileChange}
         />
       </Box>
+      {multiple && previewUrls.length > 0 && (
+        <HStack flexWrap="wrap" spacing={2} w="100%">
+          {previewUrls.map((url, idx) => (
+            <Box key={idx} position="relative">
+              <IconButton
+                aria-label="Remove"
+                icon={<CloseIcon />}
+                size="xs"
+                color="red.500"
+                variant="ghost"
+                position="absolute"
+                top={1}
+                right={1}
+                onClick={(e) => handleRemove(e, idx)}
+              />
+              <Image src={url} alt={`preview-${idx}`} maxH="100px" />
+            </Box>
+          ))}
+        </HStack>
+      )}
     </VStack>
   );
 }
