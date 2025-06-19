@@ -33,6 +33,18 @@ const TeamMemberAutocomplete: FC<TeamMemberAutocompleteProps> = ({
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // Sync the search text whenever the external value changes. This keeps
+  // the input text consistent when the parent form resets or sets an
+  // existing value for editing.
+  useEffect(() => {
+    if (!value) {
+      setSearch("");
+    } else {
+      const member = teamMembers.find((m) => String(m.id) === value);
+      if (member) setSearch(member.fullName);
+    }
+  }, [value, teamMembers]);
+
   const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     setShowDropdown(true);
