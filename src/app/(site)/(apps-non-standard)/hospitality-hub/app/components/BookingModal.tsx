@@ -45,6 +45,9 @@ function SingleDayBookingForm({ item, onClose, submit }: BookingFormProps) {
         <input type="hidden" value={item.id} {...register("userHospitalityItemId")} />
         <input type="hidden" value={user?.customerId ?? 0} {...register("customerId")} />
         <input type="hidden" value={item.itemType} {...register("bookingType")} />
+        <input type="hidden" value={item.itemType} {...register("itemType")} />
+        <input type="hidden" value={user?.userId ?? 0} {...register("bookerId")} />
+        <input type="hidden" value={(item.itemOwnerUserId as any) || (item as any).catOwnerUserId || 0} {...register("ownerId")} />
 
         <FormControl mb={4}>
           <FormLabel>Date</FormLabel>
@@ -83,6 +86,9 @@ function MultiDayBookingForm({ item, onClose, submit }: BookingFormProps) {
         <input type="hidden" value={item.id} {...register("userHospitalityItemId")} />
         <input type="hidden" value={user?.customerId ?? 0} {...register("customerId")} />
         <input type="hidden" value={item.itemType} {...register("bookingType")} />
+        <input type="hidden" value={item.itemType} {...register("itemType")} />
+        <input type="hidden" value={user?.userId ?? 0} {...register("bookerId")} />
+        <input type="hidden" value={(item.itemOwnerUserId as any) || (item as any).catOwnerUserId || 0} {...register("ownerId")} />
 
         <FormControl mb={4}>
           <FormLabel>Start Date</FormLabel>
@@ -126,6 +132,9 @@ function SingleDayWithStartEndBookingForm({ item, onClose, submit }: BookingForm
         <input type="hidden" value={item.id} {...register("userHospitalityItemId")} />
         <input type="hidden" value={user?.customerId ?? 0} {...register("customerId")} />
         <input type="hidden" value={item.itemType} {...register("bookingType")} />
+        <input type="hidden" value={item.itemType} {...register("itemType")} />
+        <input type="hidden" value={user?.userId ?? 0} {...register("bookerId")} />
+        <input type="hidden" value={(item.itemOwnerUserId as any) || (item as any).catOwnerUserId || 0} {...register("ownerId")} />
 
         <FormControl mb={4}>
           <FormLabel>Date</FormLabel>
@@ -170,6 +179,11 @@ export default function BookingModal({ isOpen, onClose, item }: BookingModalProp
     data.userHospitalityItemId = Number(item.id);
     data.customerId = user?.customerId ?? 0;
     data.bookingType = item.itemType;
+    data.itemType = item.itemType;
+    data.bookerId = user?.userId ?? 0;
+    data.ownerId = Number(
+      (item.itemOwnerUserId as any) || (item as any).catOwnerUserId || 0,
+    );
 
     if (data.startTime) {
       data.startTime = data.startTime.replace("T", " ") + ":00";

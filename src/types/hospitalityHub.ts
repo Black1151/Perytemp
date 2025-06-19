@@ -25,6 +25,8 @@ export interface HospitalityItem {
   createdBy?: string;
   updatedAt?: string;
   updatedBy?: string;
+  /** Owner of the category this item belongs to */
+  catOwnerUserId?: string;
 }
 
 export interface HospitalityCategory {
@@ -42,6 +44,12 @@ export interface HospitalityBooking {
   info?: string;
   customerId: number;
   bookingType: string;
+  /** Type of the item being booked */
+  itemType?: string;
+  /** ID of the user creating the booking */
+  bookerId?: number;
+  /** Owner of the item or its category */
+  ownerId?: number;
   startDate?: string; // Format: YYYY-MM-DD
   endDate?: string; // Format: YYYY-MM-DD
   startTime?: string; // Format: YYYY-MM-DD HH:mm:ss
