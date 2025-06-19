@@ -185,7 +185,6 @@ export default function AddItemModal({
       setValue("extraDetails", item.extraDetails || "");
       // setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
       // setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
-      setValue("location", item.location || "");
       if (item.itemOwnerUserId) {
         setOwnerOption("item");
         setValue("itemOwnerUserId", Number(item.itemOwnerUserId));
