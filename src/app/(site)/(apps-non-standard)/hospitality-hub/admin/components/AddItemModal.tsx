@@ -186,7 +186,13 @@ export default function AddItemModal({
       setValue("extraDetails", item.extraDetails || "");
       // setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
       // setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
-      if (item.itemOwnerUserId) {
+      const hasItemOwner =
+        item.itemOwnerUserId !== undefined &&
+        item.itemOwnerUserId !== null &&
+        item.itemOwnerUserId !== "" &&
+        String(item.itemOwnerUserId) !== "0";
+
+      if (hasItemOwner) {
         setOwnerOption("item");
         setValue("itemOwnerUserId", Number(item.itemOwnerUserId));
       } else {
