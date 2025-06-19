@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   FormControl,
   FormLabel,
@@ -19,16 +19,23 @@ interface Props {
   label: string;
   onFileSelected: (file: File | null) => void;
   isRequired?: boolean;
+  /** Existing image URL to display when editing */
+  existingUrl?: string;
+  /** Called when an existing image is removed */
+  onRemoveExisting?: () => void;
 }
 
 export default function ImageUploadWithCrop({
   label,
   onFileSelected,
   isRequired = false,
+  existingUrl,
+  onRemoveExisting,
 }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [cropOpen, setCropOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [usingExisting, setUsingExisting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const borderColor = useColorModeValue("gray.400", "gray.600");
   const hoverBorderColor = useColorModeValue("gray.200", "gray.400");
@@ -65,6 +72,7 @@ export default function ImageUploadWithCrop({
     setCropOpen(false);
     setFile(null);
     setPreviewUrl(URL.createObjectURL(cropped));
+    setUsingExisting(false);
     onFileSelected(cropped);
   };
 
@@ -75,10 +83,24 @@ export default function ImageUploadWithCrop({
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (usingExisting && onRemoveExisting) {
+      onRemoveExisting();
+    }
     setPreviewUrl("");
+    setUsingExisting(false);
     setFile(null);
     onFileSelected(null);
   };
+
+  useEffect(() => {
+    if (existingUrl) {
+      setPreviewUrl(existingUrl);
+      setUsingExisting(true);
+    } else {
+      setPreviewUrl("");
+      setUsingExisting(false);
+    }
+  }, [existingUrl]);
 
   return (
     <FormControl mb={4} isRequired={isRequired}>
