@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import apiClient from "@/lib/apiClient";
 
 export async function GET(req: NextRequest) {
   const cookieStore = cookies();
@@ -45,12 +44,42 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
+
   try {
-    const payload = await req.json();
-    const response = await apiClient("/userHospitalityCategory", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+    const contentType = req.headers.get("content-type") || "";
+    let response: Response;
+
+    if (contentType.includes("multipart/form-data")) {
+      const incoming = await req.formData();
+      const laravelFormData = new FormData();
+      incoming.forEach((value, key) => {
+        if (value instanceof Blob) {
+          laravelFormData.append(key, value, (value as File).name);
+        } else {
+          laravelFormData.append(key, value as string);
+        }
+      });
+
+      response = await fetch(`${process.env.BE_URL}/userHospitalityCategory`, {
+        method: "POST",
+        headers: {
+          Authorization: authToken ? `Bearer ${authToken}` : "",
+        },
+        body: laravelFormData,
+      });
+    } else {
+      const payload = await req.json();
+      response = await fetch(`${process.env.BE_URL}/userHospitalityCategory`, {
+        method: "POST",
+        headers: {
+          Authorization: authToken ? `Bearer ${authToken}` : "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+    }
 
     const data = await response.json();
 
@@ -74,17 +103,58 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  try {
-    const payload = await req.json();
-    const id = payload?.id;
-    if (!id) {
-      return NextResponse.json({ error: "Missing id" }, { status: 400 });
-    }
+  const cookieStore = cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
 
-    const response = await apiClient(`/userHospitalityCategory/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(payload),
-    });
+  try {
+    const contentType = req.headers.get("content-type") || "";
+    let response: Response;
+
+    if (contentType.includes("multipart/form-data")) {
+      const incoming = await req.formData();
+      const id = incoming.get("id");
+      if (!id) {
+        return NextResponse.json({ error: "Missing id" }, { status: 400 });
+      }
+
+      const laravelFormData = new FormData();
+      incoming.forEach((value, key) => {
+        if (value instanceof Blob) {
+          laravelFormData.append(key, value, (value as File).name);
+        } else {
+          laravelFormData.append(key, value as string);
+        }
+      });
+
+      response = await fetch(
+        `${process.env.BE_URL}/userHospitalityCategory/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: authToken ? `Bearer ${authToken}` : "",
+          },
+          body: laravelFormData,
+        },
+      );
+    } else {
+      const payload = await req.json();
+      const id = payload?.id;
+      if (!id) {
+        return NextResponse.json({ error: "Missing id" }, { status: 400 });
+      }
+
+      response = await fetch(
+        `${process.env.BE_URL}/userHospitalityCategory/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: authToken ? `Bearer ${authToken}` : "",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+    }
 
     const data = await response.json();
 
