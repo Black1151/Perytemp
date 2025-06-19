@@ -35,6 +35,7 @@ interface AddItemModalProps {
   onClose: () => void;
   categoryId: string;
   onCreated: () => void;
+  // teamMembers: BigUpTeamMember[];
   item?: HospitalityItem | null;
 }
 
@@ -44,8 +45,8 @@ interface FormValues {
   itemType: string;
   howToDetails: string;
   extraDetails: string;
-  startDate: string;
-  endDate: string;
+  // startDate: string;
+  // endDate: string;
   location: string;
   customerId?: number;
   itemOwnerUserId?: number;
@@ -66,8 +67,8 @@ export default function AddItemModal({
         itemType: "singleDayBookable",
         howToDetails: "",
         extraDetails: "",
-        startDate: "",
-        endDate: "",
+        // startDate: "",
+        // endDate: "",
         location: "",
       },
     });
@@ -108,6 +109,8 @@ export default function AddItemModal({
         const data = await res.json();
         if (res.ok) {
           const list = (data.resource ?? data) as any[];
+
+          console.log("list", list);
           setTeamMembers(list);
         } else {
           toast({
@@ -145,8 +148,8 @@ export default function AddItemModal({
       setValue("howToDetails", item.howToDetails || "");
       setValue("itemType", item.itemType);
       setValue("extraDetails", item.extraDetails || "");
-      setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
-      setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
+      // setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
+      // setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
       setValue("location", item.location || "");
       setValue("itemOwnerUserId", Number(item.itemOwnerUserId));
       setExistingLogoUrl(item.logoImageUrl || null);
@@ -158,8 +161,8 @@ export default function AddItemModal({
         itemType: "singleDayBookable",
         howToDetails: "",
         extraDetails: "",
-        startDate: "",
-        endDate: "",
+        // startDate: "",
+        // endDate: "",
         location: "",
         customerId: customerId ?? undefined,
         itemOwnerUserId: userId ?? undefined,
@@ -340,14 +343,14 @@ export default function AddItemModal({
             </FormControl>
 
             {/* Start/End Dates */}
-            <FormControl mb={4}>
+            {/* <FormControl mb={4}>
               <FormLabel>Start Date</FormLabel>
               <Input type="date" {...register("startDate")} />
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>End Date</FormLabel>
               <Input type="date" {...register("endDate")} />
-            </FormControl>
+            </FormControl> */}
 
             {/* Location */}
             <FormControl mb={4}>
@@ -358,13 +361,14 @@ export default function AddItemModal({
             {/* Item Owner (Team Member Autocomplete) */}
             <FormControl mb={4} isRequired>
               <FormLabel>Item Owner</FormLabel>
+
               <Controller
                 name="itemOwnerUserId"
                 control={control}
-                rules={{ required: true, valueAsNumber: true }}
+                rules={{ required: true }}
                 render={({ field }) => (
                   <TeamMemberAutocomplete
-                    value={field.value || ""}
+                    value={field.value?.toString() || ""}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
                     teamMembers={teamMembers}
