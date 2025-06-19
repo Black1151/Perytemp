@@ -337,10 +337,10 @@ export default function AddItemModal({
             </FormControl>
 
             {/* Extra Details */}
-            <FormControl mb={4}>
+            {/* <FormControl mb={4}>
               <FormLabel>Extra Details</FormLabel>
               <Textarea {...register("extraDetails")} />
-            </FormControl>
+            </FormControl> */}
 
             {/* Start/End Dates */}
             {/* <FormControl mb={4}>
