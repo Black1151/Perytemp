@@ -11,7 +11,7 @@ export interface HospitalityItem {
   startDate?: string;
   endDate?: string | null;
   location?: string;
-  selectedSites?: number[];
+  siteIds?: number[];
   itemType:
     | "singleDayBookable"
     | "singleDayBookableWithStartEnd"

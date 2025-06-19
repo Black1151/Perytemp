@@ -50,7 +50,7 @@ interface FormValues {
   extraDetails: string;
   // startDate: string;
   // endDate: string;
-  selectedSites: number[];
+  siteIds: number[];
   customerId?: number;
   itemOwnerUserId?: number;
 }
@@ -72,7 +72,7 @@ export default function AddItemModal({
         extraDetails: "",
         // startDate: "",
         // endDate: "",
-        selectedSites: [],
+        siteIds: [],
       },
     });
 
@@ -88,11 +88,11 @@ export default function AddItemModal({
   const [removeCoverUrl, setRemoveCoverUrl] = useState<string | null>(null);
   const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
-  const [selectedSitesState, setSelectedSitesState] = useState<number[]>([]);
+  const [siteIdsState, setSiteIdsState] = useState<number[]>([]);
 
   useEffect(() => {
-    setValue("selectedSites", selectedSitesState);
-  }, [selectedSitesState, setValue]);
+    setValue("siteIds", siteIdsState);
+  }, [siteIdsState, setValue]);
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -185,10 +185,10 @@ export default function AddItemModal({
       setValue("itemOwnerUserId", Number(item.itemOwnerUserId));
       setExistingLogoUrl(item.logoImageUrl || null);
       setExistingCoverUrl(item.coverImageUrl || null);
-      // @ts-ignore - selectedSites may come from backend
-      if (item.selectedSites) {
-        setSelectedSitesState(
-          (item.selectedSites as any[]).map((s) => Number(s)),
+      // @ts-ignore - siteIds may come from backend
+      if (item.siteIds) {
+        setSiteIdsState(
+          (item.siteIds as any[]).map((s) => Number(s)),
         );
       }
     } else {
@@ -200,11 +200,11 @@ export default function AddItemModal({
         extraDetails: "",
         // startDate: "",
         // endDate: "",
-        selectedSites: [],
+        siteIds: [],
         customerId: customerId ?? undefined,
         itemOwnerUserId: userId ?? undefined,
       });
-      setSelectedSitesState([]);
+      setSiteIdsState([]);
       setExistingLogoUrl(null);
       setExistingCoverUrl(null);
     }
@@ -261,13 +261,13 @@ export default function AddItemModal({
 
       // Append simple primitives first
       Object.entries(data).forEach(([key, value]) => {
-        if (key === "selectedSites") return;
+        if (key === "siteIds") return;
         if (value !== undefined && value !== null && value !== "") {
           formData.append(key, String(value));
         }
       });
-      selectedSitesState.forEach((id) => {
-        formData.append("selectedSites[]", String(id));
+      siteIdsState.forEach((id) => {
+        formData.append("siteIds[]", String(id));
       });
 
       // Append IDs that may not be present in data yet
@@ -399,13 +399,13 @@ export default function AddItemModal({
               <FormLabel>Sites</FormLabel>
               <Checkbox
                 isChecked={
-                  selectedSitesState.length === sites.length && sites.length > 0
+                  siteIdsState.length === sites.length && sites.length > 0
                 }
                 onChange={(e) => {
                   if (e.target.checked) {
-                    setSelectedSitesState(sites.map((s) => s.id));
+                    setSiteIdsState(sites.map((s) => s.id));
                   } else {
-                    setSelectedSitesState([]);
+                    setSiteIdsState([]);
                   }
                 }}
               >
@@ -415,9 +415,9 @@ export default function AddItemModal({
                 {sites.map((site) => (
                   <Checkbox
                     key={site.id}
-                    isChecked={selectedSitesState.includes(site.id)}
+                    isChecked={siteIdsState.includes(site.id)}
                     onChange={() =>
-                      setSelectedSitesState((prev) =>
+                      setSiteIdsState((prev) =>
                         prev.includes(site.id)
                           ? prev.filter((id) => id !== site.id)
                           : [...prev, site.id]
