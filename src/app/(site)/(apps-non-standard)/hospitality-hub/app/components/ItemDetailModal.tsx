@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { motion, Variants } from "framer-motion";
 import { HospitalityItem } from "@/types/hospitalityHub";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BookingModal from "./BookingModal";
 import {
   Description,
@@ -63,6 +63,11 @@ export const ItemDetailModal = ({
   loading,
 }: ItemDetailModalProps) => {
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [imageIndex, setImageIndex] = useState(0);
+
+  useEffect(() => {
+    setImageIndex(0);
+  }, [item]);
 
   const ctaText =
     item?.itemType === "info"
@@ -74,6 +79,18 @@ export const ItemDetailModal = ({
           : item?.itemType === "multiDayBookable"
             ? "Book Event"
             : "";
+
+  const additionalImages = Array.isArray(item?.additionalImageUrlList)
+    ? item?.additionalImageUrlList
+    : typeof item?.additionalImageUrlList === "string"
+      ? item.additionalImageUrlList
+          .split(",")
+          .map((u) => u.trim())
+          .filter(Boolean)
+      : [];
+  const images = [item?.coverImageUrl, ...additionalImages].filter(
+    Boolean,
+  ) as string[];
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="4xl">
@@ -186,27 +203,48 @@ export const ItemDetailModal = ({
                     )}
                   </VStack>
                 </MotionVStack>
-                {item?.coverImageUrl && (
-                  <Box position="relative" h="100%">
-                    <MotionImage
-                      src={item.coverImageUrl}
-                      alt={item.name}
-                      variants={itemVariants}
-                      objectFit="cover"
-                      borderRadius="md"
-                      w="100%"
-                      h="100%"
-                    />
-                    <Box
-                      position="absolute"
-                      top={0}
-                      left={0}
-                      right={0}
-                      bottom={0}
-                      bgGradient="linear(90deg, rgba(0,0,0,0.95), transparent)"
-                      borderRadius="md"
-                    />
-                  </Box>
+                {images.length > 0 && (
+                  <VStack spacing={2} align="stretch">
+                    <Box position="relative" h="100%">
+                      <MotionImage
+                        src={images[imageIndex]}
+                        alt={item?.name}
+                        variants={itemVariants}
+                        objectFit="cover"
+                        borderRadius="md"
+                        w="100%"
+                        h="100%"
+                      />
+                      <Box
+                        position="absolute"
+                        top={0}
+                        left={0}
+                        right={0}
+                        bottom={0}
+                        bgGradient="linear(90deg, rgba(0,0,0,0.95), transparent)"
+                        borderRadius="md"
+                      />
+                    </Box>
+                    {images.length > 1 && (
+                      <HStack justify="center" spacing={2}>
+                        {images.map((img, idx) => (
+                          <Image
+                            key={idx}
+                            src={img}
+                            alt={`${item?.name}-${idx}`}
+                            boxSize="60px"
+                            objectFit="cover"
+                            borderRadius="md"
+                            border={
+                              idx === imageIndex ? "2px solid yellow" : "none"
+                            }
+                            cursor="pointer"
+                            onClick={() => setImageIndex(idx)}
+                          />
+                        ))}
+                      </HStack>
+                    )}
+                  </VStack>
                 )}
               </SimpleGrid>
             )}
