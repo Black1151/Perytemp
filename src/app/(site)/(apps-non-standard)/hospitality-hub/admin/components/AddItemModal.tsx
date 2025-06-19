@@ -57,7 +57,6 @@ export default function AddItemModal({
   onClose,
   categoryId,
   onCreated,
-  // teamMembers,
   item,
 }: AddItemModalProps) {
   const { register, control, handleSubmit, reset, setValue } =
@@ -84,6 +83,7 @@ export default function AddItemModal({
   const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null);
   const [removeLogoUrl, setRemoveLogoUrl] = useState<string | null>(null);
   const [removeCoverUrl, setRemoveCoverUrl] = useState<string | null>(null);
+  const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -95,6 +95,46 @@ export default function AddItemModal({
     if (customerId !== undefined) setValue("customerId", customerId);
     if (userId !== undefined) setValue("itemOwnerUserId", userId);
   }, [customerId, userId, setValue]);
+
+  /**
+   * Fetch team members for the autocomplete when the modal opens
+   */
+  useEffect(() => {
+    const fetchMembers = async () => {
+      if (!isOpen || !customerId) return;
+      try {
+        const res = await fetch(
+          `/api/getForTeamMemberInput?customerId=${customerId}`
+        );
+        const data = await res.json();
+        if (res.ok) {
+          const list = (data.resource ?? data) as any[];
+
+          console.log("list", list);
+          setTeamMembers(list);
+        } else {
+          toast({
+            title: "Failed to fetch team members.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom-right",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        toast({
+          title: "Failed to fetch team members.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-right",
+        });
+      }
+    };
+
+    fetchMembers();
+  }, [isOpen, customerId, toast]);
 
   /**
    * Populate form when opening modal for editing / reset when creating
@@ -111,6 +151,7 @@ export default function AddItemModal({
       // setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
       // setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
       setValue("location", item.location || "");
+      setValue("itemOwnerUserId", Number(item.itemOwnerUserId));
       setExistingLogoUrl(item.logoImageUrl || null);
       setExistingCoverUrl(item.coverImageUrl || null);
     } else {
@@ -190,8 +231,8 @@ export default function AddItemModal({
       // Append IDs that may not be present in data yet
       if (customerId !== undefined)
         formData.append("customerId", String(customerId));
-      if (userId !== undefined)
-        formData.append("itemOwnerUserId", String(userId));
+      if (data.itemOwnerUserId !== undefined)
+        formData.append("itemOwnerUserId", String(data.itemOwnerUserId));
       formData.append("hospitalityCatId", categoryId);
       if (item) formData.append("id", item.id);
 
@@ -317,9 +358,10 @@ export default function AddItemModal({
               <Input {...register("location")} />
             </FormControl>
 
-            {/* Handler (Team Member Autocomplete) */}
+            {/* Item Owner (Team Member Autocomplete) */}
             <FormControl mb={4} isRequired>
-              <FormLabel>Handler</FormLabel>
+              <FormLabel>Item Owner</FormLabel>
+
               <Controller
                 name="itemOwnerUserId"
                 control={control}
