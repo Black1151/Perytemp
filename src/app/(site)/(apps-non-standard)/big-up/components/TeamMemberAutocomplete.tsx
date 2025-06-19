@@ -53,9 +53,10 @@ const TeamMemberAutocomplete: FC<TeamMemberAutocompleteProps> = ({
   const filteredMembers = useMemo(() => {
     if (!debouncedSearch.trim()) return [];
     const lowerSearch = debouncedSearch.toLowerCase();
-    return teamMembers.filter((member) =>
-      member.fullName.toLowerCase().includes(lowerSearch)
-    );
+    return teamMembers.filter((member) => {
+      const name = member.fullName ?? "";
+      return name.toLowerCase().includes(lowerSearch);
+    });
   }, [debouncedSearch, teamMembers]);
 
   const handleSelectMember = (member: BigUpTeamMember) => {
