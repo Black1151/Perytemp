@@ -40,6 +40,7 @@ interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   categoryId: string;
+  catOwnerUserId: string;
   onCreated: () => void;
   // teamMembers: BigUpTeamMember[];
   item?: HospitalityItem | null;
@@ -62,6 +63,7 @@ export default function AddItemModal({
   isOpen,
   onClose,
   categoryId,
+  catOwnerUserId,
   onCreated,
   item,
 }: AddItemModalProps) {
@@ -266,6 +268,10 @@ export default function AddItemModal({
 
     try {
       const method = item ? "PUT" : "POST";
+
+      if (ownerOption === "category") {
+        data.itemOwnerUserId = Number(catOwnerUserId);
+      }
       const formData = new FormData();
 
       // Append simple primitives first
