@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     const upstreamPath =
       `/getAllView?view=vwUserTeamMembersList` +
       `&customerId=${encodeURIComponent(customerId)}` +
-      `&selectColumns=siteName,userFullname`;
+      `&selectColumns=userUniqueId,userFullname,userImageUrl`;
 
     // Call the Perygon service
     const response = await apiClient(upstreamPath, {
