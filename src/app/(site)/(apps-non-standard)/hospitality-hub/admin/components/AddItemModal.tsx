@@ -16,6 +16,9 @@ import {
   Textarea,
   Select,
   useToast,
+  Radio,
+  RadioGroup,
+  Stack,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import DragDropFileInput from "@/components/forms/DragDropFileInput";
@@ -84,6 +87,7 @@ export default function AddItemModal({
   const [removeLogoUrl, setRemoveLogoUrl] = useState<string | null>(null);
   const [removeCoverUrl, setRemoveCoverUrl] = useState<string | null>(null);
   const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
+  const [ownerOption, setOwnerOption] = useState<"category" | "item">("category");
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -93,8 +97,7 @@ export default function AddItemModal({
    */
   useEffect(() => {
     if (customerId !== undefined) setValue("customerId", customerId);
-    if (userId !== undefined) setValue("itemOwnerUserId", userId);
-  }, [customerId, userId, setValue]);
+  }, [customerId, setValue]);
 
   /**
    * Fetch team members for the autocomplete when the modal opens
@@ -151,7 +154,13 @@ export default function AddItemModal({
       // setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
       // setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
       setValue("location", item.location || "");
-      setValue("itemOwnerUserId", Number(item.itemOwnerUserId));
+      if (item.itemOwnerUserId) {
+        setOwnerOption("item");
+        setValue("itemOwnerUserId", Number(item.itemOwnerUserId));
+      } else {
+        setOwnerOption("category");
+        setValue("itemOwnerUserId", undefined);
+      }
       setExistingLogoUrl(item.logoImageUrl || null);
       setExistingCoverUrl(item.coverImageUrl || null);
     } else {
@@ -165,8 +174,9 @@ export default function AddItemModal({
         // endDate: "",
         location: "",
         customerId: customerId ?? undefined,
-        itemOwnerUserId: userId ?? undefined,
       });
+      setOwnerOption("category");
+      setValue("itemOwnerUserId", undefined);
       setExistingLogoUrl(null);
       setExistingCoverUrl(null);
     }
@@ -358,14 +368,33 @@ export default function AddItemModal({
               <Input {...register("location")} />
             </FormControl>
 
+            {/* Owner selection */}
+            <FormControl mb={2}>
+              <FormLabel>Owner</FormLabel>
+              <RadioGroup
+                value={ownerOption}
+                onChange={(val) => {
+                  setOwnerOption(val as "category" | "item");
+                  if (val === "category") {
+                    setValue("itemOwnerUserId", undefined);
+                  }
+                }}
+              >
+                <Stack direction="row">
+                  <Radio value="category">Category owner</Radio>
+                  <Radio value="item">Item owner</Radio>
+                </Stack>
+              </RadioGroup>
+            </FormControl>
+
             {/* Item Owner (Team Member Autocomplete) */}
-            <FormControl mb={4} isRequired>
+            <FormControl mb={4} isRequired={ownerOption === "item"} isDisabled={ownerOption === "category"}>
               <FormLabel>Item Owner</FormLabel>
 
               <Controller
                 name="itemOwnerUserId"
                 control={control}
-                rules={{ required: true }}
+                rules={{ required: ownerOption === "item" }}
                 render={({ field }) => (
                   <TeamMemberAutocomplete
                     value={field.value?.toString() || ""}
