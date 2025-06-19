@@ -24,7 +24,6 @@ import { useEffect, useState } from "react";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import { BigUpTeamMember } from "../../../big-up/types";
 import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
-import { useFetchClient } from "@/hooks/useFetchClient";
 
 /**
  * Updated AddItemModal that integrates TeamMemberAutocomplete as a controlled
@@ -46,8 +45,8 @@ interface FormValues {
   itemType: string;
   howToDetails: string;
   extraDetails: string;
-  startDate: string;
-  endDate: string;
+  // startDate: string;
+  // endDate: string;
   location: string;
   customerId?: number;
   itemOwnerUserId?: number;
@@ -69,8 +68,8 @@ export default function AddItemModal({
         itemType: "singleDayBookable",
         howToDetails: "",
         extraDetails: "",
-        startDate: "",
-        endDate: "",
+        // startDate: "",
+        // endDate: "",
         location: "",
       },
     });
@@ -109,8 +108,8 @@ export default function AddItemModal({
       setValue("howToDetails", item.howToDetails || "");
       setValue("itemType", item.itemType);
       setValue("extraDetails", item.extraDetails || "");
-      setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
-      setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
+      // setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
+      // setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
       setValue("location", item.location || "");
       setExistingLogoUrl(item.logoImageUrl || null);
       setExistingCoverUrl(item.coverImageUrl || null);
@@ -121,8 +120,8 @@ export default function AddItemModal({
         itemType: "singleDayBookable",
         howToDetails: "",
         extraDetails: "",
-        startDate: "",
-        endDate: "",
+        // startDate: "",
+        // endDate: "",
         location: "",
         customerId: customerId ?? undefined,
         itemOwnerUserId: userId ?? undefined,
@@ -303,14 +302,14 @@ export default function AddItemModal({
             </FormControl>
 
             {/* Start/End Dates */}
-            <FormControl mb={4}>
+            {/* <FormControl mb={4}>
               <FormLabel>Start Date</FormLabel>
               <Input type="date" {...register("startDate")} />
             </FormControl>
             <FormControl mb={4}>
               <FormLabel>End Date</FormLabel>
               <Input type="date" {...register("endDate")} />
-            </FormControl>
+            </FormControl> */}
 
             {/* Location */}
             <FormControl mb={4}>
