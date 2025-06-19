@@ -19,7 +19,12 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  Box,
+  HStack,
+  Image,
+  IconButton,
 } from "@chakra-ui/react";
+import CloseIcon from "@mui/icons-material/Close";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import DragDropFileInput from "@/components/forms/DragDropFileInput";
 import { useForm, Controller } from "react-hook-form";
@@ -82,6 +87,8 @@ export default function AddItemModal({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
+  const [existingAdditionalUrls, setExistingAdditionalUrls] = useState<string[]>([]);
+  const [removeAdditionalUrls, setRemoveAdditionalUrls] = useState<string[]>([]);
   const [existingLogoUrl, setExistingLogoUrl] = useState<string | null>(null);
   const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null);
   const [removeLogoUrl, setRemoveLogoUrl] = useState<string | null>(null);
@@ -163,6 +170,15 @@ export default function AddItemModal({
       }
       setExistingLogoUrl(item.logoImageUrl || null);
       setExistingCoverUrl(item.coverImageUrl || null);
+      const additional = Array.isArray(item.additionalImageUrlList)
+        ? item.additionalImageUrlList
+        : typeof item.additionalImageUrlList === "string"
+          ? item.additionalImageUrlList
+              .split(',')
+              .map((u) => u.trim())
+              .filter(Boolean)
+          : [];
+      setExistingAdditionalUrls(additional);
     } else {
       reset({
         name: "",
@@ -179,15 +195,27 @@ export default function AddItemModal({
       setValue("itemOwnerUserId", undefined);
       setExistingLogoUrl(null);
       setExistingCoverUrl(null);
+      setExistingAdditionalUrls([]);
     }
 
     setLogoFile(null);
     setCoverFile(null);
     setAdditionalFiles([]);
+    setRemoveAdditionalUrls([]);
     setRemoveLogoUrl(null);
     setRemoveCoverUrl(null);
     // eslint‑disable‑next‑line react‑hooks/exhaustive‑deps
   }, [item, isOpen]);
+
+  const handleRemoveExistingAdditional = (index: number) => {
+    setExistingAdditionalUrls((prev) => {
+      const url = prev[index];
+      if (url) {
+        setRemoveAdditionalUrls((r) => [...r, url]);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+  };
 
   const onSubmit = async (data: FormValues) => {
     if (!user?.customerUniqueId) {
@@ -428,6 +456,29 @@ export default function AddItemModal({
                 setExistingCoverUrl(null);
               }}
             />
+            {existingAdditionalUrls.length > 0 && (
+              <FormControl mb={4}>
+                <FormLabel>Existing Additional Images</FormLabel>
+                <HStack flexWrap="wrap" spacing={2} w="100%">
+                  {existingAdditionalUrls.map((url, idx) => (
+                    <Box key={idx} position="relative">
+                      <IconButton
+                        aria-label="Remove"
+                        icon={<CloseIcon />}
+                        size="xs"
+                        color="red.500"
+                        variant="ghost"
+                        position="absolute"
+                        top={1}
+                        right={1}
+                        onClick={() => handleRemoveExistingAdditional(idx)}
+                      />
+                      <Image src={url} alt={`additional-${idx}`} maxH="100px" />
+                    </Box>
+                  ))}
+                </HStack>
+              </FormControl>
+            )}
             <FormControl mb={4}>
               <FormLabel>Additional Images</FormLabel>
               <DragDropFileInput
