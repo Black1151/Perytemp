@@ -198,9 +198,9 @@ export default function AddItemModal({
       // Images
       if (logoFile) formData.append("logoImageUpload", logoFile);
       if (coverFile) formData.append("coverImageUpload", coverFile);
-      additionalFiles.forEach((file) =>
-        formData.append("additionalImages", file)
-      );
+      additionalFiles.forEach((file) => {
+        formData.append("AdditionalImagesListUpload[]", file);
+      });
 
       const res = await fetch("/api/hospitality-hub/items", {
         method,
