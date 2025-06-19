@@ -108,12 +108,7 @@ export default function AddItemModal({
         const data = await res.json();
         if (res.ok) {
           const list = (data.resource ?? data) as any[];
-          const mapped = list.map((m) => ({
-            id: m.userId ?? m.id,
-            imageUrl: m.userImageUrl ?? m.imageUrl,
-            fullName: m.userFullname ?? m.fullName,
-          }));
-          setTeamMembers(mapped);
+          setTeamMembers(list);
         } else {
           toast({
             title: "Failed to fetch team members.",
