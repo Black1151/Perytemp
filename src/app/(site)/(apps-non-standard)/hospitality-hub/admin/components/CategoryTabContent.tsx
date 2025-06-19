@@ -105,6 +105,7 @@ export const CategoryTabContent = forwardRef<
         onClose={() => setModalOpen(false)}
         onCreated={handleRefresh}
         categoryId={category.id}
+        catOwnerUserId={category.catOwnerUserId}
         item={editingItem}
       />
       <DeleteItemModal
