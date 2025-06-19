@@ -30,7 +30,6 @@ interface AddCategoryModalProps {
 interface FormValues {
   name: string;
   description: string;
-  handlerEmail?: string;
   customerId?: number;
   catOwnerUserId?: number;
 }
@@ -64,7 +63,6 @@ export default function AddCategoryModal({
         setValue("description", category.description);
       } else {
         reset();
-        setValue("handlerEmail", "");
         if (customerId !== undefined) setValue("customerId", customerId);
         if (userId !== undefined) setValue("catOwnerUserId", userId);
       }
@@ -84,8 +82,7 @@ export default function AddCategoryModal({
 
     if (customerId !== undefined)
       formData.append("customerId", String(customerId));
-    if (userId !== undefined)
-      formData.append("catOwnerUserId", String(userId));
+    if (userId !== undefined) formData.append("catOwnerUserId", String(userId));
     if (category) formData.append("id", category.id);
     if (coverFile) formData.append("coverImageUpload", coverFile);
 
@@ -147,10 +144,6 @@ export default function AddCategoryModal({
             <FormControl mb={4} isRequired>
               <FormLabel>Description</FormLabel>
               <Input {...register("description", { required: true })} />
-            </FormControl>
-            <FormControl mb={4}>
-              <FormLabel>Handler Email</FormLabel>
-              <Input {...register("handlerEmail")} type="email" />
             </FormControl>
             <ImageUploadWithCrop
               label="Image"

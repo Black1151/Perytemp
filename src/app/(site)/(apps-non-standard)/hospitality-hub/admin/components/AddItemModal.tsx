@@ -35,9 +35,7 @@ interface AddItemModalProps {
   onClose: () => void;
   categoryId: string;
   onCreated: () => void;
-  /** Available team members shown in the autocomplete */
   teamMembers: BigUpTeamMember[];
-  /** Existing item when editing; null when creating */
   item?: HospitalityItem | null;
 }
 
@@ -50,8 +48,6 @@ interface FormValues {
   startDate: string;
   endDate: string;
   location: string;
-  /** Selected handler user (team member) */
-  handlerUserId: string | null;
   customerId?: number;
   itemOwnerUserId?: number;
 }
@@ -75,7 +71,6 @@ export default function AddItemModal({
         startDate: "",
         endDate: "",
         location: "",
-        handlerUserId: null,
       },
     });
 
@@ -116,7 +111,6 @@ export default function AddItemModal({
       setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
       setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
       setValue("location", item.location || "");
-      setValue("handlerUserId", item.itemOwnerUserId ?? null);
       setExistingLogoUrl(item.logoImageUrl || null);
       setExistingCoverUrl(item.coverImageUrl || null);
     } else {
@@ -129,7 +123,6 @@ export default function AddItemModal({
         startDate: "",
         endDate: "",
         location: "",
-        handlerUserId: null,
         customerId: customerId ?? undefined,
         itemOwnerUserId: userId ?? undefined,
       });
@@ -160,7 +153,8 @@ export default function AddItemModal({
     if (removeLogoUrl && !logoFile) {
       toast({
         title: "Logo image required",
-        description: "Please upload a new logo image after removing the existing one.",
+        description:
+          "Please upload a new logo image after removing the existing one.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -172,7 +166,8 @@ export default function AddItemModal({
     if (removeCoverUrl && !coverFile) {
       toast({
         title: "Cover image required",
-        description: "Please upload a new cover image after removing the existing one.",
+        description:
+          "Please upload a new cover image after removing the existing one.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -203,8 +198,6 @@ export default function AddItemModal({
       // Images
       if (logoFile) formData.append("logoImageUpload", logoFile);
       if (coverFile) formData.append("coverImageUpload", coverFile);
-      if (removeLogoUrl) formData.append("removeLogoImage", removeLogoUrl);
-      if (removeCoverUrl) formData.append("removeCoverImage", removeCoverUrl);
       additionalFiles.forEach((file) =>
         formData.append("additionalImages", file)
       );
