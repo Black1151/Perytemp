@@ -15,6 +15,8 @@ import {
   Input,
   Textarea,
   Select,
+  Checkbox,
+  VStack,
   useToast,
   Radio,
   RadioGroup,
@@ -25,6 +27,7 @@ import DragDropFileInput from "@/components/forms/DragDropFileInput";
 import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { HospitalityItem } from "@/types/hospitalityHub";
+import { Site } from "@/types/types";
 import { BigUpTeamMember } from "../../../big-up/types";
 import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
 
@@ -50,7 +53,7 @@ interface FormValues {
   extraDetails: string;
   // startDate: string;
   // endDate: string;
-  location: string;
+  siteIds: number[];
   customerId?: number;
   itemOwnerUserId?: number;
 }
@@ -72,7 +75,7 @@ export default function AddItemModal({
         extraDetails: "",
         // startDate: "",
         // endDate: "",
-        location: "",
+        siteIds: [],
       },
     });
 
@@ -87,7 +90,15 @@ export default function AddItemModal({
   const [removeLogoUrl, setRemoveLogoUrl] = useState<string | null>(null);
   const [removeCoverUrl, setRemoveCoverUrl] = useState<string | null>(null);
   const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
-  const [ownerOption, setOwnerOption] = useState<"category" | "item">("category");
+  const [sites, setSites] = useState<Site[]>([]);
+  const [siteIdsState, setSiteIdsState] = useState<number[]>([]);
+
+  useEffect(() => {
+    setValue("siteIds", siteIdsState);
+  }, [siteIdsState, setValue]);
+  const [ownerOption, setOwnerOption] = useState<"category" | "item">(
+    "category"
+  );
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -140,6 +151,27 @@ export default function AddItemModal({
   }, [isOpen, customerId, toast]);
 
   /**
+   * Fetch sites when the modal opens
+   */
+  useEffect(() => {
+    const fetchSites = async () => {
+      if (!isOpen) return;
+      try {
+        const res = await fetch("/api/site/allBy?selectColumns=id,siteName");
+        const data = await res.json();
+        if (res.ok) {
+          setSites(data.resource || []);
+        } else {
+          console.error("Failed to fetch sites", data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchSites();
+  }, [isOpen]);
+
+  /**
    * Populate form when opening modal for editing / reset when creating
    */
   useEffect(() => {
@@ -163,6 +195,10 @@ export default function AddItemModal({
       }
       setExistingLogoUrl(item.logoImageUrl || null);
       setExistingCoverUrl(item.coverImageUrl || null);
+      // @ts-ignore - siteIds may come from backend
+      if (item.siteIds) {
+        setSiteIdsState((item.siteIds as any[]).map((s) => Number(s)));
+      }
     } else {
       reset({
         name: "",
@@ -172,9 +208,10 @@ export default function AddItemModal({
         extraDetails: "",
         // startDate: "",
         // endDate: "",
-        location: "",
+        siteIds: [],
         customerId: customerId ?? undefined,
       });
+      setSiteIdsState([]);
       setOwnerOption("category");
       setValue("itemOwnerUserId", undefined);
       setExistingLogoUrl(null);
@@ -233,9 +270,13 @@ export default function AddItemModal({
 
       // Append simple primitives first
       Object.entries(data).forEach(([key, value]) => {
+        if (key === "siteIds") return;
         if (value !== undefined && value !== null && value !== "") {
           formData.append(key, String(value));
         }
+      });
+      siteIdsState.forEach((id) => {
+        formData.append("siteIds[]", String(id));
       });
 
       // Append IDs that may not be present in data yet
@@ -362,10 +403,40 @@ export default function AddItemModal({
               <Input type="date" {...register("endDate")} />
             </FormControl> */}
 
-            {/* Location */}
+            {/* Sites */}
             <FormControl mb={4}>
-              <FormLabel>Location</FormLabel>
-              <Input {...register("location")} />
+              <FormLabel>Sites</FormLabel>
+              <Checkbox
+                isChecked={
+                  siteIdsState.length === sites.length && sites.length > 0
+                }
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSiteIdsState(sites.map((s) => s.id));
+                  } else {
+                    setSiteIdsState([]);
+                  }
+                }}
+              >
+                Select All
+              </Checkbox>
+              <VStack align="start" pl={4} mt={2} spacing={1}>
+                {sites.map((site) => (
+                  <Checkbox
+                    key={site.id}
+                    isChecked={siteIdsState.includes(site.id)}
+                    onChange={() =>
+                      setSiteIdsState((prev) =>
+                        prev.includes(site.id)
+                          ? prev.filter((id) => id !== site.id)
+                          : [...prev, site.id]
+                      )
+                    }
+                  >
+                    {site.siteName}
+                  </Checkbox>
+                ))}
+              </VStack>
             </FormControl>
 
             {/* Owner selection */}
@@ -388,7 +459,11 @@ export default function AddItemModal({
             </FormControl>
 
             {/* Item Owner (Team Member Autocomplete) */}
-            <FormControl mb={4} isRequired={ownerOption === "item"} isDisabled={ownerOption === "category"}>
+            <FormControl
+              mb={4}
+              isRequired={ownerOption === "item"}
+              isDisabled={ownerOption === "category"}
+            >
               <FormLabel>Item Owner</FormLabel>
 
               <Controller
