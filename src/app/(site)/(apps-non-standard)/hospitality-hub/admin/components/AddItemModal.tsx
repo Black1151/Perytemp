@@ -24,6 +24,7 @@ import { useEffect, useState } from "react";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import { BigUpTeamMember } from "../../../big-up/types";
 import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
+import { useFetchClient } from "@/hooks/useFetchClient";
 
 /**
  * Updated AddItemModal that integrates TeamMemberAutocomplete as a controlled
@@ -35,7 +36,7 @@ interface AddItemModalProps {
   onClose: () => void;
   categoryId: string;
   onCreated: () => void;
-  teamMembers: BigUpTeamMember[];
+  // teamMembers: BigUpTeamMember[];
   item?: HospitalityItem | null;
 }
 
@@ -57,7 +58,7 @@ export default function AddItemModal({
   onClose,
   categoryId,
   onCreated,
-  teamMembers,
+  // teamMembers,
   item,
 }: AddItemModalProps) {
   const { register, control, handleSubmit, reset, setValue } =
@@ -318,15 +319,15 @@ export default function AddItemModal({
             </FormControl>
 
             {/* Handler (Team Member Autocomplete) */}
-            {/* <FormControl mb={4} isRequired>
+            <FormControl mb={4} isRequired>
               <FormLabel>Handler</FormLabel>
               <Controller
-                name="handlerUserId"
+                name="itemOwnerUserId"
                 control={control}
                 rules={{ required: true }}
                 render={({ field }) => (
                   <TeamMemberAutocomplete
-                    value={field.value || ""}
+                    value={field.value?.toString() || ""}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
                     teamMembers={teamMembers}
@@ -334,7 +335,7 @@ export default function AddItemModal({
                   />
                 )}
               />
-            </FormControl> */}
+            </FormControl>
 
             {/* Images */}
             <ImageUploadWithCrop
