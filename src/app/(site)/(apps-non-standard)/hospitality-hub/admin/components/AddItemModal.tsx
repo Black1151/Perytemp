@@ -271,6 +271,8 @@ export default function AddItemModal({
 
       if (ownerOption === "category") {
         data.itemOwnerUserId = Number(catOwnerUserId);
+      } else if (data.itemOwnerUserId !== undefined) {
+        data.itemOwnerUserId = Number(data.itemOwnerUserId);
       }
       const formData = new FormData();
 
@@ -359,7 +361,6 @@ export default function AddItemModal({
           <ModalBody>
             {/* Hidden fields */}
             <input type="hidden" {...register("customerId")} />
-            <input type="hidden" {...register("itemOwnerUserId")} />
 
             {/* Name */}
             <FormControl mb={4} isRequired>
