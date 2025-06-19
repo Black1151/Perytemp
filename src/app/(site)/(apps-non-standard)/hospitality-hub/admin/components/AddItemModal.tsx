@@ -15,6 +15,8 @@ import {
   Input,
   Textarea,
   Select,
+  Checkbox,
+  VStack,
   useToast,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
@@ -22,6 +24,7 @@ import DragDropFileInput from "@/components/forms/DragDropFileInput";
 import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { HospitalityItem } from "@/types/hospitalityHub";
+import { Site } from "@/types/types";
 import { BigUpTeamMember } from "../../../big-up/types";
 import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
 
@@ -47,7 +50,7 @@ interface FormValues {
   extraDetails: string;
   // startDate: string;
   // endDate: string;
-  location: string;
+  selectedSites: number[];
   customerId?: number;
   itemOwnerUserId?: number;
 }
@@ -69,7 +72,7 @@ export default function AddItemModal({
         extraDetails: "",
         // startDate: "",
         // endDate: "",
-        location: "",
+        selectedSites: [],
       },
     });
 
@@ -84,6 +87,12 @@ export default function AddItemModal({
   const [removeLogoUrl, setRemoveLogoUrl] = useState<string | null>(null);
   const [removeCoverUrl, setRemoveCoverUrl] = useState<string | null>(null);
   const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
+  const [sites, setSites] = useState<Site[]>([]);
+  const [selectedSitesState, setSelectedSitesState] = useState<number[]>([]);
+
+  useEffect(() => {
+    setValue("selectedSites", selectedSitesState);
+  }, [selectedSitesState, setValue]);
 
   const customerId = user?.customerId;
   const userId = user?.userId;
@@ -137,6 +146,29 @@ export default function AddItemModal({
   }, [isOpen, customerId, toast]);
 
   /**
+   * Fetch sites when the modal opens
+   */
+  useEffect(() => {
+    const fetchSites = async () => {
+      if (!isOpen) return;
+      try {
+        const res = await fetch(
+          "/api/site/allBy?selectColumns=id,siteName",
+        );
+        const data = await res.json();
+        if (res.ok) {
+          setSites(data.resource || []);
+        } else {
+          console.error("Failed to fetch sites", data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchSites();
+  }, [isOpen]);
+
+  /**
    * Populate form when opening modal for editing / reset when creating
    */
   useEffect(() => {
@@ -150,10 +182,15 @@ export default function AddItemModal({
       setValue("extraDetails", item.extraDetails || "");
       // setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
       // setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
-      setValue("location", item.location || "");
       setValue("itemOwnerUserId", Number(item.itemOwnerUserId));
       setExistingLogoUrl(item.logoImageUrl || null);
       setExistingCoverUrl(item.coverImageUrl || null);
+      // @ts-ignore - selectedSites may come from backend
+      if (item.selectedSites) {
+        setSelectedSitesState(
+          (item.selectedSites as any[]).map((s) => Number(s)),
+        );
+      }
     } else {
       reset({
         name: "",
@@ -163,10 +200,11 @@ export default function AddItemModal({
         extraDetails: "",
         // startDate: "",
         // endDate: "",
-        location: "",
+        selectedSites: [],
         customerId: customerId ?? undefined,
         itemOwnerUserId: userId ?? undefined,
       });
+      setSelectedSitesState([]);
       setExistingLogoUrl(null);
       setExistingCoverUrl(null);
     }
@@ -223,9 +261,13 @@ export default function AddItemModal({
 
       // Append simple primitives first
       Object.entries(data).forEach(([key, value]) => {
+        if (key === "selectedSites") return;
         if (value !== undefined && value !== null && value !== "") {
           formData.append(key, String(value));
         }
+      });
+      selectedSitesState.forEach((id) => {
+        formData.append("selectedSites[]", String(id));
       });
 
       // Append IDs that may not be present in data yet
@@ -352,10 +394,40 @@ export default function AddItemModal({
               <Input type="date" {...register("endDate")} />
             </FormControl> */}
 
-            {/* Location */}
+            {/* Sites */}
             <FormControl mb={4}>
-              <FormLabel>Location</FormLabel>
-              <Input {...register("location")} />
+              <FormLabel>Sites</FormLabel>
+              <Checkbox
+                isChecked={
+                  selectedSitesState.length === sites.length && sites.length > 0
+                }
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSelectedSitesState(sites.map((s) => s.id));
+                  } else {
+                    setSelectedSitesState([]);
+                  }
+                }}
+              >
+                Select All
+              </Checkbox>
+              <VStack align="start" pl={4} mt={2} spacing={1}>
+                {sites.map((site) => (
+                  <Checkbox
+                    key={site.id}
+                    isChecked={selectedSitesState.includes(site.id)}
+                    onChange={() =>
+                      setSelectedSitesState((prev) =>
+                        prev.includes(site.id)
+                          ? prev.filter((id) => id !== site.id)
+                          : [...prev, site.id]
+                      )
+                    }
+                  >
+                    {site.siteName}
+                  </Checkbox>
+                ))}
+              </VStack>
             </FormControl>
 
             {/* Item Owner (Team Member Autocomplete) */}
