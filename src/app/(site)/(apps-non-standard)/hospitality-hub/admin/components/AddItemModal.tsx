@@ -422,10 +422,7 @@ export default function AddItemModal({
                   <FormLabel>End Date</FormLabel>
                   <Input type="date" {...register("endDate")} />
                 </FormControl>
-              </GridItem>
 
-              <GridItem>
-                {/* Right Column */}
                 {/* Sites */}
                 <FormControl mb={4}>
                   <FormLabel>Sites</FormLabel>
@@ -473,6 +470,10 @@ export default function AddItemModal({
                     </VStack>
                   )}
                 </FormControl>
+              </GridItem>
+
+              <GridItem>
+                {/* Right Column */}
 
                 {/* Owner selection */}
                 <FormControl mb={2}>
