@@ -175,15 +175,23 @@ export function HospitalityHubMasonry({
           w="200px"
           zIndex={1}
           bg="gray.700"
-          color="white"
+          color="hospitalityHubPremium"
+          borderColor="hospitalityHubPremium"
+          borderWidth="1px"
           value={selectedSiteId}
           onChange={(e) =>
             setSelectedSiteId(e.target.value ? Number(e.target.value) : "")
           }
         >
-          <option value="">All Sites</option>
+          <option style={{ backgroundColor: "black" }} value="">
+            All Sites
+          </option>
           {sites.map((site) => (
-            <option key={site.id} value={site.id}>
+            <option
+              key={site.id}
+              value={site.id}
+              style={{ backgroundColor: "black" }}
+            >
               {site.siteName}
             </option>
           ))}
