@@ -104,7 +104,7 @@ export default function AddItemModal({
     setValue("siteIds", siteIdsState);
   }, [siteIdsState, setValue]);
   const [ownerOption, setOwnerOption] = useState<"category" | "item">(
-    "category"
+    "category",
   );
 
   const customerId = user?.customerId;
@@ -125,7 +125,7 @@ export default function AddItemModal({
       if (!isOpen || !customerId) return;
       try {
         const res = await fetch(
-          `/api/getForTeamMemberInput?customerId=${customerId}`
+          `/api/getForTeamMemberInput?customerId=${customerId}`,
         );
         const data = await res.json();
         if (res.ok) {
@@ -460,7 +460,7 @@ export default function AddItemModal({
                             setSiteIdsState((prev) =>
                               prev.includes(site.id)
                                 ? prev.filter((id) => id !== site.id)
-                                : [...prev, site.id]
+                                : [...prev, site.id],
                             )
                           }
                         >
@@ -495,27 +495,25 @@ export default function AddItemModal({
                 </FormControl>
 
                 {/* Item Owner (Team Member Autocomplete) */}
-                <FormControl
-                  mb={4}
-                  isRequired={ownerOption === "item"}
-                  isDisabled={ownerOption === "category"}
-                >
-                  <FormLabel>Item Owner</FormLabel>
-                  <Controller
-                    name="itemOwnerUserId"
-                    control={control}
-                    rules={{ required: ownerOption === "item" }}
-                    render={({ field }) => (
-                      <TeamMemberAutocomplete
-                        value={field.value?.toString() || ""}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                        teamMembers={teamMembers}
-                        placeholder="Search team member..."
-                      />
-                    )}
-                  />
-                </FormControl>
+                {ownerOption === "item" && (
+                  <FormControl mb={4} isRequired>
+                    <FormLabel>Item Owner</FormLabel>
+                    <Controller
+                      name="itemOwnerUserId"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <TeamMemberAutocomplete
+                          value={field.value?.toString() || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          teamMembers={teamMembers}
+                          placeholder="Search team member..."
+                        />
+                      )}
+                    />
+                  </FormControl>
+                )}
 
                 {/* Images */}
                 <ImageUploadWithCrop

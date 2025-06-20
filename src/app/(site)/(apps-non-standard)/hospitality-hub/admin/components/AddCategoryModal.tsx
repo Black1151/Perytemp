@@ -68,7 +68,9 @@ export default function AddCategoryModal({
     const fetchMembers = async () => {
       if (!isOpen || !customerId) return;
       try {
-        const res = await fetch(`/api/getForTeamMemberInput?customerId=${customerId}`);
+        const res = await fetch(
+          `/api/getForTeamMemberInput?customerId=${customerId}`,
+        );
         const data = await res.json();
         if (res.ok) {
           const list = (data.resource ?? data) as any[];
@@ -96,7 +98,6 @@ export default function AddCategoryModal({
 
     fetchMembers();
   }, [isOpen, customerId, toast]);
-
 
   useEffect(() => {
     if (isOpen) {
@@ -235,27 +236,25 @@ export default function AddCategoryModal({
                 </Stack>
               </RadioGroup>
             </FormControl>
-            <FormControl
-              mb={4}
-              isRequired={ownerOption === "other"}
-              isDisabled={ownerOption === "me"}
-            >
-              <FormLabel>Category Owner</FormLabel>
-              <Controller
-                name="catOwnerUserId"
-                control={control}
-                rules={{ required: ownerOption === "other" }}
-                render={({ field }) => (
-                  <TeamMemberAutocomplete
-                    value={field.value?.toString() || ""}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    teamMembers={teamMembers}
-                    placeholder="Search team member..."
-                  />
-                )}
-              />
-            </FormControl>
+            {ownerOption === "other" && (
+              <FormControl mb={4} isRequired>
+                <FormLabel>Category Owner</FormLabel>
+                <Controller
+                  name="catOwnerUserId"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <TeamMemberAutocomplete
+                      value={field.value?.toString() || ""}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      teamMembers={teamMembers}
+                      placeholder="Search team member..."
+                    />
+                  )}
+                />
+              </FormControl>
+            )}
             <ImageUploadWithCrop
               label="Image"
               onFileSelected={(file) => setCoverFile(file)}
