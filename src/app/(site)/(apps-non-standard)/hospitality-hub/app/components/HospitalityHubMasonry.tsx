@@ -142,7 +142,7 @@ export function HospitalityHubMasonry({
     });
 
     return (
-      <Center mt={20} mb={10}>
+      <Center mt={20} mb={10} flexDirection="column">
         <Box
           position="fixed"
           top={71}
@@ -197,25 +197,38 @@ export function HospitalityHubMasonry({
             </option>
           ))}
         </Select>
-        <SimpleGrid
-          columns={[1, null, 2, 3]}
-          gap={6}
-          w="100%"
-          maxW="2000px"
-          mx="auto"
-        >
-          <AnimatedList>
-            {displayedItems.map((item, index) => (
-              <AnimatedListItem key={item.id} index={index}>
-                <MasonryItemCard
-                  item={item}
-                  onClick={() => handleItemClick(item.id)}
-                  loading={loadingItemId === item.id}
-                />
-              </AnimatedListItem>
-            ))}
-          </AnimatedList>
-        </SimpleGrid>
+        {displayedItems.length === 0 ? (
+          <Center flex={1} w="100%">
+            <Text
+              fontFamily="bonfire"
+              fontSize="5xl"
+              textAlign="center"
+              color="hospitalityHubPremium"
+            >
+              No results to show...
+            </Text>
+          </Center>
+        ) : (
+          <SimpleGrid
+            columns={[1, null, 2, 3]}
+            gap={6}
+            w="100%"
+            maxW="2000px"
+            mx="auto"
+          >
+            <AnimatedList>
+              {displayedItems.map((item, index) => (
+                <AnimatedListItem key={item.id} index={index}>
+                  <MasonryItemCard
+                    item={item}
+                    onClick={() => handleItemClick(item.id)}
+                    loading={loadingItemId === item.id}
+                  />
+                </AnimatedListItem>
+              ))}
+            </AnimatedList>
+          </SimpleGrid>
+        )}
         <ItemDetailModal
           isOpen={modalOpen}
           onClose={() => {
