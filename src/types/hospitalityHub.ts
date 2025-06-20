@@ -37,7 +37,8 @@ export interface HospitalityCategory {
   customerId: string;
   catOwnerUserId: string;
   isActive: boolean;
-  imageUrl?: string;
+  /** Image representing the category */
+  coverImageUrl?: string;
 }
 
 export interface HospitalityBooking {
