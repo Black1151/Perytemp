@@ -58,12 +58,27 @@ export const ItemDetailModal = ({
 
   useEffect(() => {
     const fetchSites = async () => {
-      if (!item?.siteIds || item.siteIds.length === 0) {
+      const rawSiteIds = item?.siteIds as string[] | number[] | string | undefined;
+      if (!rawSiteIds) {
         setSiteNames([]);
         return;
       }
 
-      const query = item.siteIds.map((id) => `id=${id}`).join("&");
+      const ids = Array.isArray(rawSiteIds)
+        ? rawSiteIds.map((s) => Number(s)).filter((n) => !isNaN(n))
+        : typeof rawSiteIds === "string"
+          ? rawSiteIds
+              .split(",")
+              .map((s) => Number(s.trim()))
+              .filter((n) => !isNaN(n))
+          : [];
+
+      if (ids.length === 0) {
+        setSiteNames([]);
+        return;
+      }
+
+      const query = ids.map((id) => `id=${id}`).join("&");
       try {
         const res = await fetch(
           `/api/site/allBy?selectColumns=id,siteName&${query}`,

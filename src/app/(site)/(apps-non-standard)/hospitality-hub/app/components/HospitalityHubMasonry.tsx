@@ -131,10 +131,13 @@ export function HospitalityHubMasonry({
 
     const displayedItems = items.filter((item) => {
       if (!selectedSiteId) return true;
-      const ids = Array.isArray(item.siteIds)
-        ? item.siteIds
-        : typeof item.siteIds === "string"
-          ? item.siteIds
+      const rawSiteIds = item.siteIds as string[] | number[] | string | undefined;
+      const ids = Array.isArray(rawSiteIds)
+        ? rawSiteIds
+            .map((s) => Number(s))
+            .filter((n) => !isNaN(n))
+        : typeof rawSiteIds === "string"
+          ? rawSiteIds
               .split(",")
               .map((s) => Number(s.trim()))
               .filter((n) => !isNaN(n))
