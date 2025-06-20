@@ -18,9 +18,11 @@ import {
   Checkbox,
   VStack,
   useToast,
+  Spinner,
   Radio,
   RadioGroup,
   Stack,
+  Box,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import DragDropFileInput from "@/components/forms/DragDropFileInput";
@@ -93,6 +95,7 @@ export default function AddItemModal({
   const [removeCoverUrl, setRemoveCoverUrl] = useState<string | null>(null);
   const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
+  const [loadingSites, setLoadingSites] = useState<boolean>(false);
   const [siteIdsState, setSiteIdsState] = useState<number[]>([]);
 
   useEffect(() => {
@@ -157,6 +160,7 @@ export default function AddItemModal({
   useEffect(() => {
     const fetchSites = async () => {
       if (!isOpen) return;
+      setLoadingSites(true);
       try {
         const res = await fetch("/api/site/allBy?selectColumns=id,siteName");
         const data = await res.json();
@@ -167,6 +171,8 @@ export default function AddItemModal({
         }
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoadingSites(false);
       }
     };
     fetchSites();
@@ -418,6 +424,7 @@ export default function AddItemModal({
             <FormControl mb={4}>
               <FormLabel>Sites</FormLabel>
               <Checkbox
+                isDisabled={loadingSites}
                 isChecked={
                   siteIdsState.length === sites.length && sites.length > 0
                 }
@@ -431,23 +438,34 @@ export default function AddItemModal({
               >
                 Select All
               </Checkbox>
-              <VStack align="start" pl={4} mt={2} spacing={1}>
-                {sites.map((site) => (
-                  <Checkbox
-                    key={site.id}
-                    isChecked={siteIdsState.includes(site.id)}
-                    onChange={() =>
-                      setSiteIdsState((prev) =>
-                        prev.includes(site.id)
-                          ? prev.filter((id) => id !== site.id)
-                          : [...prev, site.id]
-                      )
-                    }
-                  >
-                    {site.siteName}
-                  </Checkbox>
-                ))}
-              </VStack>
+              {loadingSites ? (
+                <Box
+                  height={200}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Spinner size="lg" />
+                </Box>
+              ) : (
+                <VStack align="start" pl={4} mt={2} spacing={1}>
+                  {sites.map((site) => (
+                    <Checkbox
+                      key={site.id}
+                      isChecked={siteIdsState.includes(site.id)}
+                      onChange={() =>
+                        setSiteIdsState((prev) =>
+                          prev.includes(site.id)
+                            ? prev.filter((id) => id !== site.id)
+                            : [...prev, site.id]
+                        )
+                      }
+                    >
+                      {site.siteName}
+                    </Checkbox>
+                  ))}
+                </VStack>
+              )}
             </FormControl>
 
             {/* Owner selection */}
