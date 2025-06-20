@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { motion, Variants } from "framer-motion";
 import { HospitalityItem } from "@/types/hospitalityHub";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BookingModal from "./BookingModal";
 
 interface ItemDetailModalProps {
@@ -54,6 +54,31 @@ export const ItemDetailModal = ({
   loading,
 }: ItemDetailModalProps) => {
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [siteNames, setSiteNames] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchSites = async () => {
+      if (!item?.siteIds || item.siteIds.length === 0) {
+        setSiteNames([]);
+        return;
+      }
+
+      const query = item.siteIds.map((id) => `id=${id}`).join("&");
+      try {
+        const res = await fetch(
+          `/api/site/allBy?selectColumns=id,siteName&${query}`,
+        );
+        const data = await res.json();
+        if (res.ok) {
+          setSiteNames((data.resource || []).map((s: any) => s.siteName));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchSites();
+  }, [item]);
 
   const ctaText =
     item?.itemType === "info"
@@ -183,6 +208,18 @@ export const ItemDetailModal = ({
                           Location:
                         </Text>
                         <Text flex="1">{item.location}</Text>
+                      </MotionHStack>
+                    )}
+                    {siteNames.length > 0 && (
+                      <MotionHStack
+                        variants={itemVariants}
+                        width="100%"
+                        alignItems="flex-start"
+                      >
+                        <Text color="hospitalityHubPremium" minW="120px">
+                          Available at:
+                        </Text>
+                        <Text flex="1">{siteNames.join(", ")}</Text>
                       </MotionHStack>
                     )}
                     {item && ctaText && (
