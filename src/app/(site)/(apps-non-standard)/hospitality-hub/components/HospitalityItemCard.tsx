@@ -20,6 +20,7 @@ export default function HospitalityItemCard({
       cursor={onClick ? "pointer" : undefined}
       onClick={onClick}
       h="100%"
+      bg="green"
     >
       <PerygonCard
         width="100%"

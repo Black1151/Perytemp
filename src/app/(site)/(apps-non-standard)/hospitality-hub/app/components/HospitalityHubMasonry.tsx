@@ -148,7 +148,7 @@ export function HospitalityHubMasonry({
           <AnimatedListItem key={category.id} index={index}>
             <Box
               position="relative"
-              h="700px"
+              h="600px"
               borderRadius="lg"
               overflow="hidden"
               role="group"
