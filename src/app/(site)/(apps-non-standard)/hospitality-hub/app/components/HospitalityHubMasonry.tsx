@@ -158,7 +158,11 @@ export function HospitalityHubMasonry({
               _hover={{ transform: "scale(1.05)", boxShadow: "2xl" }}
             >
               <Image
-                src={category.imageUrl || (category as any).image}
+                src={
+                  category.coverImageUrl ||
+                  category.imageUrl ||
+                  (category as any).image
+                }
                 alt={category.name}
                 objectFit="cover"
                 w="100%"
