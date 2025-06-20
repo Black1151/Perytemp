@@ -158,42 +158,33 @@ export function HospitalityHubMasonry({
       <AnimatedList>
         {categories.map((category, index) => (
           <AnimatedListItem key={category.id} index={index}>
-            <Box
-              position="relative"
-              h="600px"
-              borderRadius="lg"
-              overflow="hidden"
-              role="group"
-              cursor="pointer"
-              onClick={() => setSelected(category.id)}
-              transition="transform 0.3s, box-shadow 0.3s"
-              _hover={{ transform: "scale(1.05)", boxShadow: "2xl" }}
-            >
-              <Image
-                src={category.coverImageUrl || (category as any).image}
-                alt={category.name}
-                objectFit="cover"
-                w="100%"
-                h="100%"
-              />
+            <Box onClick={() => setSelected(category.id)} cursor="pointer">
               <Box
-                position="absolute"
-                top={0}
-                left={0}
-                w="100%"
-                h="100%"
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                pointerEvents="none"
-                opacity={0}
-                transition="opacity 0.3s"
-                _groupHover={{ opacity: 1 }}
+                position="relative"
+                h="600px"
+                borderRadius="lg"
+                overflow="hidden"
+                role="group"
+                transition="transform 0.3s, box-shadow 0.3s"
+                border="3px solid rgb(238, 228, 88)"
+                _hover={{ transform: "scale(1.05)", boxShadow: "4xl" }}
               >
-                <Text color="white" fontWeight="bold" fontSize="xl">
-                  {category.name}
-                </Text>
+                <Image
+                  src={category.coverImageUrl || (category as any).image}
+                  alt={category.name}
+                  objectFit="cover"
+                  w="100%"
+                  h="100%"
+                />
               </Box>
+              <Text
+                mt={2}
+                textAlign="center"
+                fontWeight="bold"
+                color="hospitalityHubPremium"
+              >
+                {category.name}
+              </Text>
             </Box>
           </AnimatedListItem>
         ))}
