@@ -194,6 +194,15 @@ export const baseTheme = extendTheme({
           },
         },
 
+        hospitalityHub: {
+          bg: "#EFC718",
+          color: "black",
+          _hover: {
+            backgroundColor: "white",
+            color: "primary",
+          },
+        },
+
         agPrimary: {
           bg: "transparent",
           color: "white",

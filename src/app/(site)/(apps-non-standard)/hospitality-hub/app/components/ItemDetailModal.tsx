@@ -177,7 +177,7 @@ export const ItemDetailModal = ({
                     {item && ctaText && (
                       <Box p={4} textAlign="center">
                         <Button
-                          colorScheme="yellow"
+                          variant="hospitalityHub"
                           onClick={() => setBookingOpen(true)}
                         >
                           {ctaText}
