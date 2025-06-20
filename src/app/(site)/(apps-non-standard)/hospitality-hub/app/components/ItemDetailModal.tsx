@@ -19,15 +19,6 @@ import { motion, Variants } from "framer-motion";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import { useState } from "react";
 import BookingModal from "./BookingModal";
-import {
-  Description,
-  HowToReg,
-  Info,
-  CalendarToday,
-  EventAvailable,
-  LocationOn,
-  Category,
-} from "@mui/icons-material";
 
 interface ItemDetailModalProps {
   isOpen: boolean;
@@ -103,6 +94,8 @@ export const ItemDetailModal = ({
                   initial="hidden"
                   animate="visible"
                   p={4}
+                  h="100%"
+                  justify="space-between"
                 >
                   <ModalHeader
                     fontSize="3xl"
@@ -113,14 +106,20 @@ export const ItemDetailModal = ({
                   >
                     {item?.name || "Details"}
                   </ModalHeader>
-                  <VStack align="start" spacing={6} width="100%">
+                  <VStack
+                    align="start"
+                    spacing={6}
+                    width="100%"
+                    flex={1}
+                    justify="space-evenly"
+                  >
                     {item?.description && (
                       <MotionHStack
                         variants={itemVariants}
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Description />
+                        <Text color="yellow.400" minW="120px">Description:</Text>
                         <Text flex="1">{item.description}</Text>
                       </MotionHStack>
                     )}
@@ -130,7 +129,7 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <HowToReg />
+                        <Text color="yellow.400" minW="120px">How To:</Text>
                         <Text flex="1">{item.howToDetails}</Text>
                       </MotionHStack>
                     )}
@@ -140,7 +139,7 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Info />
+                        <Text color="yellow.400" minW="120px">Info:</Text>
                         <Text flex="1">{item.extraDetails}</Text>
                       </MotionHStack>
                     )}
@@ -150,7 +149,7 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <CalendarToday />
+                        <Text color="yellow.400" minW="120px">Start:</Text>
                         <Text flex="1">{item.startDate}</Text>
                       </MotionHStack>
                     )}
@@ -160,7 +159,7 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <EventAvailable />
+                        <Text color="yellow.400" minW="120px">End:</Text>
                         <Text flex="1">{item.endDate}</Text>
                       </MotionHStack>
                     )}
@@ -170,21 +169,21 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <LocationOn />
+                        <Text color="yellow.400" minW="120px">Location:</Text>
                         <Text flex="1">{item.location}</Text>
                       </MotionHStack>
                     )}
-                    {item && ctaText && (
-                      <Box p={4} textAlign="center">
-                        <Button
-                          colorScheme="yellow"
-                          onClick={() => setBookingOpen(true)}
-                        >
-                          {ctaText}
-                        </Button>
-                      </Box>
-                    )}
                   </VStack>
+                  {item && ctaText && (
+                    <Box pt={4} textAlign="center" width="100%">
+                      <Button
+                        colorScheme="yellow"
+                        onClick={() => setBookingOpen(true)}
+                      >
+                        {ctaText}
+                      </Button>
+                    </Box>
+                  )}
                 </MotionVStack>
                 {item?.coverImageUrl && (
                   <Box position="relative" h="100%">
