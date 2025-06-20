@@ -35,7 +35,8 @@ export default function HospitalityItemsMasonry({
       gap={4}
       height="500px"
       templateColumns={`repeat(auto-fill, minmax(300px, 1fr))`}
-      maxW="1920px"
+      maxW="2000px"
+      mx="auto"
     >
       <AnimatedList>
         {items.map((item: HospitalityItem, index) => (
