@@ -11,7 +11,12 @@ export interface HospitalityItem {
   startDate?: string;
   endDate?: string | null;
   location?: string;
-  siteIds?: number[];
+  /**
+   * Associated site IDs. The API may return this as an array of numbers,
+   * an array of numeric strings or a comma separated string, so allow for
+   * those shapes here.
+   */
+  siteIds?: number[] | string[] | string;
   itemType:
     | "singleDayBookable"
     | "singleDayBookableWithStartEnd"
