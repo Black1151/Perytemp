@@ -67,7 +67,7 @@ export function HospitalityHubMasonry({
           ? item.additionalImageUrlList
           : typeof item.additionalImageUrlList === "string"
             ? item.additionalImageUrlList
-                .split(',')
+                .split(",")
                 .map((u: string) => u.trim())
                 .filter(Boolean)
             : [];
@@ -102,10 +102,10 @@ export function HospitalityHubMasonry({
           <Text fontWeight="bold">&larr; Back</Text>
         </Box>
         <SimpleGrid
-          columns={[1, null, 2, 4]}
+          columns={[1, null, 2, 3]}
           gap={6}
           w="100%"
-          maxW="1440px"
+          maxW="2000px"
           mx="auto"
         >
           <AnimatedList>
@@ -138,13 +138,7 @@ export function HospitalityHubMasonry({
   }
 
   return (
-    <SimpleGrid
-      columns={[2, 3, 4]}
-      gap={4}
-      w="100%"
-      maxW="1440px"
-      mx="auto"
-    >
+    <SimpleGrid columns={[2, 3, 4]} gap={4} w="100%" maxW="1440px" mx="auto">
       <AnimatedList>
         {categories.map((category, index) => (
           <AnimatedListItem key={category.id} index={index}>
