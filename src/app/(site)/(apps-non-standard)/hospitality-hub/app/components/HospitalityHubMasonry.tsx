@@ -8,6 +8,7 @@ import {
   Spinner,
   Center,
 } from "@chakra-ui/react";
+import { keyframes } from "@emotion/react";
 import {
   AnimatedList,
   AnimatedListItem,
@@ -24,6 +25,23 @@ const preloadImage = (url: string) =>
 
 const preloadImages = (urls: string[]) =>
   Promise.all(urls.filter(Boolean).map(preloadImage));
+
+const shimmer = keyframes`
+  0% {
+    transform: translateX(-100%) skewX(-20deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%) skewX(-20deg);
+    opacity: 0;
+  }
+`;
 import MasonryItemCard from "./MasonryItemCard";
 import ItemDetailModal from "./ItemDetailModal";
 import { HospitalityItem } from "@/types/hospitalityHub";
@@ -159,15 +177,16 @@ export function HospitalityHubMasonry({
         {categories.map((category, index) => (
           <AnimatedListItem key={category.id} index={index}>
             <Box
+              onClick={() => setSelected(category.id)}
+              cursor="pointer"
               position="relative"
               h="600px"
               borderRadius="lg"
               overflow="hidden"
               role="group"
-              cursor="pointer"
-              onClick={() => setSelected(category.id)}
               transition="transform 0.3s, box-shadow 0.3s"
-              _hover={{ transform: "scale(1.05)", boxShadow: "2xl" }}
+              border="3px solid rgb(238, 228, 88)"
+              _hover={{ transform: "scale(1.05)", boxShadow: "4xl" }}
             >
               <Image
                 src={category.coverImageUrl || (category as any).image}
@@ -176,21 +195,31 @@ export function HospitalityHubMasonry({
                 w="100%"
                 h="100%"
               />
+              {/* Shimmer overlay */}
               <Box
                 position="absolute"
                 top={0}
                 left={0}
-                w="100%"
+                w="150%"
                 h="100%"
+                pointerEvents="none"
+                bgGradient="linear(120deg, transparent 0%, rgba(255,215,0,0.3) 45%, rgba(255,255,224,0.9) 50%, rgba(255,215,0,0.3) 55%, transparent 100%)"
+                transform="translateX(-100%) skewX(-20deg)"
+                opacity={0}
+                _groupHover={{ animation: `${shimmer} 0.8s` }}
+              />
+              <Box
+                position="absolute"
+                bottom={0}
+                left={0}
+                w="100%"
+                p={4}
+                pointerEvents="none"
+                bgGradient="linear(to-t, rgba(0,0,0,0.8), rgba(0,0,0,0))"
                 display="flex"
                 justifyContent="center"
-                alignItems="center"
-                pointerEvents="none"
-                opacity={0}
-                transition="opacity 0.3s"
-                _groupHover={{ opacity: 1 }}
               >
-                <Text color="white" fontWeight="bold" fontSize="xl">
+                <Text fontWeight="bold" color="hospitalityHubPremium" textAlign="center">
                   {category.name}
                 </Text>
               </Box>
