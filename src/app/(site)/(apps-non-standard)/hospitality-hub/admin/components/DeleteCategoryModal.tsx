@@ -31,18 +31,15 @@ export default function DeleteCategoryModal({
 }: DeleteCategoryModalProps) {
   const toast = useToast();
   const { items, loading } = useHospitalityItems(
-    isOpen && category ? category.id : undefined,
+    isOpen && category ? category.id : undefined
   );
 
   if (!category) return null;
 
   const handleDelete = async () => {
-    const res = await fetch(
-      `/api/hospitality-hub/categories/${category.id}`,
-      {
-        method: "DELETE",
-      },
-    );
+    const res = await fetch(`/api/hospitality-hub/categories/${category.id}`, {
+      method: "DELETE",
+    });
 
     const data = await res.json();
 
@@ -77,9 +74,7 @@ export default function DeleteCategoryModal({
         <ModalHeader>Delete Category</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Text>
-            Are you sure you want to delete {category.name}?
-          </Text>
+          <Text>Are you sure you want to delete {category.name}?</Text>
           {loading ? (
             <Spinner size="sm" mt={2} />
           ) : items.length > 0 ? (
@@ -90,10 +85,10 @@ export default function DeleteCategoryModal({
           ) : null}
         </ModalBody>
         <ModalFooter>
-          <Button mr={3} onClick={onClose}>
+          <Button mr={3} variant="primary" onClick={onClose}>
             Cancel
           </Button>
-          <Button colorScheme="red" onClick={handleDelete}>
+          <Button variant="primary" onClick={handleDelete}>
             Delete
           </Button>
         </ModalFooter>
