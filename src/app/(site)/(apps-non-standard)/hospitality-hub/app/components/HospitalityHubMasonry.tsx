@@ -94,8 +94,8 @@ export function HospitalityHubMasonry({
       <Center mt={20} mb={10}>
         <Box
           position="fixed"
-          top={4}
-          left={4}
+          top={71}
+          left={10}
           cursor="pointer"
           onClick={() => {
             setSelected(null);
@@ -105,7 +105,15 @@ export function HospitalityHubMasonry({
           _hover={{ transform: "scale(1.05)" }}
           transition="transform 0.2s"
         >
-          <Text fontWeight="bold" fontSize="2xl" color="hospitalityHubPremium">
+          <Text
+            bgColor="rgba(0, 0, 0, 0.57)"
+            fontWeight="bold"
+            fontSize="2xl"
+            color="hospitalityHubPremium"
+            p={3}
+            borderRadius="lg"
+            fontFamily="Metropolis"
+          >
             &larr; Back
           </Text>
         </Box>
