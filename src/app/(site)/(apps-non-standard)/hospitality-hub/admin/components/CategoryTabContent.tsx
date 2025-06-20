@@ -53,7 +53,7 @@ export const CategoryTabContent = forwardRef<
   }
 
   return (
-    <VStack w="100%" align="stretch" spacing={4}>
+    <VStack w="100%" align="stretch" spacing={4} flex={1}>
       {loading && items.length > 0 && <Spinner size="sm" alignSelf="center" />}
       {loading && items.length === 0 ? (
         <Spinner />
