@@ -130,15 +130,22 @@ export function HospitalityHubMasonry({
     }
 
     const displayedItems = items.filter((item) => {
-      if (!selectedSiteId) return true;
-      const ids = Array.isArray(item.siteIds)
-        ? item.siteIds
-        : typeof item.siteIds === "string"
-          ? item.siteIds
-              .split(",")
-              .map((s) => Number(s.trim()))
-              .filter((n) => !isNaN(n))
-          : [];
+      if (!selectedSiteId) return true; // nothing selected – show all
+
+      // ---------- normalise item.siteIds to number[] ----------
+      let ids: number[] = [];
+
+      if (Array.isArray(item.siteIds)) {
+        // siteIds: number[] | string[]  --> cast each to number
+        ids = item.siteIds.map((id: number | string) => Number(id));
+      } else if (typeof item.siteIds === "string") {
+        // siteIds: "1,2,3"
+        ids = (item.siteIds as string)
+          .split(",")
+          .map((s: string) => Number(s.trim()))
+          .filter((n: number) => !isNaN(n));
+      }
+
       return ids.includes(Number(selectedSiteId));
     });
 
