@@ -70,7 +70,7 @@ export const ItemDetailModal = ({
             : "";
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="4xl">
+    <Modal isOpen={isOpen} onClose={onClose} size="4xl" isCentered>
       <ModalOverlay />
       <ModalContent
         bg="gray.800"
