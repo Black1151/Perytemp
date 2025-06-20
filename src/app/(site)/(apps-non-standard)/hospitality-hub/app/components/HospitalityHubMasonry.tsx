@@ -144,95 +144,110 @@ export function HospitalityHubMasonry({
 
     return (
       <Center mt={20} mb={10}>
-        <Box
-          position="fixed"
-          top={71}
-          left={10}
-          cursor="pointer"
-          onClick={() => {
-            setSelected(null);
-          }}
-          p={2}
-          zIndex={1}
-          _hover={{ transform: "scale(1.05)" }}
-          transition="transform 0.2s"
-          mb={10}
-        >
-          <Text
-            bgColor="rgba(0, 0, 0, 0.57)"
-            fontWeight="bold"
-            fontSize="2xl"
-            color="hospitalityHubPremium"
-            p={3}
-            borderRadius="lg"
-            fontFamily="Metropolis"
-          >
-            &larr; Back
-          </Text>
-        </Box>
-        <Select
-          position="fixed"
-          top={150}
-          left={10}
-          w="200px"
-          zIndex={1}
-          bg="gray.700"
-          color="hospitalityHubPremium"
-          borderColor="hospitalityHubPremium"
-          borderWidth="1px"
-          value={selectedSiteId}
-          onChange={(e) =>
-            setSelectedSiteId(e.target.value ? Number(e.target.value) : "")
-          }
-        >
-          <option style={{ backgroundColor: "black" }} value="">
-            All Sites
-          </option>
-          {sites.map((site) => (
-            <option
-              key={site.id}
-              value={site.id}
-              style={{ backgroundColor: "black" }}
-            >
-              {site.siteName}
-            </option>
-          ))}
-        </Select>
-        <Box w="100%" maxW="2000px" mx="auto">
-          {selectedCategoryData && (
+        {displayedItems.length === 0 ? (
+          <Center flex={1} w="100%">
             <Text
               fontFamily="bonfire"
               fontSize="5xl"
-              textAlign="left"
+              textAlign="center"
               color="hospitalityHubPremium"
-              mb={4}
             >
-              {selectedCategoryData.name}
+              No results to show...
             </Text>
-          )}
-          <SimpleGrid columns={[1, null, 2, 3]} gap={6} w="100%">
-            <AnimatedList>
-              {displayedItems.map((item, index) => (
-                <AnimatedListItem key={item.id} index={index}>
-                  <MasonryItemCard
-                    item={item}
-                    onClick={() => handleItemClick(item.id)}
-                    loading={loadingItemId === item.id}
-                  />
-                </AnimatedListItem>
+          </Center>
+        ) : (
+          <>
+            <Box
+              position="fixed"
+              top={71}
+              left={10}
+              cursor="pointer"
+              onClick={() => {
+                setSelected(null);
+              }}
+              p={2}
+              zIndex={1}
+              _hover={{ transform: "scale(1.05)" }}
+              transition="transform 0.2s"
+              mb={10}
+            >
+              <Text
+                bgColor="rgba(0, 0, 0, 0.57)"
+                fontWeight="bold"
+                fontSize="2xl"
+                color="hospitalityHubPremium"
+                p={3}
+                borderRadius="lg"
+                fontFamily="Metropolis"
+              >
+                &larr; Back
+              </Text>
+            </Box>
+            <Select
+              position="fixed"
+              top={150}
+              left={10}
+              w="200px"
+              zIndex={1}
+              bg="gray.700"
+              color="hospitalityHubPremium"
+              borderColor="hospitalityHubPremium"
+              borderWidth="1px"
+              value={selectedSiteId}
+              onChange={(e) =>
+                setSelectedSiteId(e.target.value ? Number(e.target.value) : "")
+              }
+            >
+              <option style={{ backgroundColor: "black" }} value="">
+                All Sites
+              </option>
+              {sites.map((site) => (
+                <option
+                  key={site.id}
+                  value={site.id}
+                  style={{ backgroundColor: "black" }}
+                >
+                  {site.siteName}
+                </option>
               ))}
-            </AnimatedList>
-          </SimpleGrid>
-        </Box>
-        <ItemDetailModal
-          isOpen={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-            setSelectedItem(null);
-          }}
-          item={selectedItem}
-          loading={modalLoading}
-        />
+            </Select>
+            <Box w="100%" maxW="2000px" mx="auto">
+              {selectedCategoryData && (
+                <Text
+                  fontFamily="bonfire"
+                  fontSize="5xl"
+                  textAlign="left"
+                  color="hospitalityHubPremium"
+                  mb={4}
+                >
+                  {selectedCategoryData.name}
+                </Text>
+              )}
+              <SimpleGrid columns={[1, null, 2, 3]} gap={6} w="100%">
+                <AnimatedList>
+                  {displayedItems.map((item, index) => (
+                    <AnimatedListItem key={item.id} index={index}>
+                      <MasonryItemCard
+                        item={item}
+                        onClick={() => handleItemClick(item.id)}
+                        loading={loadingItemId === item.id}
+                      />
+                    </AnimatedListItem>
+                  ))}
+                </AnimatedList>
+              </SimpleGrid>
+            </Box>
+            <ItemDetailModal
+              isOpen={modalOpen}
+              onClose={() => {
+                setModalOpen(false);
+                setSelectedItem(null);
+              }}
+              item={selectedItem}
+              loading={modalLoading}
+            />
+          </>
+        )}
       </Center>
     );
   }
