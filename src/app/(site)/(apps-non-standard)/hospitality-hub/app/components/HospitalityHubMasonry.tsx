@@ -69,6 +69,7 @@ export function HospitalityHubMasonry({
   const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(
     null,
   );
+  const [selectedItemSites, setSelectedItemSites] = useState<string[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
   const [selectedSiteId, setSelectedSiteId] = useState<number | "">("");
 
@@ -104,13 +105,29 @@ export function HospitalityHubMasonry({
         const additional = Array.isArray(item.additionalImageUrlList)
           ? item.additionalImageUrlList
           : typeof item.additionalImageUrlList === "string"
-            ? item.additionalImageUrlList
-                .split(",")
-                .map((u: string) => u.trim())
-                .filter(Boolean)
-            : [];
+              ? item.additionalImageUrlList
+                  .split(",")
+                  .map((u: string) => u.trim())
+                  .filter(Boolean)
+              : [];
         urls.push(...additional);
         await preloadImages(urls);
+        let names: string[] = [];
+        if (item.siteIds && item.siteIds.length > 0) {
+          const query = item.siteIds.map((id: any) => `id=${id}`).join("&");
+          try {
+            const siteRes = await fetch(
+              `/api/site/allBy?selectColumns=id,siteName&${query}`,
+            );
+            const siteData = await siteRes.json();
+            if (siteRes.ok) {
+              names = (siteData.resource || []).map((s: any) => s.siteName);
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        }
+        setSelectedItemSites(names);
         setModalOpen(true);
       }
     } catch (err) {
@@ -220,8 +237,10 @@ export function HospitalityHubMasonry({
           onClose={() => {
             setModalOpen(false);
             setSelectedItem(null);
+            setSelectedItemSites([]);
           }}
           item={selectedItem}
+          siteNames={selectedItemSites}
           loading={modalLoading}
         />
       </Center>
