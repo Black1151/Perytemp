@@ -22,6 +22,7 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  Box,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import DragDropFileInput from "@/components/forms/DragDropFileInput";
@@ -101,7 +102,7 @@ export default function AddItemModal({
     setValue("siteIds", siteIdsState);
   }, [siteIdsState, setValue]);
   const [ownerOption, setOwnerOption] = useState<"category" | "item">(
-    "category",
+    "category"
   );
 
   const customerId = user?.customerId;
@@ -122,7 +123,7 @@ export default function AddItemModal({
       if (!isOpen || !customerId) return;
       try {
         const res = await fetch(
-          `/api/getForTeamMemberInput?customerId=${customerId}`,
+          `/api/getForTeamMemberInput?customerId=${customerId}`
         );
         const data = await res.json();
         if (res.ok) {
@@ -456,7 +457,7 @@ export default function AddItemModal({
                         setSiteIdsState((prev) =>
                           prev.includes(site.id)
                             ? prev.filter((id) => id !== site.id)
-                            : [...prev, site.id],
+                            : [...prev, site.id]
                         )
                       }
                     >
