@@ -1,6 +1,6 @@
 "use client";
 
-import { Spinner, VStack, useToast } from "@chakra-ui/react";
+import { Spinner, VStack, useToast, Center, Text } from "@chakra-ui/react";
 import HospitalityItemsMasonry from "./HospitalityItemsMasonry";
 import { HospitalityCategory, HospitalityItem } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
@@ -57,6 +57,17 @@ export const CategoryTabContent = forwardRef<
       {loading && items.length > 0 && <Spinner size="sm" alignSelf="center" />}
       {loading && items.length === 0 ? (
         <Spinner />
+      ) : items.length === 0 ? (
+        <Center flex={1}>
+          <Text
+            fontFamily="bonfire"
+            fontSize="5xl"
+            textAlign="center"
+            color="white"
+          >
+            No items to show!
+          </Text>
+        </Center>
       ) : (
         <HospitalityItemsMasonry
           items={items}
