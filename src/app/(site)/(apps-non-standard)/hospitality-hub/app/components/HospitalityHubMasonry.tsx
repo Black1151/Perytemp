@@ -63,6 +63,7 @@ export function HospitalityHubMasonry({
   const { categories, loading: categoriesLoading } =
     useHospitalityCategories(initialCategories);
   const { items, loading } = useHospitalityItems(selected);
+  const selectedCategoryData = categories.find((cat) => cat.id === selected);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
@@ -197,25 +198,32 @@ export function HospitalityHubMasonry({
             </option>
           ))}
         </Select>
-        <SimpleGrid
-          columns={[1, null, 2, 3]}
-          gap={6}
-          w="100%"
-          maxW="2000px"
-          mx="auto"
-        >
-          <AnimatedList>
-            {displayedItems.map((item, index) => (
-              <AnimatedListItem key={item.id} index={index}>
-                <MasonryItemCard
-                  item={item}
-                  onClick={() => handleItemClick(item.id)}
-                  loading={loadingItemId === item.id}
-                />
-              </AnimatedListItem>
-            ))}
-          </AnimatedList>
-        </SimpleGrid>
+        <Box w="100%" maxW="2000px" mx="auto">
+          {selectedCategoryData && (
+            <Text
+              fontFamily="bonfire"
+              fontSize="5xl"
+              textAlign="left"
+              color="hospitalityHubPremium"
+              mb={4}
+            >
+              {selectedCategoryData.name}
+            </Text>
+          )}
+          <SimpleGrid columns={[1, null, 2, 3]} gap={6} w="100%">
+            <AnimatedList>
+              {displayedItems.map((item, index) => (
+                <AnimatedListItem key={item.id} index={index}>
+                  <MasonryItemCard
+                    item={item}
+                    onClick={() => handleItemClick(item.id)}
+                    loading={loadingItemId === item.id}
+                  />
+                </AnimatedListItem>
+              ))}
+            </AnimatedList>
+          </SimpleGrid>
+        </Box>
         <ItemDetailModal
           isOpen={modalOpen}
           onClose={() => {
