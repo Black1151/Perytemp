@@ -7,13 +7,15 @@ import {
   Text,
   Spinner,
   Center,
+  Select,
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import {
   AnimatedList,
   AnimatedListItem,
 } from "@/components/animations/AnimatedList";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Site } from "@/types/types";
 
 const preloadImage = (url: string) =>
   new Promise<void>((resolve) => {
@@ -65,8 +67,26 @@ export function HospitalityHubMasonry({
   const [modalLoading, setModalLoading] = useState(false);
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(
-    null
+    null,
   );
+  const [sites, setSites] = useState<Site[]>([]);
+  const [selectedSiteId, setSelectedSiteId] = useState<number | "">("");
+
+  useEffect(() => {
+    const fetchSites = async () => {
+      try {
+        const res = await fetch("/api/site/allBy?selectColumns=id,siteName");
+        const data = await res.json();
+        if (res.ok) {
+          setSites(data.resource || []);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchSites();
+  }, []);
 
   const handleItemClick = async (itemId: string) => {
     if (!selected) return;
@@ -108,6 +128,19 @@ export function HospitalityHubMasonry({
       return <Spinner />;
     }
 
+    const displayedItems = items.filter((item) => {
+      if (!selectedSiteId) return true;
+      const ids = Array.isArray(item.siteIds)
+        ? item.siteIds
+        : typeof item.siteIds === "string"
+          ? item.siteIds
+              .split(",")
+              .map((s) => Number(s.trim()))
+              .filter((n) => !isNaN(n))
+          : [];
+      return ids.includes(Number(selectedSiteId));
+    });
+
     return (
       <Center mt={20} mb={10}>
         <Box
@@ -135,6 +168,34 @@ export function HospitalityHubMasonry({
             &larr; Back
           </Text>
         </Box>
+        <Select
+          position="fixed"
+          top={120}
+          left={10}
+          w="200px"
+          zIndex={1}
+          bg="gray.700"
+          color="hospitalityHubPremium"
+          borderColor="hospitalityHubPremium"
+          borderWidth="1px"
+          value={selectedSiteId}
+          onChange={(e) =>
+            setSelectedSiteId(e.target.value ? Number(e.target.value) : "")
+          }
+        >
+          <option style={{ backgroundColor: "black" }} value="">
+            All Sites
+          </option>
+          {sites.map((site) => (
+            <option
+              key={site.id}
+              value={site.id}
+              style={{ backgroundColor: "black" }}
+            >
+              {site.siteName}
+            </option>
+          ))}
+        </Select>
         <SimpleGrid
           columns={[1, null, 2, 3]}
           gap={6}
@@ -143,7 +204,7 @@ export function HospitalityHubMasonry({
           mx="auto"
         >
           <AnimatedList>
-            {items.map((item, index) => (
+            {displayedItems.map((item, index) => (
               <AnimatedListItem key={item.id} index={index}>
                 <MasonryItemCard
                   item={item}
@@ -219,7 +280,11 @@ export function HospitalityHubMasonry({
                 display="flex"
                 justifyContent="center"
               >
-                <Text fontWeight="bold" color="hospitalityHubPremium" textAlign="center">
+                <Text
+                  fontWeight="bold"
+                  color="hospitalityHubPremium"
+                  textAlign="center"
+                >
                   {category.name}
                 </Text>
               </Box>
