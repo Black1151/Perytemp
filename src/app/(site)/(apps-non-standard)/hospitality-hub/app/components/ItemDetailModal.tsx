@@ -100,7 +100,7 @@ export const ItemDetailModal = ({
                   <ModalHeader
                     fontSize="3xl"
                     textAlign="left"
-                    color="yellow.400"
+                    color="hospitalityHubPremium"
                     fontFamily="metropolis"
                     p={0}
                   >
@@ -119,7 +119,7 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">
+                        <Text color="hospitalityHubPremium" minW="120px">
                           Description:
                         </Text>
                         <Text flex="1">{item.description}</Text>
@@ -131,7 +131,7 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">
+                        <Text color="hospitalityHubPremium" minW="120px">
                           How To:
                         </Text>
                         <Text flex="1">{item.howToDetails}</Text>
@@ -143,7 +143,7 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">
+                        <Text color="hospitalityHubPremium" minW="120px">
                           Info:
                         </Text>
                         <Text flex="1">{item.extraDetails}</Text>
@@ -155,7 +155,7 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">
+                        <Text color="hospitalityHubPremium" minW="120px">
                           Start:
                         </Text>
                         <Text flex="1">{item.startDate}</Text>
@@ -167,7 +167,7 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">
+                        <Text color="hospitalityHubPremium" minW="120px">
                           End:
                         </Text>
                         <Text flex="1">{item.endDate}</Text>
@@ -179,7 +179,7 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">
+                        <Text color="hospitalityHubPremium" minW="120px">
                           Location:
                         </Text>
                         <Text flex="1">{item.location}</Text>
