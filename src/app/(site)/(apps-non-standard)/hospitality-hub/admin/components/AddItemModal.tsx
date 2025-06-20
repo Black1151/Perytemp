@@ -438,7 +438,14 @@ export default function AddItemModal({
                 Select All
               </Checkbox>
               {loadingSites ? (
-                <Spinner size="sm" mt={2} />
+                <Box
+                  height={200}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Spinner size="lg" />
+                </Box>
               ) : (
                 <VStack align="start" pl={4} mt={2} spacing={1}>
                   {sites.map((site) => (
