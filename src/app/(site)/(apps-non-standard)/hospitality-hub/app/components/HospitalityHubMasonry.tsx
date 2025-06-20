@@ -67,7 +67,7 @@ export function HospitalityHubMasonry({
   const [modalLoading, setModalLoading] = useState(false);
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(
-    null,
+    null
   );
   const [sites, setSites] = useState<Site[]>([]);
   const [selectedSiteId, setSelectedSiteId] = useState<number | "">("");
@@ -155,6 +155,7 @@ export function HospitalityHubMasonry({
           zIndex={1}
           _hover={{ transform: "scale(1.05)" }}
           transition="transform 0.2s"
+          mb={10}
         >
           <Text
             bgColor="rgba(0, 0, 0, 0.57)"
@@ -170,7 +171,7 @@ export function HospitalityHubMasonry({
         </Box>
         <Select
           position="fixed"
-          top={120}
+          top={150}
           left={10}
           w="200px"
           zIndex={1}
