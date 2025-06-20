@@ -119,7 +119,9 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">Description:</Text>
+                        <Text color="yellow.400" minW="120px">
+                          Description:
+                        </Text>
                         <Text flex="1">{item.description}</Text>
                       </MotionHStack>
                     )}
@@ -129,7 +131,9 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">How To:</Text>
+                        <Text color="yellow.400" minW="120px">
+                          How To:
+                        </Text>
                         <Text flex="1">{item.howToDetails}</Text>
                       </MotionHStack>
                     )}
@@ -139,7 +143,9 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">Info:</Text>
+                        <Text color="yellow.400" minW="120px">
+                          Info:
+                        </Text>
                         <Text flex="1">{item.extraDetails}</Text>
                       </MotionHStack>
                     )}
@@ -149,7 +155,9 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">Start:</Text>
+                        <Text color="yellow.400" minW="120px">
+                          Start:
+                        </Text>
                         <Text flex="1">{item.startDate}</Text>
                       </MotionHStack>
                     )}
@@ -159,7 +167,9 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">End:</Text>
+                        <Text color="yellow.400" minW="120px">
+                          End:
+                        </Text>
                         <Text flex="1">{item.endDate}</Text>
                       </MotionHStack>
                     )}
@@ -169,21 +179,23 @@ export const ItemDetailModal = ({
                         width="100%"
                         alignItems="flex-start"
                       >
-                        <Text color="yellow.400" minW="120px">Location:</Text>
+                        <Text color="yellow.400" minW="120px">
+                          Location:
+                        </Text>
                         <Text flex="1">{item.location}</Text>
                       </MotionHStack>
                     )}
+                    {item && ctaText && (
+                      <Box p={4} textAlign="center" w="100%">
+                        <Button
+                          variant="hospitalityHub"
+                          onClick={() => setBookingOpen(true)}
+                        >
+                          {ctaText}
+                        </Button>
+                      </Box>
+                    )}
                   </VStack>
-                  {item && ctaText && (
-                    <Box pt={4} textAlign="center" width="100%">
-                      <Button
-                        colorScheme="yellow"
-                        onClick={() => setBookingOpen(true)}
-                      >
-                        {ctaText}
-                      </Button>
-                    </Box>
-                  )}
                 </MotionVStack>
                 {item?.coverImageUrl && (
                   <Box position="relative" h="100%">
