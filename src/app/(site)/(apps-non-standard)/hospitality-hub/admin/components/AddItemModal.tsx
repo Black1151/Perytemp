@@ -18,6 +18,7 @@ import {
   Checkbox,
   VStack,
   useToast,
+  Spinner,
   Radio,
   RadioGroup,
   Stack,
@@ -93,13 +94,14 @@ export default function AddItemModal({
   const [removeCoverUrl, setRemoveCoverUrl] = useState<string | null>(null);
   const [teamMembers, setTeamMembers] = useState<BigUpTeamMember[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
+  const [loadingSites, setLoadingSites] = useState<boolean>(false);
   const [siteIdsState, setSiteIdsState] = useState<number[]>([]);
 
   useEffect(() => {
     setValue("siteIds", siteIdsState);
   }, [siteIdsState, setValue]);
   const [ownerOption, setOwnerOption] = useState<"category" | "item">(
-    "category"
+    "category",
   );
 
   const customerId = user?.customerId;
@@ -120,7 +122,7 @@ export default function AddItemModal({
       if (!isOpen || !customerId) return;
       try {
         const res = await fetch(
-          `/api/getForTeamMemberInput?customerId=${customerId}`
+          `/api/getForTeamMemberInput?customerId=${customerId}`,
         );
         const data = await res.json();
         if (res.ok) {
@@ -157,6 +159,7 @@ export default function AddItemModal({
   useEffect(() => {
     const fetchSites = async () => {
       if (!isOpen) return;
+      setLoadingSites(true);
       try {
         const res = await fetch("/api/site/allBy?selectColumns=id,siteName");
         const data = await res.json();
@@ -167,6 +170,8 @@ export default function AddItemModal({
         }
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoadingSites(false);
       }
     };
     fetchSites();
@@ -418,6 +423,7 @@ export default function AddItemModal({
             <FormControl mb={4}>
               <FormLabel>Sites</FormLabel>
               <Checkbox
+                isDisabled={loadingSites}
                 isChecked={
                   siteIdsState.length === sites.length && sites.length > 0
                 }
@@ -431,23 +437,27 @@ export default function AddItemModal({
               >
                 Select All
               </Checkbox>
-              <VStack align="start" pl={4} mt={2} spacing={1}>
-                {sites.map((site) => (
-                  <Checkbox
-                    key={site.id}
-                    isChecked={siteIdsState.includes(site.id)}
-                    onChange={() =>
-                      setSiteIdsState((prev) =>
-                        prev.includes(site.id)
-                          ? prev.filter((id) => id !== site.id)
-                          : [...prev, site.id]
-                      )
-                    }
-                  >
-                    {site.siteName}
-                  </Checkbox>
-                ))}
-              </VStack>
+              {loadingSites ? (
+                <Spinner size="sm" mt={2} />
+              ) : (
+                <VStack align="start" pl={4} mt={2} spacing={1}>
+                  {sites.map((site) => (
+                    <Checkbox
+                      key={site.id}
+                      isChecked={siteIdsState.includes(site.id)}
+                      onChange={() =>
+                        setSiteIdsState((prev) =>
+                          prev.includes(site.id)
+                            ? prev.filter((id) => id !== site.id)
+                            : [...prev, site.id],
+                        )
+                      }
+                    >
+                      {site.siteName}
+                    </Checkbox>
+                  ))}
+                </VStack>
+              )}
             </FormControl>
 
             {/* Owner selection */}
