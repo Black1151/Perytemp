@@ -71,10 +71,10 @@ export default function DeleteItemModal({
           <Text>Are you sure you want to delete {item.name}?</Text>
         </ModalBody>
         <ModalFooter>
-          <Button mr={3} onClick={onClose}>
+          <Button mr={3} variant="primary" onClick={onClose}>
             Cancel
           </Button>
-          <Button colorScheme="red" onClick={handleDelete}>
+          <Button variant="primary" onClick={handleDelete}>
             Delete
           </Button>
         </ModalFooter>

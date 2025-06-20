@@ -551,7 +551,7 @@ export default function AddItemModal({
           </ModalBody>
 
           <ModalFooter>
-            <Button type="submit" colorScheme="blue">
+            <Button type="submit" variant="primary">
               {item ? "Update" : "Create"}
             </Button>
           </ModalFooter>

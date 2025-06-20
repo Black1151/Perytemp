@@ -262,7 +262,7 @@ export default function AddCategoryModal({
             />
           </ModalBody>
           <ModalFooter>
-            <Button type="submit" colorScheme="blue">
+            <Button type="submit" variant="primary">
               {category ? "Update" : "Create"}
             </Button>
           </ModalFooter>
