@@ -23,6 +23,8 @@ import {
   RadioGroup,
   Stack,
   Box,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import DragDropFileInput from "@/components/forms/DragDropFileInput";
@@ -54,8 +56,8 @@ interface FormValues {
   itemType: string;
   howToDetails: string;
   extraDetails: string;
-  // startDate: string;
-  // endDate: string;
+  startDate: string;
+  endDate: string;
   siteIds: number[];
   customerId?: number;
   itemOwnerUserId?: number;
@@ -77,8 +79,8 @@ export default function AddItemModal({
         itemType: "singleDayBookable",
         howToDetails: "",
         extraDetails: "",
-        // startDate: "",
-        // endDate: "",
+        startDate: "",
+        endDate: "",
         siteIds: [],
       },
     });
@@ -362,7 +364,7 @@ export default function AddItemModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} size="6xl" isCentered>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{item ? "Update Item" : "Create Item"}</ModalHeader>
@@ -372,174 +374,179 @@ export default function AddItemModal({
             {/* Hidden fields */}
             <input type="hidden" {...register("customerId")} />
 
-            {/* Name */}
-            <FormControl mb={4} isRequired>
-              <FormLabel>Name</FormLabel>
-              <Input {...register("name", { required: true })} />
-            </FormControl>
-
-            {/* Description */}
-            <FormControl mb={4} isRequired>
-              <FormLabel>Description</FormLabel>
-              <Textarea {...register("description", { required: true })} />
-            </FormControl>
-
-            {/* Item Type */}
-            <FormControl mb={4}>
-              <FormLabel>Item Type</FormLabel>
-              <Select {...register("itemType")}>
-                <option value="singleDayBookable">Single Day Bookable</option>
-                <option value="singleDayBookableWithStartEnd">
-                  Single Day Bookable With Start and End
-                </option>
-                <option value="multiDayBookable">Multi Day Bookable</option>
-                <option value="registerInterest">Register Interest</option>
-                <option value="info">Info</option>
-              </Select>
-            </FormControl>
-
-            {/* How To Details */}
-            <FormControl mb={4}>
-              <FormLabel>How To Details</FormLabel>
-              <Textarea {...register("howToDetails")} />
-            </FormControl>
-
-            {/* Extra Details */}
-            {/* <FormControl mb={4}>
-              <FormLabel>Extra Details</FormLabel>
-              <Textarea {...register("extraDetails")} />
-            </FormControl> */}
-
-            {/* Start/End Dates */}
-            {/* <FormControl mb={4}>
-              <FormLabel>Start Date</FormLabel>
-              <Input type="date" {...register("startDate")} />
-            </FormControl>
-            <FormControl mb={4}>
-              <FormLabel>End Date</FormLabel>
-              <Input type="date" {...register("endDate")} />
-            </FormControl> */}
-
-            {/* Sites */}
-            <FormControl mb={4}>
-              <FormLabel>Sites</FormLabel>
-              <Checkbox
-                isDisabled={loadingSites}
-                isChecked={
-                  siteIdsState.length === sites.length && sites.length > 0
-                }
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setSiteIdsState(sites.map((s) => s.id));
-                  } else {
-                    setSiteIdsState([]);
-                  }
-                }}
-              >
-                Select All
-              </Checkbox>
-              {loadingSites ? (
-                <Box
-                  height={200}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                >
-                  <Spinner size="lg" />
-                </Box>
-              ) : (
-                <VStack align="start" pl={4} mt={2} spacing={1}>
-                  {sites.map((site) => (
-                    <Checkbox
-                      key={site.id}
-                      isChecked={siteIdsState.includes(site.id)}
-                      onChange={() =>
-                        setSiteIdsState((prev) =>
-                          prev.includes(site.id)
-                            ? prev.filter((id) => id !== site.id)
-                            : [...prev, site.id]
-                        )
-                      }
-                    >
-                      {site.siteName}
-                    </Checkbox>
-                  ))}
-                </VStack>
-              )}
-            </FormControl>
-
-            {/* Owner selection */}
-            <FormControl mb={2}>
-              <FormLabel>Owner</FormLabel>
-              <RadioGroup
-                value={ownerOption}
-                onChange={(val) => {
-                  setOwnerOption(val as "category" | "item");
-                  if (val === "category") {
-                    setValue("itemOwnerUserId", undefined);
-                  }
-                }}
-              >
-                <Stack direction="row">
-                  <Radio value="category">Category owner</Radio>
-                  <Radio value="item">Item owner</Radio>
-                </Stack>
-              </RadioGroup>
-            </FormControl>
-
-            {/* Item Owner (Team Member Autocomplete) */}
-            <FormControl
-              mb={4}
-              isRequired={ownerOption === "item"}
-              isDisabled={ownerOption === "category"}
+            <Grid
+              templateColumns={["repeat(1, 1fr)", null, null, "repeat(2, 1fr)"]}
+              gap={6}
             >
-              <FormLabel>Item Owner</FormLabel>
+              <GridItem>
+                {/* Left Column */}
+                {/* Name */}
+                <FormControl mb={4} isRequired>
+                  <FormLabel>Name</FormLabel>
+                  <Input {...register("name", { required: true })} />
+                </FormControl>
 
-              <Controller
-                name="itemOwnerUserId"
-                control={control}
-                rules={{ required: ownerOption === "item" }}
-                render={({ field }) => (
-                  <TeamMemberAutocomplete
-                    value={field.value?.toString() || ""}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    teamMembers={teamMembers}
-                    placeholder="Search team member..."
+                {/* Description */}
+                <FormControl mb={4} isRequired>
+                  <FormLabel>Description</FormLabel>
+                  <Textarea {...register("description", { required: true })} />
+                </FormControl>
+
+                {/* Item Type */}
+                <FormControl mb={4}>
+                  <FormLabel>Item Type</FormLabel>
+                  <Select {...register("itemType")}>
+                    <option value="singleDayBookable">
+                      Single Day Bookable
+                    </option>
+                    <option value="singleDayBookableWithStartEnd">
+                      Single Day Bookable With Start and End
+                    </option>
+                    <option value="multiDayBookable">Multi Day Bookable</option>
+                    <option value="info">Info</option>
+                  </Select>
+                </FormControl>
+
+                {/* How To Details */}
+                <FormControl mb={4}>
+                  <FormLabel>How To Details</FormLabel>
+                  <Textarea {...register("howToDetails")} />
+                </FormControl>
+
+                {/* Start/End Dates */}
+                <FormControl mb={4}>
+                  <FormLabel>Start Date</FormLabel>
+                  <Input type="date" {...register("startDate")} />
+                </FormControl>
+                <FormControl mb={4}>
+                  <FormLabel>End Date</FormLabel>
+                  <Input type="date" {...register("endDate")} />
+                </FormControl>
+              </GridItem>
+
+              <GridItem>
+                {/* Right Column */}
+                {/* Sites */}
+                <FormControl mb={4}>
+                  <FormLabel>Sites</FormLabel>
+                  <Checkbox
+                    isDisabled={loadingSites}
+                    isChecked={
+                      siteIdsState.length === sites.length && sites.length > 0
+                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSiteIdsState(sites.map((s) => s.id));
+                      } else {
+                        setSiteIdsState([]);
+                      }
+                    }}
+                  >
+                    Select All
+                  </Checkbox>
+                  {loadingSites ? (
+                    <Box
+                      height={200}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Spinner size="lg" />
+                    </Box>
+                  ) : (
+                    <VStack align="start" pl={4} mt={2} spacing={1}>
+                      {sites.map((site) => (
+                        <Checkbox
+                          key={site.id}
+                          isChecked={siteIdsState.includes(site.id)}
+                          onChange={() =>
+                            setSiteIdsState((prev) =>
+                              prev.includes(site.id)
+                                ? prev.filter((id) => id !== site.id)
+                                : [...prev, site.id]
+                            )
+                          }
+                        >
+                          {site.siteName}
+                        </Checkbox>
+                      ))}
+                    </VStack>
+                  )}
+                </FormControl>
+
+                {/* Owner selection */}
+                <FormControl mb={2}>
+                  <FormLabel>Owner</FormLabel>
+                  <RadioGroup
+                    value={ownerOption}
+                    onChange={(val) => {
+                      setOwnerOption(val as "category" | "item");
+                      if (val === "category") {
+                        setValue("itemOwnerUserId", undefined);
+                      }
+                    }}
+                  >
+                    <Stack direction="row">
+                      <Radio value="category">Category owner</Radio>
+                      <Radio value="item">Item owner</Radio>
+                    </Stack>
+                  </RadioGroup>
+                </FormControl>
+
+                {/* Item Owner (Team Member Autocomplete) */}
+                <FormControl
+                  mb={4}
+                  isRequired={ownerOption === "item"}
+                  isDisabled={ownerOption === "category"}
+                >
+                  <FormLabel>Item Owner</FormLabel>
+                  <Controller
+                    name="itemOwnerUserId"
+                    control={control}
+                    rules={{ required: ownerOption === "item" }}
+                    render={({ field }) => (
+                      <TeamMemberAutocomplete
+                        value={field.value?.toString() || ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        teamMembers={teamMembers}
+                        placeholder="Search team member..."
+                      />
+                    )}
                   />
-                )}
-              />
-            </FormControl>
+                </FormControl>
 
-            {/* Images */}
-            <ImageUploadWithCrop
-              label="Logo Image"
-              onFileSelected={(file) => setLogoFile(file)}
-              isRequired={!existingLogoUrl}
-              existingUrl={existingLogoUrl || undefined}
-              onRemoveExisting={() => {
-                if (existingLogoUrl) setRemoveLogoUrl(existingLogoUrl);
-                setExistingLogoUrl(null);
-              }}
-            />
-            <ImageUploadWithCrop
-              label="Cover Image"
-              onFileSelected={(file) => setCoverFile(file)}
-              isRequired={!existingCoverUrl}
-              existingUrl={existingCoverUrl || undefined}
-              onRemoveExisting={() => {
-                if (existingCoverUrl) setRemoveCoverUrl(existingCoverUrl);
-                setExistingCoverUrl(null);
-              }}
-            />
-            <FormControl mb={4}>
-              <FormLabel>Additional Images</FormLabel>
-              <DragDropFileInput
-                multiple
-                placeholder="Drag & drop additional images here"
-                onFilesSelected={(files) => setAdditionalFiles(files)}
-              />
-            </FormControl>
+                {/* Images */}
+                <ImageUploadWithCrop
+                  label="Logo Image"
+                  onFileSelected={(file) => setLogoFile(file)}
+                  isRequired={!existingLogoUrl}
+                  existingUrl={existingLogoUrl || undefined}
+                  onRemoveExisting={() => {
+                    if (existingLogoUrl) setRemoveLogoUrl(existingLogoUrl);
+                    setExistingLogoUrl(null);
+                  }}
+                />
+                <ImageUploadWithCrop
+                  label="Cover Image"
+                  onFileSelected={(file) => setCoverFile(file)}
+                  isRequired={!existingCoverUrl}
+                  existingUrl={existingCoverUrl || undefined}
+                  onRemoveExisting={() => {
+                    if (existingCoverUrl) setRemoveCoverUrl(existingCoverUrl);
+                    setExistingCoverUrl(null);
+                  }}
+                />
+                <FormControl mb={4}>
+                  <FormLabel>Additional Images</FormLabel>
+                  <DragDropFileInput
+                    multiple
+                    placeholder="Drag & drop additional images here"
+                    onFilesSelected={(files) => setAdditionalFiles(files)}
+                  />
+                </FormControl>
+              </GridItem>
+            </Grid>
           </ModalBody>
 
           <ModalFooter>

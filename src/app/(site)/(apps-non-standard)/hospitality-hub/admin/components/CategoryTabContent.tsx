@@ -60,7 +60,6 @@ export const CategoryTabContent = forwardRef<
       ) : (
         <HospitalityItemsMasonry
           items={items}
-          optionalFields={category.optionalFields || []}
           onEdit={(item) => {
             setEditingItem(item);
             setModalOpen(true);
