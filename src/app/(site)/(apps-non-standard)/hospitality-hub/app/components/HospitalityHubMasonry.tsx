@@ -98,8 +98,12 @@ export function HospitalityHubMasonry({
           onClick={() => {
             setSelected(null);
           }}
+          _hover={{ transform: "scale(1.1)" }}
+          transition="transform 0.2s"
         >
-          <Text fontWeight="bold">&larr; Back</Text>
+          <Text fontWeight="bold" color="hospitalityHubPremium">
+            &larr; Back
+          </Text>
         </Box>
         <SimpleGrid
           columns={[1, null, 2, 3]}
