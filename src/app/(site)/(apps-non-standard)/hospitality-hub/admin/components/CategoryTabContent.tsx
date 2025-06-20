@@ -128,4 +128,6 @@ export const CategoryTabContent = forwardRef<
   );
 });
 
+CategoryTabContent.displayName = "CategoryTabContent";
+
 export default CategoryTabContent;
