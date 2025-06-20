@@ -136,7 +136,7 @@ export default function DragDropFileInput({
         </Box>
         <Button
           size="sm"
-          colorScheme="blue"
+          variant="primary"
           mt={previewUrl && !multiple ? 0 : 4}
           onClick={(e) => {
             e.stopPropagation();

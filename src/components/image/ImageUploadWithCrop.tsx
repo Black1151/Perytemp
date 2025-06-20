@@ -146,7 +146,7 @@ export default function ImageUploadWithCrop({
           </Box>
           <Button
             size="sm"
-            colorScheme="blue"
+            variant="primary"
             mt={previewUrl ? 0 : 4}
             onClick={(e) => {
               e.stopPropagation();

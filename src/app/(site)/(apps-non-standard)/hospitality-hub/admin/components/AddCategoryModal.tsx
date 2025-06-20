@@ -146,43 +146,54 @@ export default function AddCategoryModal({
     if (category) formData.append("id", category.id);
     if (coverFile) formData.append("coverImageUpload", coverFile);
 
-    const res = await fetch("/api/hospitality-hub/categories", {
-      method,
-      body: formData,
-    });
+    try {
+      const res = await fetch("/api/hospitality-hub/categories", {
+        method,
+        body: formData,
+      });
 
-    const result = await res.json();
+      const result = await res.json();
 
-    if (!res.ok) {
+      if (!res.ok) {
+        toast({
+          title:
+            result.error ||
+            (category
+              ? "Failed to update category."
+              : "Failed to create category."),
+          description: result.details,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-right",
+        });
+        return;
+      }
+
       toast({
-        title:
-          result.error ||
-          (category
-            ? "Failed to update category."
-            : "Failed to create category."),
-        description: result.details,
+        title: category
+          ? "Category updated successfully."
+          : "Category created successfully.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-right",
+      });
+
+      onCreated();
+      reset();
+      setCoverFile(null);
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Failed to upload image.",
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "bottom-right",
       });
-      return;
     }
-
-    toast({
-      title: category
-        ? "Category updated successfully."
-        : "Category created successfully.",
-      status: "success",
-      duration: 5000,
-      isClosable: true,
-      position: "bottom-right",
-    });
-
-    onCreated();
-    reset();
-    setCoverFile(null);
-    onClose();
   };
 
   return (
@@ -251,7 +262,7 @@ export default function AddCategoryModal({
             />
           </ModalBody>
           <ModalFooter>
-            <Button type="submit" colorScheme="blue">
+            <Button type="submit" variant="primary">
               {category ? "Update" : "Create"}
             </Button>
           </ModalFooter>
