@@ -129,7 +129,7 @@ export async function PUT(req: NextRequest) {
       response = await fetch(
         `${process.env.BE_URL}/userHospitalityCategory/${id}`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             Authorization: authToken ? `Bearer ${authToken}` : "",
           },
@@ -146,7 +146,7 @@ export async function PUT(req: NextRequest) {
       response = await fetch(
         `${process.env.BE_URL}/userHospitalityCategory/${id}`,
         {
-          method: "PUT",
+          method: "POST",
           headers: {
             Authorization: authToken ? `Bearer ${authToken}` : "",
             "Content-Type": "application/json",
