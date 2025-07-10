@@ -5,8 +5,6 @@
   "/activity",
   "/big-up",
   "/big-up/app",
-  "/hospitality-hub",
-  "/hospitality-hub/app",
   "/business-processes",
   "/business-processes/:uniqueId",
   "/business-processes/create",

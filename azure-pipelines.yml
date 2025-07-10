@@ -2,42 +2,52 @@ trigger:
   - develop
 
 resources:
-  - repo: self
+  - repo: self          # same repo the pipeline YAML lives in
 
 variables:
-  # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: "cded2d3b-6a50-4f45-a781-7e60a4e51b58"
+  dockerRegistryServiceConnection: "1ea05f5b-e5ed-4183-b5be-19d4d76697ac"
   imageRepository: "perygon-develop"
   containerRegistry: "sedulocontainerreg.azurecr.io"
   dockerfilePath: "$(Build.SourcesDirectory)/Dockerfile"
   tag: "latest"
-  AGKey: "$(NEXT_PUBLIC_AG_GRID_LICENSE_KEY)"
 
-  # Agent VM image name
+  # secrets exposed as pipeline variables (mark them “secret” in DevOps UI)
+  AGKey: "$(NEXT_PUBLIC_AG_GRID_LICENSE_KEY)"
+  GoogleMapsKey: "$(NEXT_PUBLIC_GOOGLE_MAPS_API_KEY)"
+
   vmImageName: "ubuntu-latest"
 
 stages:
-  - stage: Build
-    displayName: Build and push stage
-    jobs:
-      - job: Build
-        displayName: Build
-        pool:
-          vmImage: $(vmImageName)
-        steps:
-          - script: echo "$(Build.SourcesDirectory)"
-            displayName: "Print Build.SourcesDirectory"
-          # - script: 
-              # echo "NEXT_PUBLIC_AG_GRID_LICENSE_KEY=$(NEXT_PUBLIC_AG_GRID_LICENSE_KEY)" >> $(Build.SourcesDirectory)/.env 
-              # cat $(Build.SourcesDirectory)/.env  # Debugging step (will be masked)
-          
-            # displayName: "Create .env file with AG Grid License Key"
-          - task: Docker@2
-            displayName: Build and push an image to container registry
-            inputs:
-              command: buildAndPush
-              repository: $(imageRepository)
-              dockerfile: $(dockerfilePath)
-              containerRegistry: $(dockerRegistryServiceConnection)
-              tags: |
-                $(tag)
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: BuildAndPush
+    pool:
+      vmImage: $(vmImageName)
+
+    steps:
+    - script: echo "Building from:$(Build.SourcesDirectory)"
+      displayName: Show build context
+
+    # ------------ 1) BUILD (accepts build-args) ------------
+    - task: Docker@2
+      displayName: Build Docker image with API keys
+      inputs:
+        command: build
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        buildContext: $(Build.SourcesDirectory)
+        tags: |
+          $(tag)
+        arguments: '--build-arg NEXT_PUBLIC_AG_GRID_LICENSE_KEY=$(AGKey) --build-arg NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$(GoogleMapsKey)'
+
+    # ------------ 2) PUSH (no build-args needed) ------------
+    - task: Docker@2
+      displayName: Push Docker image to ACR
+      inputs:
+        command: push
+        repository: $(imageRepository)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
