@@ -53,10 +53,6 @@ export default function StaffDashboardPage() {
   };
 
   useEffect(() => {
-    console.log("lineGraphData", lineGraphData);
-  }, [lineGraphData]);
-
-  useEffect(() => {
     getHappinessData();
   }, []);
 

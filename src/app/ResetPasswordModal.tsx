@@ -45,6 +45,7 @@ const ResetPasswordModal = ({
         confirmLabel={"Send Email"}
         cancelLabel={"Cancel"}
         icon={<LockReset fontSize="large" />}
+        type="info"
       />
     </>
   );

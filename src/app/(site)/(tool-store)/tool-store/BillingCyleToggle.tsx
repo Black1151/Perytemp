@@ -15,9 +15,10 @@ import {
   HStack,
   useTheme,
 } from "@chakra-ui/react";
-import { PerygonModal } from "@/components/modals/PerygonModal";
+import { SpringModal } from "@/components/modals/springModal/SpringModal";
 import { useUser } from "@/providers/UserProvider";
 import { useRouter } from "next/navigation";
+import { Message, Phone, Send, Sms } from "@mui/icons-material";
 
 const BillingCycleToggle: FC = () => {
   const { basket, loading, updateBasket } = useBasket();
@@ -26,23 +27,32 @@ const BillingCycleToggle: FC = () => {
   const isUserFree = user?.user?.customerIsFree;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const theme = useTheme();
-  const router = useRouter()
+  const router = useRouter();
 
   // default to monthly if basket or flag is missing
   const isAnnual = Boolean(basket?.isAnnual);
 
   useEffect(() => {
-    setIsSaving(false);
+    // Reset saving state whenever the modal closes
+    if (!isModalOpen) {
+      setIsSaving(false);
+    }
   }, [isModalOpen]);
 
   const handleChange = async (index: number) => {
     setIsSaving(true);
+
+    // If user is not on a free plan, pop up the “contact sales” modal
     if (!isUserFree) {
       setIsModalOpen(true);
       return;
     }
+
     const wantAnnual = index === 1;
-    if (wantAnnual === isAnnual) return;
+    if (wantAnnual === isAnnual) {
+      setIsSaving(false);
+      return;
+    }
 
     try {
       await updateBasket({ isAnnual: wantAnnual });
@@ -53,43 +63,40 @@ const BillingCycleToggle: FC = () => {
 
   return (
     <>
-      <PerygonModal
-        title="Please Contact Sales"
+      <SpringModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        bgIcon={<Message fontSize="inherit"/>}
+        frontIcon={<Phone fontSize="inherit"/>}
+        header="Please Contact Sales"
         body={
-          <Box p={4} textAlign="center">
-            <Text mb={8} color={theme.colors.primaryTextColor}>
-              To change your billing cycle, please contact our sales team.
-            </Text>
-            <HStack spacing={2} mb={4} justify="center">
-              <Button onClick={() => router.push("/tool-store/contact-sales")}>
-                Contact Sales
-              </Button>
-              <Button onClick={() => setIsModalOpen(false)}>Close</Button>
-            </HStack>
-          </Box>
+              "To change your billing cycle, please contact our sales team."
         }
-      >
-        <></>
-      </PerygonModal>
+        primaryLabel="Contact Sales Team"
+        onPrimaryClick={() => router.push("/tool-store/contact-sales")}
+        bg={theme.colors.primary}
+        showClose={true}
+      />
+
       <Tabs
         index={isAnnual ? 1 : 0}
         onChange={handleChange}
         variant="line"
         isFitted
-        borderRadius={"full"}
+        borderRadius="full"
+        color={theme.colors.primaryTextColor}
       >
-        <TabList borderRadius={"full"}>
+        <TabList borderRadius="full">
           <Tab
             isDisabled={loading || isSaving}
-            borderRadius={"full"}
+            borderRadius="full"
             borderWidth={1}
           >
             <Flex align="center" justify="center">
               <Text
                 fontSize={["xs", "sm", "md"]}
-                fontWeight={!isAnnual ? "bold" : "normal"}
+                fontWeight={!isAnnual ? "extrabold" : "normal"}
+                color={theme.colors.primaryTextColor}
               >
                 Monthly
               </Text>
@@ -98,20 +105,20 @@ const BillingCycleToggle: FC = () => {
           </Tab>
           <Tab
             isDisabled={loading || isSaving}
-            borderRadius={"full"}
+            borderRadius="full"
             borderWidth={1}
-            fontWeight={isAnnual ? "bold" : "normal"}
           >
             <Flex align="center" justify="center">
               <Text
                 fontSize={["xs", "sm", "md"]}
-                fontWeight={isAnnual ? "bold" : "normal"}
+                fontWeight={isAnnual ? "extrabold" : "normal"}
+                color={theme.colors.primaryTextColor}
               >
                 Annual
               </Text>
               {basket?.annualDiscountPercent && (
                 <Badge ml={2} fontSize="xs" colorScheme="green">
-                  SAVE {basket?.annualDiscountPercent}%
+                  SAVE {basket?.annualDiscountPercent}% 
                 </Badge>
               )}
               {isSaving && !isAnnual && <Spinner size="xs" ml={2} />}

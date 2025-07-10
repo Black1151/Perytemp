@@ -1,10 +1,11 @@
 "use client";
 
 import React from "react";
-import { Box, Text, VStack, useTheme } from "@chakra-ui/react";
+import { Box, Text, VStack, useTheme, Link, Button } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { transparentize } from "@chakra-ui/theme-tools";
 import { Construction } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
 
 /**
  * A placeholder card that fits alongside ToolCard components,
@@ -12,10 +13,11 @@ import { Construction } from "@mui/icons-material";
  */
 export function MoreToolsComingSoonCard() {
   const theme = useTheme();
-  const cardBg = transparentize(theme.colors.elementBG, 0.35)(theme);
+  const cardBg = transparentize(theme.colors.elementBG, 0.25)(theme);
   const textColor = "white"
   const secondaryTextColor = "whiteAlpha.900";
   const borderColor = transparentize(theme.colors.elementBG, 0.8)(theme);
+  const router = useRouter();
 
   return (
     <VStack>
@@ -30,6 +32,7 @@ export function MoreToolsComingSoonCard() {
         flexDirection="column"
         h="full"
         as={motion.div}
+        minH="300px"
         whileHover={{ scale: 1.00 }}
       >
         <VStack
@@ -41,14 +44,19 @@ export function MoreToolsComingSoonCard() {
           align="center"
           spacing={4}
           fontSize={"45px"}
+          textAlign={"center"}
         >
           <Construction fontSize="inherit"/>
           <Text fontSize="xl" fontWeight="bold">
             More Tools Coming Soon!
           </Text>
           <Text fontSize="sm" textAlign="center" color={secondaryTextColor}>
-            We're hard at work building new tools. Stay tuned!
+            Our team is working hard to build new tools. Stay tuned!
           </Text>
+          <Text fontSize="sm" textAlign="center" color={secondaryTextColor}>
+            Have something in mind? 
+          </Text>
+          <Button variant={"outline"} size={"sm"} bg={cardBg} color={secondaryTextColor} onClick={() => router.push("/tool-store/feature-suggestions")}>Let us know</Button>
         </VStack>
       </Box>
     </VStack>

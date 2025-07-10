@@ -40,7 +40,6 @@ export default function Home() {
 
       router.push("/login");
     } catch (error) {
-      console.error("Logout failed:", error);
       router.push("/error");
     }
   };

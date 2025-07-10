@@ -7,6 +7,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import ScrollablePageList from "@/components/surveyjs/layout/default/ScrollablePageList";
 import CustomToggle from "@/components/surveyjs/layout/default/CustomToggle";
+import { Info as InfoIcon } from "@mui/icons-material";
 
 const animationDuration = 0.05; // Define the duration of the animation in seconds
 
@@ -20,6 +21,7 @@ const TopNavigation: React.FC<FormNavigationProps> = ({
 }) => {
   const { isOpen, openModal, closeModal } = useModal(); // Use the hook
   const previousPageNo = React.useRef(pageNo);
+  const [isHelpModalOpen, setIsHelpModalOpen] = React.useState(false);
 
   const handleCancelEdit = () => {
     resetSurvey();
@@ -97,6 +99,17 @@ const TopNavigation: React.FC<FormNavigationProps> = ({
           bodyContent="Are you sure you want to cancel editing? Any unsaved changes will be lost."
           confirmLabel="Abandon changes"
           cancelLabel="Keep editing"
+          type="info"
+        />
+        <SurveyModal
+          isOpen={isHelpModalOpen}
+          onClose={() => setIsHelpModalOpen(false)}
+          onConfirm={() => setIsHelpModalOpen(false)}
+          title="Navigation Help"
+          bodyContent="Learn how to navigate through the survey."
+          confirmLabel="Close"
+          type="info"
+          icon={<InfoIcon fontSize="inherit"/>}
         />
       </Box>
     </Box>

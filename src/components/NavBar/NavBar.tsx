@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { HStack, Box, useTheme } from "@chakra-ui/react";
+import { HStack, Box, useTheme, useToast } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -11,6 +11,10 @@ import LogoDisplay from "./components/LogoDisplay";
 import GreetingText from "./components/GreetingText";
 import ProfileMenu from "./components/ProfileMenu";
 import UserAvatar from "./components/UserAvatar";
+import { BugReportModal } from "../modals/BugReportModal";
+import { ContactSupportModal } from "../modals/ContactSupportModal";
+import SurveyModal from "@/components/surveyjs/layout/default/SurveyModal";
+import { Logout as LogoutIcon } from "@mui/icons-material";
 
 import { useWorkflow } from "@/providers/WorkflowProvider";
 import { useUser } from "@/providers/UserProvider";
@@ -41,9 +45,14 @@ const NavBar: React.FC<NavBarProps> = ({
   const router = useRouter();
   const { user } = useUser();
   const theme = useTheme();
+  const toast = useToast();
   const { toolLogo, toolPath } = useWorkflow();
   const { unread, checkUnread } = useUnread();
+  const [isBugReportModalOpen, setIsBugReportModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [passwordResetModalOpen, setPasswordResetModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [themeDropdownOptions, setThemeDropdownOptions] = useState<
     ThemeDropdownOption[]
   >([]);
@@ -59,16 +68,33 @@ const NavBar: React.FC<NavBarProps> = ({
   const handleOnClose = () => setPasswordResetModalOpen(false);
 
   const handleLogout = async () => {
-    await fetch("/api/auth/sign-out", { method: "POST" });
-    sessionStorage.clear();
-    await signOut({ redirect: false });
-    router.push("/login");
+    try {
+      setIsLoggingOut(true);
+      await fetch("/api/auth/sign-out", { method: "POST" });
+      sessionStorage.clear();
+      await signOut({ redirect: false });
+      router.push("/login");
+      toast({
+        title: "Successfully logged out",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setIsLoggingOut(false);
+    }
   };
 
-  const menuItems = useNavMenuItems(userRole, handleLogout, openResetModal);
+  const menuItems = useNavMenuItems(
+    userRole,
+    () => setIsLogoutModalOpen(true),
+    openResetModal,
+    () => setIsBugReportModalOpen(true),
+    () => setIsContactModalOpen(true)
+  );
   const isFree = user?.customerIsFree || false;
   const isFreeUntil = user?.customerIsFreeUntilDate;
-  const isExpired = !!isFreeUntil && new Date(isFreeUntil) < new Date();
 
   const buildThemeDropdownOptions = async () => {
     const response = await fetch("/api/theme/getThemesForCustomer", {
@@ -82,19 +108,21 @@ const NavBar: React.FC<NavBarProps> = ({
     // Free customers: only the theme with theme.id is unlocked, all others are locked
     if (!isFree) {
       dropdownOptions = Array.isArray(data.resource)
-      ? data.resource.map((theme: any) => ({
-        label: theme.themename,
-        value: theme.id,
+        ? data.resource.map((theme: any) => ({
+          label: theme.themename,
+          value: theme.id,
         }))
-      : [];
+        : [];
+    } else if (user?.role == "EU") {
+      dropdownOptions = [];
     } else {
       dropdownOptions = Array.isArray(data.resource)
-      ? data.resource.map((theme: any) => ({
-        label: theme.themename,
-        value: theme.id,
-        locked: theme.id !== 1, // Only unlock perygon theme
+        ? data.resource.map((theme: any) => ({
+          label: theme.themename,
+          value: theme.id,
+          locked: theme.id !== 1, // Only unlock perygon theme
         }))
-      : [];
+        : [];
     }
 
     setThemeDropdownOptions(dropdownOptions);
@@ -108,6 +136,10 @@ const NavBar: React.FC<NavBarProps> = ({
 
   if (pathname.includes("big-up")) {
     resolvedToolLogo = "/app-logos/recognition-hub-logo.png";
+  }
+
+  if (pathname.includes("hospitality-hub")) {
+    resolvedToolLogo = "/app-logos/hospitality-hub-logo-full.png";
   }
 
   return (
@@ -139,7 +171,7 @@ const NavBar: React.FC<NavBarProps> = ({
             toolLogo={resolvedToolLogo || undefined}
             toolPath={toolPath || undefined}
             userIsFree={isFree}
-            userIsExpired={isExpired}
+            isFreeUntil={isFreeUntil ?? undefined}
           />
         </MotionBox>
 
@@ -158,7 +190,7 @@ const NavBar: React.FC<NavBarProps> = ({
             menuItems={menuItems}
             unread={unread}
             themeDropdownOptions={themeDropdownOptions}
-            handleLogout={handleLogout}
+            handleLogout={() => setIsLogoutModalOpen(true)}
             userIsFree={isFree}
             userIsFreeUntil={isFreeUntil ?? ""}
             userIsFreeAction={() => router.push("/tool-store")}
@@ -170,6 +202,29 @@ const NavBar: React.FC<NavBarProps> = ({
       <ResetPasswordModal
         openState={passwordResetModalOpen}
         handleOnClose={handleOnClose}
+      />
+
+      <BugReportModal
+        isOpen={isBugReportModalOpen}
+        onClose={() => setIsBugReportModalOpen(false)}
+      />
+
+      <ContactSupportModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
+
+      <SurveyModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+        title="Confirm Logout"
+        bodyContent="Are you sure you want to log out?"
+        confirmLabel="Logout"
+        cancelLabel="Cancel"
+        type="warning"
+        icon={<LogoutIcon fontSize="inherit" />}
+        isConfirmLoading={isLoggingOut}
       />
     </>
   );

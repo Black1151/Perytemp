@@ -4,9 +4,10 @@ import React, { useEffect, useRef } from "react";
 
 interface ConfettiAltProps {
   show: boolean;
+  colors?: string[];
 }
 
-const ConfettiAlt: React.FC<ConfettiAltProps> = ({ show }) => {
+const ConfettiAlt: React.FC<ConfettiAltProps> = ({ show, colors }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const particles = useRef<any[]>([]).current;
@@ -20,7 +21,7 @@ const ConfettiAlt: React.FC<ConfettiAltProps> = ({ show }) => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const colors = [
+    const confettiColors = colors && colors.length > 0 ? colors : [
       "#FF3CAC",
       "#FFB800",
       "#00F5FF",
@@ -51,7 +52,7 @@ const ConfettiAlt: React.FC<ConfettiAltProps> = ({ show }) => {
         this.vx = Math.cos(angleRad) * speed;
         this.vy = Math.sin(angleRad) * -speed; // -Y is up
         this.size = Math.random() * 4 + 3;
-        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
         this.opacity = 1;
       }
 

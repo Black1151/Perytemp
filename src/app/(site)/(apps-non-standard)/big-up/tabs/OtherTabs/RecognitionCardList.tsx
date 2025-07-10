@@ -61,7 +61,7 @@ export const RecognitionList: React.FC<RecognitionListProps> = ({
               <AnimatedListItem key={index} index={index}>
                 <PerygonCard p={4}>
                   <Flex alignItems="center" justify="space-between">
-                    <Flex flexDirection="column" flex="1">
+                    <Flex flexDirection="column" flex="1" textAlign={"left"}>
                       <Text fontSize="xl" color="primary" fontWeight="bold">
                         {personDetails.fullName}
                       </Text>
@@ -96,7 +96,7 @@ export const RecognitionList: React.FC<RecognitionListProps> = ({
                       _hover={{ cursor: "pointer" }}
                     />
                   </Flex>
-                  <Box mt={4} minHeight={30}>
+                  <Box mt={4} minHeight={30} textAlign={"left"}>
                     <Text fontSize="sm" color="primaryTextColor">
                       {item.bigUpMessage}
                     </Text>

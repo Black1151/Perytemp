@@ -15,6 +15,7 @@ import HappinessLayout from "@/components/surveyjs/layout/happiness/Layout";
 import eNPSLayout from "@/components/surveyjs/layout/enps/Layout";
 import ClientSatisfactionLayout from "@/components/surveyjs/layout/client-satisfaction/Layout";
 import CompanyRegistrationLayout from "@/components/surveyjs/layout/companyRegistration/Layout";
+import CNPSLayout from "@/components/surveyjs/layout/cnps/Layout";
 
 // Logic
 import { FormComponentProps, LayoutMap } from "@/types/form";
@@ -25,6 +26,7 @@ const layoutMap: LayoutMap = {
   "company-registration": CompanyRegistrationLayout,
   happiness: HappinessLayout,
   enps: eNPSLayout,
+  cnps: CNPSLayout,
   "client-satisfaction": ClientSatisfactionLayout,
   tester: ClientSatisfactionLayout,
   "business-score": BusinessScoreLayout,

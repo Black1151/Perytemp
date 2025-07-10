@@ -15,6 +15,7 @@ import SurveyModal from "@/components/surveyjs/layout/default/SurveyModal";
 import { userFieldDefs } from "./userFields";
 import { teamFieldDefs } from "./teamFields";
 import AdminFormWrapper from "@/components/surveyjs/AdminFormWrapper";
+import { Warning as WarningIcon } from "@mui/icons-material";
 
 interface UserGroupsTabsProps {
   userGroupId: string;
@@ -35,9 +36,9 @@ const UserGroupsTabs: React.FC<UserGroupsTabsProps> = ({
 }) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [pendingTabIndex, setPendingTabIndex] = useState<number | null>(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [populationCanChange, setPopulationCanChange] = useState<boolean>(true);
   const [sampleCanChange, setSampleCanChange] = useState<boolean>(true);
+  const [showUnsavedChangesModal, setShowUnsavedChangesModal] = useState(false);
 
   // Refs to reset each DraggableGridsComponent
   const populationResetRef = useRef<(() => void) | null>(null);
@@ -49,20 +50,22 @@ const UserGroupsTabs: React.FC<UserGroupsTabsProps> = ({
       (activeTabIndex === 2 && !sampleCanChange)
     ) {
       setPendingTabIndex(index);
-      onOpen();
+      setShowUnsavedChangesModal(true);
     } else {
       setActiveTabIndex(index);
     }
+    
   };
 
   const confirmTabChange = () => {
     if (pendingTabIndex !== null) {
-      resetCurrentTab(); // Reset current tab before switching
+      resetCurrentTab();
       setActiveTabIndex(pendingTabIndex);
       setPendingTabIndex(null);
     }
-    onClose();
+    setShowUnsavedChangesModal(false);
   };
+  
 
   const resetCurrentTab = () => {
     if (activeTabIndex === 1 && populationResetRef.current) {
@@ -78,6 +81,11 @@ const UserGroupsTabs: React.FC<UserGroupsTabsProps> = ({
 
   const onUndoStackChangeSample = (hasUndoStack: boolean) => {
     setSampleCanChange(!hasUndoStack);
+  };
+
+  const handleConfirmNavigation = () => {
+    resetCurrentTab();
+    setShowUnsavedChangesModal(false);
   };
 
   return (
@@ -173,13 +181,15 @@ const UserGroupsTabs: React.FC<UserGroupsTabsProps> = ({
 
       {/* Confirmation Modal */}
       <SurveyModal
-        isOpen={isOpen}
-        onClose={onClose}
-        onConfirm={confirmTabChange}
+        isOpen={showUnsavedChangesModal}
+        onClose={() => setShowUnsavedChangesModal(false)}
+        onConfirm={handleConfirmNavigation}
         title="Unsaved Changes"
-        bodyContent="You may have unsaved changes. Are you sure you want to move tabs?"
-        confirmLabel="Yes, Proceed"
+        bodyContent="You may have unsaved changes to your user groups. Are you sure you want to leave?"
+        confirmLabel="Leave"
         cancelLabel="Stay"
+        type="warning"
+        icon={<WarningIcon fontSize="inherit" />}
       />
     </>
   );

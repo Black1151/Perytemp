@@ -9,10 +9,7 @@ import { cookies } from "next/headers";
 export async function GET(req: NextRequest) {
   const cookieStore = cookies();
   const authToken = cookieStore.get("auth_token")?.value;
-
-  console.log("[BASKET GET] Incoming request to fetch basket");
   const backendUrl = `${process.env.BE_URL}/basket?statusId=3`;
-  console.log("[BASKET GET] Backend URL:", backendUrl);
 
   try {
     const response = await fetch(backendUrl, {
@@ -23,7 +20,6 @@ export async function GET(req: NextRequest) {
     });
 
     const data = await response.json();
-    console.log("[BASKET GET] Backend response:", data);
 
     if (!response.ok) {
       console.error("[BASKET GET] Backend error:", data);

@@ -35,11 +35,6 @@ import { Site } from "@/types/types";
 import { BigUpTeamMember } from "../../../big-up/types";
 import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
 
-/**
- * Updated AddItemModal that integrates TeamMemberAutocomplete as a controlled
- * input managed by React‑Hook‑Form's Controller.
- */
-
 interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -61,6 +56,7 @@ interface FormValues {
   siteIds: number[];
   customerId?: number;
   itemOwnerUserId?: number;
+  fullAddress?: string;
 }
 
 export default function AddItemModal({
@@ -82,6 +78,7 @@ export default function AddItemModal({
         startDate: "",
         endDate: "",
         siteIds: [],
+        fullAddress: "",
       },
     });
 
@@ -117,9 +114,6 @@ export default function AddItemModal({
     if (customerId !== undefined) setValue("customerId", customerId);
   }, [customerId, setValue]);
 
-  /**
-   * Fetch team members for the autocomplete when the modal opens
-   */
   useEffect(() => {
     const fetchMembers = async () => {
       if (!isOpen || !customerId) return;
@@ -192,8 +186,7 @@ export default function AddItemModal({
       setValue("howToDetails", item.howToDetails || "");
       setValue("itemType", item.itemType);
       setValue("extraDetails", item.extraDetails || "");
-      // setValue("startDate", item.startDate ? item.startDate.slice(0, 10) : "");
-      // setValue("endDate", item.endDate ? item.endDate.slice(0, 10) : "");
+      setValue("fullAddress", item.fullAddress || "");
       const hasItemOwner =
         item.itemOwnerUserId !== undefined &&
         item.itemOwnerUserId !== null &&
@@ -220,10 +213,11 @@ export default function AddItemModal({
         itemType: "singleDayBookable",
         howToDetails: "",
         extraDetails: "",
-        // startDate: "",
-        // endDate: "",
+        startDate: "",
+        endDate: "",
         siteIds: [],
         customerId: customerId ?? undefined,
+        fullAddress: "",
       });
       setSiteIdsState([]);
       setOwnerOption("category");
@@ -383,19 +377,19 @@ export default function AddItemModal({
                 {/* Name */}
                 <FormControl mb={4} isRequired>
                   <FormLabel>Name</FormLabel>
-                  <Input {...register("name", { required: true })} />
+                  <Input {...register("name", { required: true })} placeholder="Enter the name" />
                 </FormControl>
 
                 {/* Description */}
                 <FormControl mb={4} isRequired>
                   <FormLabel>Description</FormLabel>
-                  <Textarea {...register("description", { required: true })} />
+                  <Textarea {...register("description", { required: true })} placeholder="Enter a description" />
                 </FormControl>
 
                 {/* Item Type */}
                 <FormControl mb={4}>
                   <FormLabel>Item Type</FormLabel>
-                  <Select {...register("itemType")}>
+                  <Select {...register("itemType")} placeholder="Select item type">
                     <option value="singleDayBookable">
                       Single Day Bookable
                     </option>
@@ -410,17 +404,17 @@ export default function AddItemModal({
                 {/* How To Details */}
                 <FormControl mb={4}>
                   <FormLabel>How To Details</FormLabel>
-                  <Textarea {...register("howToDetails")} />
+                  <Textarea {...register("howToDetails")} placeholder="Enter how-to details (optional)" />
                 </FormControl>
 
                 {/* Start/End Dates */}
                 <FormControl mb={4}>
                   <FormLabel>Start Date</FormLabel>
-                  <Input type="date" {...register("startDate")} />
+                  <Input type="date" {...register("startDate")} placeholder="Select start date" />
                 </FormControl>
                 <FormControl mb={4}>
                   <FormLabel>End Date</FormLabel>
-                  <Input type="date" {...register("endDate")} />
+                  <Input type="date" {...register("endDate")} placeholder="Select end date" />
                 </FormControl>
 
                 {/* Sites */}

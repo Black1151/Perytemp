@@ -1,8 +1,10 @@
 "use client";
 
 import { forwardRef, useImperativeHandle, useState } from "react";
-import { PerygonModal } from "@/components/modals/PerygonModal";
+import { SpringModal } from "@/components/modals/springModal/SpringModal";
 import { ManageTagsModalBody } from "../modalBodies/ManageTagsModalBody";
+import SellIcon from '@mui/icons-material/Sell';
+import { useTheme } from "@chakra-ui/react";
 
 interface ManageTagsModalProps {
   customerId: number;
@@ -16,24 +18,25 @@ export const ManageTagsModal = forwardRef(
       openModal: () => setIsOpen(true),
     }));
 
-    //TODO: Dodgy fix. look at this again
+    const theme = useTheme()
+
     return (
-      <PerygonModal
+      <SpringModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title="Add / Remove Tags"
+        showClose={true}
+        bg={theme.colors.darkElementBG}
+        color="white"
+        frontIcon={<SellIcon />}
+        bgIcon={<SellIcon/>}
+        header="Add / Remove Tags"
         body={
           <ManageTagsModalBody
             customerId={customerId}
             onClose={() => setIsOpen(false)}
           />
         }
-      >
-        <ManageTagsModalBody
-          customerId={customerId}
-          onClose={() => setIsOpen(false)}
-        />
-      </PerygonModal>
+      />
     );
   }
 );

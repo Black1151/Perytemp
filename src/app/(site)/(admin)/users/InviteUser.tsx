@@ -1,17 +1,12 @@
 "use client";
 
-import {
-  Flex,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-} from "@chakra-ui/react";
-
-import { inviteUserJson } from "@/components/surveyjs/forms/inviteUser";
 import React from "react";
+import { Flex } from "@chakra-ui/react";
+import { inviteUserJson } from "@/components/surveyjs/forms/inviteUser";
 import AdminFormWrapper from "@/components/surveyjs/AdminFormWrapper";
+import { SpringModal } from "@/components/modals/springModal/SpringModal";
+import { PersonAdd } from "@mui/icons-material";
+import { useTheme } from "@chakra-ui/react";
 
 interface InviteNewUserModalForPAProps {
   isOpen: boolean; // Controlled by the parent
@@ -22,6 +17,8 @@ const InviteNewUserModalForPA = ({
   isOpen,
   onClose,
 }: InviteNewUserModalForPAProps) => {
+  const theme = useTheme();
+
   // Function to handle the form completion event
   const handleSurveySuccess = () => {
     onClose(); // Close the modal after survey success
@@ -33,44 +30,44 @@ const InviteNewUserModalForPA = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader paddingBottom={0}>
-          <Flex justifyContent={"center"} alignItems={"center"} width={"100%"}>
-            Invite New User
-          </Flex>
-        </ModalHeader>
-        <ModalBody>
-          <AdminFormWrapper
-            formJson={inviteUserJson}
-            data={null}
-            layoutConfig={{
-              layoutKey: "default",
-              layoutProps: {
-                showTopNavigation: false,
-                showBottomNavigation: true,
-              },
-            }}
-            globalVariables={[]}
-            stylingConfig={{
-              sjsFilePath: "admin",
-              cssFilePath: "admin",
-            }}
-            jsImport={""}
-            excludeKeys={["imageUrl"]}
-            endpoint={"/registerByInvite"}
-            formSuccessMessage={null}
-            reloadPageOnSuccess={true}
-            redirectUrl={null}
-            isNew={true}
-            isAllowedToEdit={true}
-            onSurveySuccess={handleSurveySuccess}
-            onSurveyFailure={handleSurveyFailure}
-          />
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+    <SpringModal
+      isOpen={isOpen}
+      onClose={onClose}
+      showClose={true}
+      bg={theme.colors.primary}
+      color="white"
+      frontIcon={<PersonAdd />}
+      bgIcon={<PersonAdd />}
+      header="Invite New User"
+      body={
+        <AdminFormWrapper
+          formJson={inviteUserJson}
+          data={null}
+          layoutConfig={{
+            layoutKey: "default",
+            layoutProps: {
+              showTopNavigation: false,
+              showBottomNavigation: true,
+            },
+          }}
+          globalVariables={[]}
+          stylingConfig={{
+            sjsFilePath: "admin",
+            cssFilePath: "admin",
+          }}
+          jsImport={""}
+          excludeKeys={["imageUrl"]}
+          endpoint={"/registerByInvite"}
+          formSuccessMessage={null}
+          reloadPageOnSuccess={true}
+          redirectUrl={null}
+          isNew={true}
+          isAllowedToEdit={true}
+          onSurveySuccess={handleSurveySuccess}
+          onSurveyFailure={handleSurveyFailure}
+        />
+      }
+    />
   );
 };
 

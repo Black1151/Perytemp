@@ -186,7 +186,7 @@ export function ManageTagsModalBody({
   }
 
   return (
-    <VStack align="stretch" pb={4}>
+    <VStack align="stretch" pb={4} px={0}>
       <Tabs
         index={selectedTabIndex}
         onChange={(index) => {
@@ -194,108 +194,118 @@ export function ManageTagsModalBody({
           setSelectedTabIndex(index);
         }}
       >
-        <TabList borderBottom="none">
+        <TabList borderBottom="none" bg="transparent" gap={2}>
           <Tab
+            bg="rgb(255,255,255,0.6)"
+            transition="all 0.2s ease-in-out"
             _selected={{
+              bgGradient: "linear(to-r, green.400, green.600)",
               color: "white",
-              bg: "green.500",
-              borderTopRadius: "md",
+              borderColor: "green.600",
+              borderTop: "4px solid",
+              borderTopColor: "green.300",
+              transform: "scaleY(1.05) translateY(-2px)",
+              boxShadow: "md",
+              fontWeight: "bold",
             }}
-            _focus={{
-              boxShadow: "none",
-            }}
-            _active={{
-              background: "none",
-            }}
-            width="50%"
-            color="green.500"
-            border="1px solid"
-            borderColor="green.500"
+            _focus={{ boxShadow: "none" }}
+            _active={{ background: "green.700" }}
+            color="green.600"
+            border="3px solid"
+            borderBottom="none"
+            borderColor="green.200"
             borderTopRadius="md"
+            width="50%"
           >
             Add
           </Tab>
+
           <Tab
+            bg="rgb(255,255,255,0.6)"
+            transition="all 0.2s ease-in-out"
             _selected={{
+              bgGradient: "linear(to-r, red.400, red.600)",
               color: "white",
-              bg: "red.500",
-              borderTopRadius: "md",
+              borderColor: "red.600",
+              borderTop: "4px solid",
+              borderTopColor: "red.300",
+              transform: "scaleY(1.05) translateY(-2px)",
+              boxShadow: "md",
+              fontWeight: "bold",
             }}
-            _focus={{
-              boxShadow: "none",
-            }}
-            _active={{
-              background: "none",
-            }}
-            width="50%"
-            color="red.500"
-            border="1px solid"
-            borderColor="red.500"
+            _focus={{ boxShadow: "none" }}
+            _active={{ background: "red.700" }}
+            color="red.600"
+            border="3px solid"
+            borderBottom="none"
+            borderColor="red.200"
             borderTopRadius="md"
+            width="50%"
           >
             Remove
           </Tab>
         </TabList>
 
         <TabPanels>
-          <TabPanel pb={0}>
+          <TabPanel
+            p={4} // Add padding all around
+            position="relative"
+            zIndex={1}
+            border="3px solid"
+            borderTop="none" // Remove the top border
+            borderRadius="0 0 0.5rem 0.5rem"
+            bg="white"
+            borderColor="green.200"
+          >
             {/* Add Tab Content */}
             <VStack spacing={4} align="stretch">
               <Box>
                 <Select
                   placeholder="Select a tag to add"
                   value={selectedTagId}
-                  color="primaryTextColor"
+                  onChange={(e) => setSelectedTagId(e.target.value)}
+                  borderRadius="md"
+                  py={3}
+                  fontSize="md"
+                  bg="white"
+                  color="gray.800"
+                  border="1px solid"
+                  borderColor="gray.300"
+                  _hover={{ borderColor: "gray.400" }}
+                  _focus={{
+                    borderColor: "green.500",
+                    boxShadow: "0 0 0 1px green.500",
+                    bg: "white",
+                  }}
                   sx={{
                     option: {
-                      backgroundColor: theme.colors.elementBG,
-                    },
-                    "&:focus": {
-                      borderColor: "primary",
-                      boxShadow: `0 0 0 1px ${theme.colors.primary}`,
+                      backgroundColor: "white",
+                      color: "gray.800",
                     },
                   }}
-                  onChange={(e) => {
-                    setSelectedTagId(e.target.value);
-                  }}
-                  py={5}
                 >
-                  {availableTags && availableTags[1] ? (
-                    availableTags.map((tag: Tag) => {
-                      return (
-                        <option
-                          style={{
-                            backgroundColor: theme.colors.elementBG,
-                          }}
-                          key={tag.id}
-                          value={String(tag.id)}
-                        >
-                          {tag.name}
-                        </option>
-                      );
-                    })
+                  {availableTags && availableTags.length > 0 ? (
+                    availableTags.map((tag: Tag) => (
+                      <option key={tag.id} value={String(tag.id)}>
+                        {tag.name}
+                      </option>
+                    ))
                   ) : (
-                    <Text>No tags available</Text>
+                    <option disabled>No tags available</option>
                   )}
                 </Select>
               </Box>
 
               <Button
-                variant="green"
+                bg="green.500"
+                color="white"
+                _hover={{ bg: "green.600" }}
+                _disabled={{ opacity: 0.6 }}
                 onClick={handleAddTag}
                 isDisabled={!selectedTagId}
                 display="flex"
                 alignItems="center"
-                gap={[0, 0, 2]}
-                lineHeight={0}
-                _hover={
-                  !selectedTagId
-                    ? {}
-                    : {
-                        backgroundColor: "transparent",
-                        color: "green.900",
-                      }
-                }
+                gap={2}
               >
                 <Add />
                 Add Tag
@@ -303,26 +313,40 @@ export function ManageTagsModalBody({
             </VStack>
           </TabPanel>
 
-          <TabPanel pb={0}>
+          <TabPanel
+            p={4}
+            position="relative"
+            zIndex={1}
+            border="3px solid"
+            borderTop="none"
+            borderRadius="0 0 0.5rem 0.5rem"
+            bg="white"
+            borderColor="red.200"
+          >
             {/* Remove Tab Content */}
             <VStack spacing={4} align="stretch">
               <Box>
                 <Select
-                  color="primaryTextColor"
                   placeholder="Select a tag to remove"
                   value={selectedTagToRemoveId}
-                  onChange={(e) => {
-                    setSelectedTagToRemoveId(e.target.value);
+                  onChange={(e) => setSelectedTagToRemoveId(e.target.value)}
+                  borderRadius="md"
+                  py={3}
+                  fontSize="md"
+                  bg="white"
+                  color="gray.800"
+                  border="1px solid"
+                  borderColor="gray.300"
+                  _hover={{ borderColor: "gray.400" }}
+                  _focus={{
+                    borderColor: "red.500",
+                    boxShadow: "0 0 0 1px red.500",
+                    bg: "white",
                   }}
-                  py={5}
                   sx={{
                     option: {
-                      backgroundColor: theme.colors.elementBG,
-                      color: "primaryTextColor",
-                    },
-                    "&:focus": {
-                      borderColor: "primary",
-                      boxShadow: `0 0 0 1px ${theme.colors.primary}`,
+                      backgroundColor: "white",
+                      color: "gray.800",
                     },
                   }}
                 >
@@ -335,23 +359,17 @@ export function ManageTagsModalBody({
               </Box>
 
               <Button
-                variant="red"
+                bg="red.500"
+                color="white"
+                _hover={{ bg: "red.600" }}
+                _disabled={{ opacity: 0.6 }}
                 onClick={handleRemoveTag}
                 isDisabled={!selectedTagToRemoveId}
                 display="flex"
                 alignItems="center"
-                gap={[0, 0, 2]}
-                lineHeight={0}
-                _hover={
-                  !selectedTagToRemoveId
-                    ? {}
-                    : {
-                        backgroundColor: "transparent",
-                        color: "red.900",
-                      }
-                }
+                gap={2}
               >
-                <Add />
+                <Remove />
                 Remove Tag
               </Button>
             </VStack>
@@ -360,7 +378,7 @@ export function ManageTagsModalBody({
       </Tabs>
 
       <Button
-        mx={4}
+        mx={0}
         variant="darkGray"
         border="none"
         onClick={onClose}

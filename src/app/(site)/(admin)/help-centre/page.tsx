@@ -22,11 +22,18 @@ import {
   useDisclosure,
   Center,
   Stack,
+  useTheme,
+  Textarea,
 } from "@chakra-ui/react";
-import { Menu, Search } from "@mui/icons-material";
+import { Menu, Search, Chat } from "@mui/icons-material";
 import { useFetchClient } from "@/hooks/useFetchClient";
 import AdminHeading from "@/components/AdminHeader";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
+import ZoomableImg from "@/components/ZoomableImg";
+import { SpringModal } from "@/components/modals/springModal/SpringModal";
+import { useUser } from "@/providers/UserProvider";
+import { ContactSupportModal } from "@/components/modals/ContactSupportModal";
+import { SUPPORT_EMAIL } from "@/utils/emailAddresses";
 
 // Define Guide and ToolConfig types
 type Guide = {
@@ -35,6 +42,7 @@ type Guide = {
   urlPath: string;
   sortOrder: number;
   toolId?: number | string;
+  guideImagePath: "string";
 };
 
 type ToolConfig = {
@@ -47,19 +55,25 @@ export default function HelpCentrePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [guideList, setGuideList] = useState<Guide[]>([]);
-  const [toolConfigs, setToolConfigs] = useState<Record<string, ToolConfig>>(
-    {}
-  );
+  const [toolConfigs, setToolConfigs] = useState<Record<string, ToolConfig>>({});
   const [selectedGuide, setSelectedGuide] = useState<Guide | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [embedError, setEmbedError] = useState(false);
   const [filterText, setFilterText] = useState("");
+  const [contactMessage, setContactMessage] = useState("");
+  const theme = useTheme();
+  const { user } = useUser();
 
   const { fetchClient } = useFetchClient();
   const {
     isOpen: isDrawerOpen,
     onOpen: openDrawer,
     onClose: closeDrawer,
+  } = useDisclosure();
+  const {
+    isOpen: isContactOpen,
+    onOpen: openContact,
+    onClose: closeContact,
   } = useDisclosure();
 
   // Fetch guides and tools
@@ -84,10 +98,14 @@ export default function HelpCentrePage() {
             urlPath: g.guideFilePath,
             sortOrder: g.sortOrder,
             toolId: g.toolId,
+            guideImagePath: g.guideImagePath,
           }))
           .sort((a, b) => a.sortOrder - b.sortOrder);
         setGuideList(guides);
-        setSelectedGuide(guides[0] ?? null);
+        
+        // Find and set the first admin guide as selected
+        const firstAdminGuide = guides.find(g => g.type === "admin");
+        setSelectedGuide(firstAdminGuide ?? guides[0] ?? null);
 
         // Process tool configs
         const configMap: Record<string, ToolConfig> = {};
@@ -118,10 +136,6 @@ export default function HelpCentrePage() {
     if (selectedGuide) setPdfLoading(true);
   }, [selectedGuide]);
 
-  // Theme values
-  const bg = useColorModeValue("gray.50", "gray.800");
-  const cardBg = useColorModeValue("white", "gray.700");
-
   // Layout breakpoints
   const sideW = useBreakpointValue({ base: "full", md: "30%" });
   const mainW = useBreakpointValue({ base: "full", md: "70%" });
@@ -147,6 +161,54 @@ export default function HelpCentrePage() {
     return acc;
   }, {});
 
+  // Create ordered sections array
+  const orderedSections = [
+    { label: "Admin", items: adminGuides, icon: "" },
+    { label: "Platform", items: platformGuides, icon: "" },
+    // One section per tool
+    ...Object.entries(toolGroups).map(([toolId, items]) => {
+      const cfg = toolConfigs[toolId];
+      return {
+        label: `${cfg?.displayName || `Tool ${toolId}`}`,
+        items,
+        icon: cfg?.iconImageUrl ? (
+          <Image
+            boxSize="32px"
+            src={cfg.iconImageUrl}
+            alt={cfg.displayName}
+          />
+        ) : (
+          <ArticleOutlinedIcon />
+        ),
+      };
+    }),
+  ].filter(section => section.items.length > 0);
+
+  // Set the first guide as selected if none is selected
+  useEffect(() => {
+    if (!selectedGuide && orderedSections.length > 0) {
+      const firstSection = orderedSections[0];
+      if (firstSection.items.length > 0) {
+        setSelectedGuide(firstSection.items[0]);
+      }
+    }
+  }, [orderedSections, selectedGuide]);
+
+  const handleContactSubmit = () => {
+    const userDetails = `
+Customer Name: ${user?.customerName || 'N/A'}
+Customer ID: ${user?.customerId || 'N/A'}
+User Email: ${user?.email || 'N/A'}
+
+Message:
+${contactMessage}`;
+    
+    const emailBody = encodeURIComponent(userDetails);
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=Help Centre Support Request&body=${emailBody}`;
+    closeContact();
+    setContactMessage("");
+  };
+
   if (loading)
     return (
       <Center h="100vh">
@@ -156,7 +218,7 @@ export default function HelpCentrePage() {
   if (error)
     return (
       <Center h="100vh">
-        <Text color="red.500">{error}</Text>
+        <Text color={theme.colors.danger}>{error}</Text>
       </Center>
     );
 
@@ -195,34 +257,13 @@ export default function HelpCentrePage() {
         />
       </HStack>
 
-      {[
-        { label: "Platform", items: platformGuides, icon: "" },
-        { label: "Admin", items: adminGuides, icon: "" },
-        // One section per tool
-        ...Object.entries(toolGroups).map(([toolId, items]) => {
-          const cfg = toolConfigs[toolId];
-          return {
-            label: `${cfg?.displayName || `Tool ${toolId}`}`,
-            items,
-            icon: cfg?.iconImageUrl ? (
-              <Image
-                boxSize="32px"
-                src={cfg.iconImageUrl}
-                alt={cfg.displayName}
-              />
-            ) : (
-              <ArticleOutlinedIcon />
-            ),
-          };
-        }),
-      ].map(({ label, items, icon }, idx, arr) => {
-        if (!items.length) return null;
+      {orderedSections.map(({ label, items, icon }, idx, arr) => {
         return (
           <React.Fragment key={label}>
             <Box w="100%">
               <HStack mb={2} spacing={2}>
                 {icon}
-                <Text fontSize={["base", "base", "lg"]} fontWeight="semibold">
+                <Text fontSize={["base", "base", "lg"]} fontWeight="semibold" color={theme.colors.primaryTextColor}>
                   {label}
                 </Text>
               </HStack>
@@ -235,12 +276,12 @@ export default function HelpCentrePage() {
                     }
                     color={
                       selectedGuide?.urlPath === g.urlPath
-                        ? "white"
-                        : "gray.700"
+                        ? (theme.colors.buttonTextSelected || "white")
+                        : theme.colors.primaryTextColor
                     }
                     justifyContent="left"
                     leftIcon={<ArticleOutlinedIcon />}
-                    _hover={{ bg: "gray.100", color: "gray.800" }}
+                    _hover={{ bg: theme.colors.elementBG, color: theme.colors.primaryTextColor }}
                     _active={{ transform: "scale(0.98)" }}
                     onClick={() => {
                       setSelectedGuide(g);
@@ -269,96 +310,143 @@ export default function HelpCentrePage() {
   );
 
   return (
-    <VStack w="full" spacing={4} h="full" overflow="hidden">
-      <AdminHeading headingText="help-centre" />
-      <Flex
-        h="80vh"
-        w="full"
-        borderRadius="md"
-        overflow="hidden"
-        bgGradient="linear(to-br, pink.50, white)"
-        boxShadow="sm"
-        direction={["column", "column", "row"]}
-      >
-        {/* Mobile toggle */}
-        {isMobile && (
-          <>
+    <VStack w="full" spacing={4} h={["71vh", "71vh", "82vh"]} overflow="hidden">
+      <VStack w="full" h="min" align={"left"}>
+        <AdminHeading headingText="Help Centre" />
+        {/* Mobile toggle and contact button */}
+        <HStack spacing={2}>
+          {isMobile && (
             <Button
               aria-label="Open guide list"
-              m={4}
               w={"min"}
               onClick={openDrawer}
               gap={1}
               color={"white"}
+              size={"sm"}
             >
               <Menu />
-              <Text fontSize={"sm"}>All Guides</Text>
+              <Text fontSize={"xs"}>Guides</Text>
             </Button>
-            <Drawer
-              isOpen={isDrawerOpen}
-              placement="left"
-              onClose={closeDrawer}
-            >
-              <DrawerOverlay />
-              <DrawerContent>
-                <DrawerCloseButton />
-                <DrawerBody p={0}>
-                  <Box bg={cardBg} h="full" overflowY="auto">
-                    {Sidebar}
-                  </Box>
-                </DrawerBody>
-              </DrawerContent>
-            </Drawer>
-          </>
+          )}
+          <Button
+            aria-label="Contact support"
+            w={"min"}
+            onClick={openContact}
+            gap={1}
+            color={"white"}
+            size={"sm"}
+            leftIcon={<Chat />}
+          >
+            <Text fontSize={"xs"}>{isMobile ? "Contact" : "Contact Support"}</Text>
+          </Button>
+        </HStack>
+
+        {/* Contact Modal */}
+        <ContactSupportModal isOpen={isContactOpen} onClose={closeContact} />
+
+        {/* Mobile drawer */}
+        {isMobile && (
+          <Drawer
+            isOpen={isDrawerOpen}
+            placement="left"
+            onClose={closeDrawer}
+          >
+            <DrawerOverlay />
+            <DrawerContent>
+              <DrawerCloseButton />
+              <DrawerBody p={0}>
+                <Box 
+                  bg={theme.colors.elementBG} 
+                  h="full" 
+                  overflowY="auto"
+                  sx={{
+                    '&::-webkit-scrollbar': {
+                      display: 'none'
+                    },
+                    '-ms-overflow-style': 'none',
+                    'scrollbar-width': 'none'
+                  }}
+                >
+                  {Sidebar}
+                </Box>
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
         )}
+      </VStack>
+
+      <Flex
+        h="full"
+        w="full"
+        borderRadius="md"
+        overflow="hidden"
+        bg={theme.colors.elementBG}
+        boxShadow="sm"
+        direction={["column", "column", "row"]}
+      >
 
         {/* Sidebar */}
         {!isMobile && (
           <Box
             w={sideW}
-            bg={cardBg}
+            bg={theme.colors.elementBG}
             borderRight="1px solid"
             borderColor="gray.200"
             boxShadow="sm"
+            overflowY="auto"
           >
             {Sidebar}
           </Box>
         )}
 
-        {/* PDF Viewer */}
         <Box w={mainW} display="flex" flexDirection="column" p={4} h="full">
           <Box
             flex="1"
-            bg={cardBg}
+            bg={theme.colors.elementBG}
             rounded="md"
-            overflow="hidden"
             position="relative"
+            overflow="hidden"
           >
-            {pdfLoading && (
-              <Flex
-                position="absolute"
-                inset={0}
-                align="center"
-                justify="center"
-              >
-                <Spinner size="xl" />
-              </Flex>
-            )}
             {!embedError ? (
-              <iframe
-                src={`${selectedGuide?.urlPath}#toolbar=0&navpanes=0&scrollbar=0`}
+              // Scrollable container for the "A4 portrait" image
+              <Box
                 width="100%"
                 height="100%"
-                onError={() => setEmbedError(true)}
-                onLoad={() => setPdfLoading(false)}
-              />
+                overflowY="auto" // only vertical scrolling
+                overflowX="hidden" // no horizontal scroll
+                bg={theme.colors.elementBG}
+              >
+                {selectedGuide ? (
+                  isMobile ? (
+                    <ZoomableImg
+                      src={selectedGuide.guideImagePath}
+                      alt={selectedGuide.title}
+                    />
+                  ) : (
+                    <iframe
+                      src={`${selectedGuide.urlPath}#toolbar=0&navpanes=0&scrollbar=0`}
+                      title={selectedGuide.title}
+                      width="100%"
+                      height="100%"
+                      style={{ border: "none" }}
+                    />
+                  )
+                ) : (
+                  <Center h="full" p={8}>
+                    <Text fontSize="lg" color={theme.colors.secondaryTextColor}>
+                      No guide selected.
+                    </Text>
+                  </Center>
+                )}
+              </Box>
             ) : (
+              // Error state if the image failed to load
               <Center h="full" p={8}>
                 <Stack spacing={4} textAlign="center">
-                  <Text fontSize="4xl" fontWeight="bold" color="pink.500">
+                  <Text fontSize="4xl" fontWeight="bold" color={theme.colors.danger}>
                     Error...
                   </Text>
-                  <Text fontSize="lg">
+                  <Text fontSize="lg" color={theme.colors.secondaryTextColor}>
                     Oops! An error occurred loading this guide.
                   </Text>
                 </Stack>

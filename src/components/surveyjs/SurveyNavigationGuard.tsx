@@ -1,7 +1,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import SurveyModal from "@/components/surveyjs/layout/default/SurveyModal";
-import { Warning } from "@mui/icons-material";
+import { Warning as WarningIcon } from "@mui/icons-material";
 
 interface SurveyNavigationGuardProps {
   isEditing: boolean;
@@ -89,11 +89,16 @@ const SurveyNavigationGuard: React.FC<SurveyNavigationGuardProps> = ({
         isOpen={modalIsOpen}
         onClose={cancelNavigation}
         onConfirm={confirmNavigation}
-        icon={<Warning fontSize="large"/>}
         title="Unsaved Changes"
-        bodyContent="You have unsaved changes. Are you sure you want to leave this page?"
+        bodyContent="You may have unsaved changes. Are you sure you want to leave this page?"
         confirmLabel="Leave"
         cancelLabel="Stay"
+        type="warning"
+        icon={<WarningIcon fontSize="inherit"/>}
+        showButtons={{
+          close: true,
+          confirm: true
+        }}
       />
     </>
   );

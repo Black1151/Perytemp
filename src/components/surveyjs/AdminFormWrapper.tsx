@@ -57,6 +57,15 @@ const AdminFormWrapper: React.FC<AdminFormWrapperProps> = ({
     const json = formJson ?? { pages: [] }; // minimal placeholder
     const model = new Model({ ...json, ...adminSurveyOptions });
 
+    //On navigation go to top of window
+    model.scrollToFirstQuestion = () => { };
+    model.scrollElementToTop = () => { };
+    model.focusFirstQuestionAutomatic = false;
+    model.onAfterRenderPage.add((_, options) => {
+      window.scrollTo(0, 0);
+    });
+
+
     if (!isAllowedToEdit) {
       model.mode = "display";
     }

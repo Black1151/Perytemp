@@ -11,13 +11,19 @@ export interface HospitalityItem {
   startDate?: string;
   endDate?: string | null;
   location?: string;
+  latitude?: number;
+  longitude?: number;
   siteIds?: number[];
   itemType:
     | "singleDayBookable"
     | "singleDayBookableWithStartEnd"
     | "multiDayBookable"
     | "registerInterest"
-    | "info";
+    | "info"
+    | "info(tel)"
+    | "info(code)"
+    | "info(email)"
+    | "info(link)";
   logoImageUrl?: string;
   coverImageUrl: string;
   additionalImageUrlList?: string[] | null;
@@ -28,6 +34,9 @@ export interface HospitalityItem {
   updatedBy?: string;
   /** Owner of the category this item belongs to */
   catOwnerUserId?: string;
+  /** Distance from filter location in meters, if available */
+  distance_from_m?: number;
+  infoContent?: string;
 }
 
 export interface HospitalityCategory {
@@ -39,6 +48,7 @@ export interface HospitalityCategory {
   isActive: boolean;
   /** Image representing the category */
   coverImageUrl?: string;
+  itemsCount?: number
 }
 
 export interface HospitalityBooking {
@@ -49,9 +59,9 @@ export interface HospitalityBooking {
   /** Type of the item being booked */
   itemType?: string;
   /** ID of the user creating the booking */
-  bookerId?: number;
+  bookerUserId?: number;
   /** Owner of the item or its category */
-  ownerId?: number;
+  ownerUserId?: number;
   startDate?: string; // Format: YYYY-MM-DD
   endDate?: string; // Format: YYYY-MM-DD
   startTime?: string; // Format: YYYY-MM-DD HH:mm:ss

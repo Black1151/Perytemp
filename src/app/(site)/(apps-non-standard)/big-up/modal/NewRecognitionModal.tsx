@@ -1,6 +1,8 @@
-import { Modal, ModalOverlay, Box, Text, Button } from "@chakra-ui/react";
-import { BigUpModalContent } from "./components/BigUpModalContent";
+import { Box, VStack, Text, useTheme, Button } from "@chakra-ui/react";
+import { SpringModal } from "@/components/modals/springModal/SpringModal";
 import { hideScrollbar } from "@/utils/style/style-utils";
+import { Favorite } from "@mui/icons-material";
+import React, { useState } from "react";
 
 export interface UserStatsModalProps {
   isOpen: boolean;
@@ -13,24 +15,24 @@ export const NewRecognitionModal: React.FC<UserStatsModalProps> = ({
   onClose,
   unreadRecognitionModalData,
 }) => {
+  const theme = useTheme();
+
   return (
-    <Modal
-      size="2xl"
+    <SpringModal
       isOpen={isOpen}
       onClose={onClose}
-      isCentered
-      returnFocusOnClose={false}
-    >
-      <ModalOverlay />
-      <BigUpModalContent mx={4} borderRadius="lg">
-        <Box p={4}>
-          <Text color="primary" fontSize="3xl" pb={4} fontWeight="bold">
-            Your colleagues appreciate you!
-          </Text>
+      showClose={true}
+      bg={theme.colors.primary}
+      color="white"
+      frontIcon={<Favorite />}
+      bgIcon={<Favorite />}
+      header="Your colleagues appreciate you!"
+      body={
+        <VStack w="full">
           <Box
             maxH={[400, 610]}
             overflowY="auto"
-            p={4}
+            w="full"
             sx={{
               "@media (max-width: 400px)": {
                 ...hideScrollbar,
@@ -39,17 +41,18 @@ export const NewRecognitionModal: React.FC<UserStatsModalProps> = ({
           >
             {unreadRecognitionModalData}
           </Box>
-        </Box>
-        <Button
-          variant="primary"
-          maxW="200px"
-          mx="auto"
-          onClick={onClose}
-          mb={8}
-        >
-          Thanks Guys!
-        </Button>
-      </BigUpModalContent>
-    </Modal>
+          <Button
+            leftIcon={<Favorite />}
+            onClick={() => onClose()}
+            w="full"
+            bg={theme.colors.primaryTextColor}
+            color={theme.colors.elementBG}
+            px="8"
+          >
+            Thanks Guys!
+          </Button>
+        </VStack>
+      }
+    />
   );
 };

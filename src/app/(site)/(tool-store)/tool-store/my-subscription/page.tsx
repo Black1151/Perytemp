@@ -1,298 +1,291 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { BasketItem, useBasket, ToolConfig } from "../useBasket";
 import {
-  Flex,
-  Text,
+  Badge,
   Box,
-  HStack,
-  VStack,
   Button,
-  Stack,
-  useTheme,
+  Flex,
+  HStack,
   Image,
   SimpleGrid,
-  Badge,
   Spinner,
+  Stack,
+  Text,
+  VStack,
+  useTheme,
 } from "@chakra-ui/react";
+import WarningIcon from "@mui/icons-material/Warning";
+import { Cancel } from "@mui/icons-material";
 import { transparentize } from "@chakra-ui/theme-tools";
 import { useRouter } from "next/navigation";
+
+import { useBasket } from "../useBasket";
 import BillingCycleToggle from "../BillingCyleToggle";
-import AnimatedTillNumber from "@/components/animations/AnimatedTillNumber";
-import { useUser } from "@/providers/UserProvider";
-import WarningIcon from "@mui/icons-material/Warning";
-import BackButton from "@/components/BackButton";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
-import { Call, Close } from "@mui/icons-material";
 import { Header } from "../Header";
+import { useFetchClient } from "@/hooks/useFetchClient";
+import { SpringModal } from "@/components/modals/springModal/SpringModal";
+import SubscriptionActions from "./subscriptionActions";
+
+/* ------------------------------------------------------------------ */
 
 export default function CurrentSubscriptionPage() {
   const { subscription, getSubscription, basket } = useBasket();
-  const [noSubscription, setNoSubscription] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+
   const theme = useTheme();
-  const user = useUser();
   const router = useRouter();
+  const fetchClient = useFetchClient();
 
   const borderColor = "rgba(255, 255, 255, 0.65)";
   const cardBg = transparentize(theme.colors.elementBG, 0.95)(theme);
-  const cardBgLighter = theme.colors.elementBG;
+  const primaryTransparent = transparentize(theme.colors.primary, 1)(theme);
 
+  /* fetch on mount / basket change */
   useEffect(() => {
     setLoading(true);
     getSubscription().finally(() => setLoading(false));
   }, [basket]);
 
-  if (loading) {
-    return <Spinner />;
-  }
+  /* cancel handler */
+  const handleCancel = async () => {
+    setCancelLoading(true);
+    const resp = await fetchClient.fetchClient<{ resource?: string }>(
+      "/api/checkout/cancel",
+      { method: "POST" }
+    );
+    if (resp?.resource === "success") {
+      await getSubscription();
+      router.push("/tool-store");
+    }
+    setCancelLoading(false);
+  };
 
-  // don’t render until we know how many licenses we have
-  if (subscription && subscription?.licensedUsers === undefined) {
-    return null;
-  }
-
+  /* loading / empty */
+  if (loading) return <Spinner />;
   if (!subscription) {
     return (
-      <VStack
-        spacing={2}
-        align="center"
-        justify="center"
-        w="100%"
-        h="70vh"
-        fontSize={[20, 20, 22, 24]}
-        color={theme.colors.elementBG}
-      >
-        <WarningIcon color="inherit" fontSize="large" />
-        <Text fontWeight="400">
-          You don’t have an active paid subscription.
+      <VStack h="70vh" justify="center" spacing={4} color={theme.colors.primaryTextColor}>
+        <WarningIcon fontSize="large" />
+        <Text fontSize={{ base: "lg", md: "xl" }}>
+          No active subscription found.
         </Text>
-        <Text fontWeight="400" fontSize={[14, 14, 16, 18]}>
-          Add some tools or user licenses to get started.
-        </Text>
-        <HStack spacing={1} fontSize="md" align="center" mt={4}>
+        <HStack>
           <Button onClick={() => router.push("/tool-store")}>
             Browse Tools
           </Button>
           <Button
             onClick={() => router.push("/tool-store/manage-subscription")}
           >
-            Add Licenses
+            Add Licences
           </Button>
         </HStack>
       </VStack>
     );
   }
 
+  /* helpers */
+  const { subtotal, discountsTotal, taxTotal, grandTotal } =
+    subscription.totals;
+
+  /* render */
   return (
-    <VStack spacing={0} align="center" justify="center" w="100%">
+    <VStack w="full" spacing={0}>
       <Header title="My Subscription" />
 
       <Flex
-        direction={{ base: "column-reverse", lg: "column" }}
+        direction={{ base: "column-reverse", lg: "row-reverse" }}
         gap={4}
-        w="100%"
+        w="full"
       >
-        <Stack flex="1" spacing={4}>
-          {subscription.ownedSubscriptionInfo.map((item) => (
-            <HStack
-              key={`config-${item.id}`}
-              bg={cardBgLighter}
-              borderColor={borderColor}
-              borderRadius="md"
-              boxShadow="sm"
-              p={0}
-              justify="space-between"
-              align="stretch"
-              spacing={4}
-              overflow="hidden"
-              w="full"
+        {/* ——— Tool rows ——— */}
+        <Stack flex="1" spacing={3}>
+          {subscription.ownedSubscriptionInfo.map((item, idx) => (
+            <Flex
+              key={item.id}
+              align="center"
+              bg={theme.colors.elementBG}
+              rounded="md"
+              shadow="sm"
+              px={3}
+              py={3}
+              color={theme.colors.primaryTextColor}
             >
-              {/* Icon column */}
-              <VStack
+              {/* icon */}
+              <Flex
                 bg={theme.colors.primary}
-                p={4}
-                flexShrink={0}
-                minW="60px"
+                boxSize="64px"
+                borderRadius="md"
                 align="center"
                 justify="center"
+                mr={4}
+                flexShrink={0}
               >
                 {item.iconImageUrl && (
                   <Image
                     src={item.iconImageUrl}
                     alt={item.displayName}
-                    boxSize="60px"
-                    objectFit="contain"
-                    borderRadius="md"
-                    flexShrink={0}
+                    boxSize="52px"
+                    objectFit="fill"
                   />
                 )}
-              </VStack>
+              </Flex>
 
-              <VStack flex="1" align="flex-start" spacing={0} p={4} minW={0}>
-                <Text fontSize={[16, 18, 20]} fontWeight="semibold">
+              {/* name + licences */}
+              <Box flex="1">
+                <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }}>
                   {item.displayName}
                 </Text>
-                <Text fontSize={[14, 16]} color="gray.500">
-                  {subscription.licensedUsers} licenses
+                <Text fontSize={{ base: "sm", md: "md" }} color={theme.colors.secondaryTextColor}>
+                  {subscription.licensedUsers} licences
                 </Text>
-              </VStack>
+              </Box>
 
-              <VStack spacing={0} p={4} align="flex-end" justify="center">
-                <HStack spacing={1} align="baseline">
-                  <Text fontSize={[16, 18, 20]} fontWeight="semibold">
-                    £{Number(item.itemGrandTotal).toFixed(2)}
+              {/* price */}
+              <Box textAlign="right">
+                <Text fontWeight="semibold" fontSize={{ base: "md", md: "lg" }}>
+                  £{Number(item.itemGrandTotal).toFixed(2)}
+                  <Text
+                    as="span"
+                    fontSize={{ base: "sm", md: "md" }}
+                    color={theme.colors.secondaryTextColor}
+                  >
+                    /{subscription.isAnnual ? "yr" : "mo"}
                   </Text>
-                  <Text fontSize={[12, 14, 16]} color="gray.500">
-                    {subscription.isAnnual ? "/year" : "/month"}
-                  </Text>
-                </HStack>
-                <Text fontSize={[14, 16]} color="gray.500">
+                </Text>
+                <Text fontSize={{ base: "sm", md: "md" }} color={theme.colors.secondaryTextColor}>
                   £{(Number(item.itemGrandTotal) * 1.2).toFixed(2)} (incl. VAT)
                 </Text>
-              </VStack>
-            </HStack>
+              </Box>
+            </Flex>
           ))}
         </Stack>
-        <Box
-          bg={cardBg}
-          borderWidth="1px"
-          borderColor={borderColor}
-          borderRadius="md"
-          boxShadow="sm"
-          p={6}
-          flex="1"
-        >
-          {/* 2-column grid for Subtotal, Discounts, VAT, Total */}
-          <SimpleGrid columns={2} spacingY={4} spacingX={6} mb={6} w="100%">
-            {[
-              {
-                label: "Subtotal",
-                value: subscription.totals.subtotal,
-                isCurrency: true,
-              },
-              {
-                label: "Discounts",
-                value: subscription.totals.discountsTotal,
-                isCurrency: true,
-                isNegative: true,
-              },
-              {
-                label: "VAT",
-                value: subscription.totals.taxTotal,
-                isCurrency: true,
-              },
-              {
-                label: "Total",
-                value: subscription.totals.grandTotal,
-                isCurrency: true,
-              },
-            ].map(({ label, value, isCurrency, isNegative }) => (
-              <Box
-                key={label}
-                borderBottom="inset"
-                borderColor="gray.200"
-                gridColumn="1 / span 2"
-                display="contents"
-              >
-                <Text fontWeight="medium" color="gray.600">
-                  {subscription.isAnnual ? "Annual " : "Monthly "}
-                  {label}
-                </Text>
-                <Flex align="baseline" justify="flex-end">
-                  <Text
-                    fontSize={[16, 18, 20]}
-                    fontWeight="semibold"
-                    color={isNegative ? "green.600" : undefined}
-                  >
-                    {isNegative ? "-" : ""}
-                    {isCurrency ? "£" : ""}
-                    {Number(value).toFixed(2)}
-                  </Text>
-                </Flex>
-              </Box>
-            ))}
-          </SimpleGrid>
 
-          {/* Dates & licenses */}
-          <Stack
-            spacing={2}
-            mb={6}
-            direction={{ base: "column", md: "row" }}
-            flexWrap="wrap"
-            shouldWrapChildren
+        <VStack gap={4} h={"min"}>
+          {/* ——— Totals card ——— */}
+          <Box
+            bg={theme.colors.elementBG}
+            borderWidth="1px"
+            borderColor={borderColor}
+            borderRadius="md"
+            boxShadow="sm"
+            p={5}
+            h={"min"}
+            flex="1"
+            w="full"
           >
-            <Badge colorScheme="blue">
-              Start Date:{" "}
-              {new Date(subscription.updatedAt).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-              })}
-            </Badge>
-            <Badge colorScheme="blue">
-              Renewal Date:{" "}
-              {subscription.renewalDate
-              ? new Date(subscription.renewalDate).toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                })
-              : ""}
-            </Badge>
-            <Badge colorScheme="blue">Subscription ID: {subscription.id}</Badge>
-          </Stack>
+            <SimpleGrid columns={2} spacingY={4} spacingX={6} mb={5}>
+              {subtotal !== "0" && (
+                <>
+                  <Text fontSize={{ base: "sm", md: "md" }} color={theme.colors.secondaryTextColor}>
+                    {subscription.isAnnual ? "Annual" : "Monthly"} Subtotal
+                  </Text>
+                  <Text textAlign="right" fontSize={{ base: "md", md: "lg" }} color={theme.colors.primaryTextColor}>
+                    £{Number(subtotal).toFixed(2)}
+                  </Text>
+                </>
+              )}
+              {discountsTotal !== "0" && (
+                <>
+                  <Text fontSize={{ base: "sm", md: "md" }} color={theme.colors.primaryTextColor}>
+                    Discounts
+                  </Text>
+                  <Text
+                    textAlign="right"
+                    fontSize={{ base: "md", md: "lg" }}
+                    color="green.600"
+                  >
+                    -£{Number(discountsTotal).toFixed(2)}
+                  </Text>
+                </>
+              )}
+              {taxTotal !== "0" && (
+                <>
+                  <Text fontSize={{ base: "sm", md: "md" }} color={theme.colors.primaryTextColor}>
+                    VAT
+                  </Text>
+                  <Text textAlign="right" fontSize={{ base: "md", md: "lg" }} color={theme.colors.primaryTextColor}>
+                    £{Number(taxTotal).toFixed(2)}
+                  </Text>
+                </>
+              )}
+              <Text fontWeight="medium" fontSize={{ base: "sm", md: "md" }} color={theme.colors.primaryTextColor}>
+                Total
+              </Text>
+              <Text
+                fontWeight="bold"
+                textAlign="right"
+                fontSize={{ base: "lg", md: "xl" }}
+                color={theme.colors.primaryTextColor}
+              >
+                £{Number(grandTotal).toFixed(2)}
+              </Text>
+            </SimpleGrid>
 
-          {/* Action buttons */}
-          <Stack direction={{ base: "column", md: "row" }} spacing={3}>
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (subscription.invoiceUrl) {
-                  window.open(
-                    subscription.invoiceUrl,
-                    "_blank",
-                    "noopener,noreferrer"
-                  );
-                }
-              }}
-              rightIcon={<OpenInNewIcon fontSize="small" />}
+            {/* dates */}
+            <HStack
+              spacing={3}
+              pb={4}
+              flexWrap="wrap"
+              fontSize={{ base: "xs", md: "sm" }}
+              color="gray.600"
             >
-              Invoice
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => router.push("/tool-store/manage-subscription")}
-            >
-              Manage Subscription
-            </Button>
-            <Button
-              variant="outline"
-              disabled
-              onClick={() => router.push("/tool-store/manage-subscription")}
-            >
-              Past Subscriptions
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => router.push("/tool-store/contact-sales")}
-              rightIcon={<Call fontSize="small" />}
-            >
-              Contact Sales
-            </Button>
-            <Button
-              rightIcon={<Close />}
-              variant="outline"
-              colorScheme="red"
-              disabled
-              onClick={() => router.push("/tool-store/manage-subscription")}
-            >
-              Cancel Subscription
-            </Button>
-          </Stack>
-        </Box>
+              <Badge colorScheme="blue">
+                Start:{" "}
+                {new Date(subscription.updatedAt).toLocaleDateString("en-GB")}
+              </Badge>
+              {subscription.renewalDate && (
+                <Badge colorScheme="blue">
+                  Renewal:{" "}
+                  {new Date(subscription.renewalDate).toLocaleDateString(
+                    "en-GB"
+                  )}
+                </Badge>
+              )}
+              <Badge colorScheme="blue">
+                ID: {subscription.uniqueId?.slice(0, 6)}
+              </Badge>
+            </HStack>
+          </Box>
+
+          {/* action buttons */}
+          <Box
+            bg={theme.colors.elementBG}
+            borderWidth="1px"
+            borderColor={borderColor}
+            borderRadius="md"
+            boxShadow="sm"
+            p={5}
+            h={"min"}
+            flex="1"
+            w="full"
+          >
+            <SubscriptionActions
+              subscription={subscription}
+              onOpenCancel={() => setIsCancelModalOpen(true)}
+            />
+          </Box>
+        </VStack>
       </Flex>
+
+      {/* modal */}
+      <SpringModal
+        bgIcon={<Cancel fontSize="inherit" />}
+        frontIcon={<Cancel fontSize="inherit" />}
+        header="Cancel Subscription?"
+        body="Are you sure you want to cancel?  You will lose access to your tools and licences."
+        isOpen={isCancelModalOpen}
+        showClose={false}
+        primaryLabel="No, keep it"
+        onPrimaryClick={() => setIsCancelModalOpen(false)}
+        secondaryLabel="Yes, cancel"
+        onSecondaryClick={handleCancel}
+        isSecondaryLoading={cancelLoading}
+        onClose={() => setIsCancelModalOpen(false)}
+        bg="red.600"
+      />
     </VStack>
   );
 }

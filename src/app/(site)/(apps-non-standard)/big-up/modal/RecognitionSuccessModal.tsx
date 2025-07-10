@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-} from "@chakra-ui/react";
+import { SpringModal } from "@/components/modals/springModal/SpringModal";
+import { CheckCircle } from "@mui/icons-material";
 
 interface RecognitionSuccessModalProps {
   isOpen: boolean;
@@ -21,23 +16,19 @@ export function RecognitionSuccessModal({
   onClose,
 }: RecognitionSuccessModalProps) {
   return (
-    <Modal
+    <SpringModal
       isOpen={isOpen}
       onClose={onClose}
-      isCentered
-      returnFocusOnClose={false}
-    >
-      <ModalOverlay />
-      <ModalContent
-        bg="primary"
-        color="white"
-        borderRadius="lg"
-        textAlign="center"
-        p={5}
-      >
-        <ModalHeader>Recognition sent!</ModalHeader>
-        <ModalBody>Thank you for appreciating your colleagues.</ModalBody>
-      </ModalContent>
-    </Modal>
+      showClose={false}
+      bg="primary"
+      color="white"
+      frontIcon={<CheckCircle />}
+      bgIcon={<CheckCircle />}
+      header="Recognition sent!"
+      body="Thank you for appreciating your colleagues."
+      primaryLabel="Close"
+      onPrimaryClick={onClose}
+      primaryIcon={<CheckCircle />}
+    />
   );
 }

@@ -83,7 +83,7 @@ export function ProfileCompletionForm({
   } = useForm<ProfileCompletionFormInputs>();
 
   const handleFormSubmit: SubmitHandler<ProfileCompletionFormInputs> = async (
-    formData,
+    formData
   ) => {
     const updatedData = {
       ...formData,
@@ -99,7 +99,7 @@ export function ProfileCompletionForm({
           successMessage: "Profile updated successfully",
           errorMessage: "Try again",
           redirectOnError: false,
-        },
+        }
       );
 
       if (res?.userData?.resource?.isProfileRegistered) {
@@ -117,7 +117,7 @@ export function ProfileCompletionForm({
   const handleDepartmentChange = async (departmentId: string | number) => {
     setValue(
       "departmentId",
-      typeof departmentId === "string" ? departmentId : departmentId.toString(),
+      typeof departmentId === "string" ? departmentId : departmentId.toString()
     );
     setIsTeamsLoading(true);
 
@@ -129,7 +129,7 @@ export function ProfileCompletionForm({
       });
 
       const transformedTeams = transformTeams(
-        (data as { resource: TeamFromBE[] }).resource || [],
+        (data as { resource: TeamFromBE[] }).resource || []
       );
 
       setTeamOptions(transformedTeams);
@@ -195,10 +195,19 @@ export function ProfileCompletionForm({
 
           <InputField
             name="mobile"
-            placeholder="Mobile"
+            placeholder="Mobile *"
             type="text"
+            register={() =>
+              register("mobile", {
+                required: "Mobile is required",
+                pattern: {
+                  value: /^\+(?:[0-9][\s-]?){6,14}[0-9]$/,
+                  message:
+                    "Please enter a valid international phone number, starting with + and country code",
+                },
+              })
+            }
             error={formErrors.mobile}
-            register={() => register("mobile")}
             focusBorderColor={theme.colors.primary}
           />
 

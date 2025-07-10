@@ -17,7 +17,6 @@ export default function NotFoundPage() {
 
       router.push("/login");
     } catch (error) {
-      console.error("Logout failed:", error);
       router.push("/error");
     }
   };

@@ -10,6 +10,7 @@ export type LayoutKeys =
   | "company-registration"
   | "happiness"
   | "enps"
+  | "cnps"
   | "client-satisfaction"
   | "tester"
   | "business-score";
@@ -80,6 +81,8 @@ export interface HappinessLayoutProps extends BaseLayoutProps {
 }
 
 export interface eNPSLayoutProps extends BaseLayoutProps {}
+
+export interface cNPSLayoutProps extends BaseLayoutProps {}
 
 export interface ClientSatisfactionLayoutProps extends BaseLayoutProps {
   saveAllowed?: boolean;

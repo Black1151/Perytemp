@@ -18,7 +18,8 @@ import { InputField } from "./InputField";
 import { useRouter } from "next/navigation";
 import { passwordValidation } from "./validationSchema/validationSchema";
 import { useFetchClient } from "@/hooks/useFetchClient";
-import { Email } from "@mui/icons-material";
+import { Email, LoginOutlined } from "@mui/icons-material";
+import { SpringModal } from "@/components/modals/springModal/SpringModal";
 
 export type ActivateAccountFormInputs = {
   password: string;
@@ -130,24 +131,22 @@ export function PasswordResetForm({ token }: ActivateAccountFormProps) {
         </VStack>
       </form>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent p={5}>
-          <VStack gap={2}>
-            <Email fontSize="large"/>
-            <ModalHeader>Password updated successfully</ModalHeader>
-            <ModalBody>
-              Your password has been successfully updated. You can now log in
-              with your new password.
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="primary" onClick={() => router.push("/login")}>
-                To Login
-              </Button>
-            </ModalFooter>
-          </VStack>
-        </ModalContent>
-      </Modal>
+      <SpringModal
+        isOpen={isOpen}
+        onClose={onClose}
+        showClose={true}
+        frontIcon={<Email fontSize="large" />}
+        bgIcon={<Email fontSize="large" />}
+        header={"Password updated successfully"}
+        body={
+          <>Your password has been successfully updated. You can now log in with your new password.</>
+        }
+        primaryLabel={"Login"}
+        primaryIcon={<LoginOutlined/>}
+        onPrimaryClick={() => router.push("/login")}
+        color={"white"}
+        bg={theme.colors.primary}
+      />
     </>
   );
 }

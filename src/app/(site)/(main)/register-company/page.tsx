@@ -5,6 +5,7 @@ import { getUser } from "@/lib/dal";
 import apiClient from "@/lib/apiClient";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import ContactButton from "./ContactButton";
 
 export default async function RegisterCompanyPage({
   params,
@@ -27,9 +28,12 @@ export default async function RegisterCompanyPage({
   }
 
   return (
-    <RegisterCompany
-      registerCustomerJson={registerCustomerJson}
-      initialCustomerData={apiRes.response}
-    />
+    <>
+      <RegisterCompany
+        registerCustomerJson={registerCustomerJson}
+        initialCustomerData={apiRes.response}
+      />
+      <ContactButton />
+    </>
   );
 }

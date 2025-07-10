@@ -59,9 +59,13 @@ export interface BigUpTeamMember {
   id: number;
   imageUrl: string;
   fullName: string;
+  city: string;
 }
 
 export interface BigUpCategory {
   id: number;
   name: string;
+  points: number;
+  giverPoints: number;
+  isActive: boolean;
 }

@@ -1,18 +1,24 @@
 "use client";
 
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
+  // Modal,
+  // ModalOverlay,
+  // ModalContent,
+  // ModalHeader,
+  // ModalBody,
+  // ModalFooter,
+  // ModalCloseButton,
   Button,
   Text,
+  Input,
+  FormControl,
+  FormHelperText,
 } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
+import { SpringModal } from "@/components/modals/springModal/SpringModal";
+import DeleteIcon from "@mui/icons-material/Delete";
+import React, { useState } from "react";
 
 interface DeleteItemModalProps {
   isOpen: boolean;
@@ -28,14 +34,18 @@ export default function DeleteItemModal({
   onDeleted,
 }: DeleteItemModalProps) {
   const toast = useToast();
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [confirmText, setConfirmText] = useState("");
   if (!item) return null;
 
   const handleDelete = async () => {
+    setIsDeleting(true);
     const res = await fetch(`/api/hospitality-hub/items?id=${item.id}`, {
       method: "DELETE",
     });
 
     const data = await res.json();
+    setIsDeleting(false);
 
     if (!res.ok) {
       toast({
@@ -62,23 +72,23 @@ export default function DeleteItemModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Delete Item</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Text>Are you sure you want to delete {item.name}?</Text>
-        </ModalBody>
-        <ModalFooter>
-          <Button mr={3} variant="primary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleDelete}>
-            Delete
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+    <SpringModal
+      isOpen={isOpen}
+      onClose={onClose}
+      showClose={true}
+      header={"Delete Item"}
+      body={
+        <Text>Are you sure you want to delete {item.name}?</Text>
+      }
+      primaryLabel="Delete"
+      onPrimaryClick={handleDelete}
+      isPrimaryLoading={isDeleting}
+      primaryDisabled={false}
+      secondaryLabel="Cancel"
+      onSecondaryClick={onClose}
+      bg="red.600"
+      frontIcon={<DeleteIcon fontSize="large" />}
+      bgIcon={<DeleteIcon sx={{ fontSize: 160 }} />}
+    />
   );
 }

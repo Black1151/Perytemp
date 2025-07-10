@@ -105,8 +105,6 @@ const CarouselDisplay = ({ carouselItems }: CarouselDisplayProps) => {
 
   useEffect(() => setShowInfoBox(true), []);
 
-  console.log(user);
-
   // ---------------------------------------------------------------- render
   return (
     <VStack position="relative" mt={[10, 30]} flex={1} overflow="hidden">

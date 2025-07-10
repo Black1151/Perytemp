@@ -14,11 +14,10 @@ import { Add, Close, Lock, Remove } from "@mui/icons-material";
 import { transparentize } from "@chakra-ui/theme-tools";
 import { useBasket } from "./useBasket";
 import type { ToolConfig } from "./useBasket";
-import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
-import RemoveShoppingCartIcon from "@mui/icons-material/RemoveShoppingCart";
 import { motion } from "framer-motion";
 import AnimatedTillNumber from "@/components/animations/AnimatedTillNumber";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/providers/UserProvider";
 
 export function ToolCard({ tool }: { tool: ToolConfig }) {
   const { basket, updateBasket, getBasket, removeItemFromBasket } = useBasket();
@@ -27,8 +26,10 @@ export function ToolCard({ tool }: { tool: ToolConfig }) {
   const isFree = basket?.isFree;
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
+  const { user } = useUser();
 
-  const borderColor = "rgb(255, 255, 255, 0.65)";
+  const isAuthorized = user?.role === "CA" || user?.role === "CL";
+
   const cardBg = theme.colors.elementBG;
   const textColor = theme.colors.primaryTextColor;
   const addBtnBg = transparentize(theme.colors.seduloGreen, 0.6)(theme);
@@ -48,9 +49,6 @@ export function ToolCard({ tool }: { tool: ToolConfig }) {
   const isOwned = basket?.ownedSubscriptionInfo?.some(
     (item: any) => item.uniqueId === tool.uniqueId
   );
-
-  console.log(basket?.ownedSubscriptionInfo[0]?.uniqueId);
-  console.log(tool.uniqueId);
 
   const handleButtonClick = async () => {
     setLoading(true);
@@ -113,8 +111,16 @@ export function ToolCard({ tool }: { tool: ToolConfig }) {
         await getBasket();
 
         toast({
-          title: "Added to basket",
-          description: `${tool.displayName}`,
+          title: `Added ${tool.displayName} to basket`,
+          description: (
+            <Box
+              as="span"
+              cursor="pointer"
+              onClick={() => router.push('/tool-store/manage-subscription')}
+            >
+              View Basket
+            </Box>
+          ),
           status: "success",
           duration: 3000,
           isClosable: true,
@@ -199,6 +205,7 @@ export function ToolCard({ tool }: { tool: ToolConfig }) {
               border="0px solid"
               borderColor={cardBg}
               borderRadius="md"
+              boxShadow="inset 0 4px 10px rgba(0,0,0,0.24)"
             >
               <Box
                 h="80px"
@@ -244,18 +251,12 @@ export function ToolCard({ tool }: { tool: ToolConfig }) {
           >
             <Text fontSize="sm">{tool.previewText}</Text>
 
-            {!isOwned && (
-              <HStack
-                spacing={2}
-                align="center"
-                justify="space-between"
-                w="100%"
-              >
+            <HStack spacing={2} align="center" justify="space-between" w="100%">
+              {isAuthorized && (
                 <HStack spacing={1} align="center">
                   <Text fontSize="md" fontWeight="bold">
                     £
                   </Text>
-
                   <AnimatedTillNumber
                     value={
                       basket?.isAnnual
@@ -265,17 +266,30 @@ export function ToolCard({ tool }: { tool: ToolConfig }) {
                     fontSize="md"
                     duration={0.65}
                   />
-
                   <Text fontSize="md" fontWeight="bold">
                     /user
                   </Text>
                 </HStack>
+              )}
 
+              {isOwned ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const url = `${tool.appUrl}?toolId=${tool.id}&wfId=${tool.workflowId}`;
+                    router.push(url);
+                  }}
+                  color={theme.colors.primaryTextColor}
+                >
+                  Start Tool
+                </Button>
+              ) : isAuthorized ? (
                 <Button
                   size="sm"
                   variant="outline"
                   border="none"
-                  color={"white"}
+                  color={theme.colors.primaryTextColor}
                   bg={isInBasket ? removeBtnBg : addBtnBg}
                   _hover={{
                     color: "white",
@@ -287,36 +301,23 @@ export function ToolCard({ tool }: { tool: ToolConfig }) {
                   isLoading={loading}
                 >
                   {isInBasket ? (
-                    <HStack spacing={1} align="center" m={0}> 
-                      <Remove fontSize="small"/>
-                      <Text fontSize="sm" color="white">
+                    <HStack spacing={1} align="center" m={0}>
+                      <Remove fontSize="small" />
+                      <Text fontSize="sm" color={theme.colors.primaryTextColor}>
                         Remove
                       </Text>
                     </HStack>
                   ) : (
                     <HStack spacing={1} align="center" m={0}>
-                      <Add fontSize="small"/>
-                      <Text fontSize="sm" color="white">
+                      <Add fontSize="small" />
+                      <Text fontSize="sm" color={theme.colors.primaryTextColor}>
                         Add
                       </Text>
                     </HStack>
                   )}
                 </Button>
-              </HStack>
-            )}
-
-            {isOwned && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  const url = `${tool.appUrl}?toolId=${tool.id}&wfId=${tool.workflowId}`;
-                  router.push(url);
-                }}
-              >
-                Start Tool
-              </Button>
-            )}
+              ) : null}
+            </HStack>
           </VStack>
         </VStack>
       </Box>

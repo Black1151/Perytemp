@@ -1,5 +1,6 @@
 "use client";
-import { Box, VStack, Text, Image } from "@chakra-ui/react";
+import { Box, VStack, Text, Image, useTheme } from "@chakra-ui/react";
+import { transparentize } from "@chakra-ui/theme-tools";
 import PerygonCard from "@/components/layout/PerygonCard";
 import { HospitalityItem } from "@/types/hospitalityHub";
 
@@ -14,13 +15,13 @@ export default function HospitalityItemCard({
   onClick,
   disabled = false,
 }: HospitalityItemCardProps) {
+  const theme = useTheme();
   return (
     <Box
       position="relative"
       cursor={onClick ? "pointer" : undefined}
       onClick={onClick}
       h="100%"
-      bg="green"
     >
       <PerygonCard
         width="100%"
@@ -28,6 +29,9 @@ export default function HospitalityItemCard({
         p={4}
         display="flex"
         flexDirection="column"
+        bg={transparentize(theme.colors.elementBG, 0.2)(theme)}
+        border="1px solid"
+        borderColor={transparentize(theme.colors.elementBG, 0.4)(theme)}
       >
         {(item.coverImageUrl || item.logoImageUrl) && (
           <Image
@@ -38,8 +42,19 @@ export default function HospitalityItemCard({
           />
         )}
         <VStack align="start" spacing={1} flex={1}>
-          <Text fontWeight="bold">{item.name}</Text>
-          {item.description && <Text fontSize="sm">{item.description}</Text>}
+          <Text
+            fontWeight="bold"
+            color={theme.colors.elementBG}
+            fontSize="lg"
+            noOfLines={1}
+          >
+            {item.name}
+          </Text>
+          {item.description && (
+            <Text fontSize="sm" color={theme.colors.elementBG} noOfLines={2}>
+              {item.description}
+            </Text>
+          )}
         </VStack>
       </PerygonCard>
       {disabled && (

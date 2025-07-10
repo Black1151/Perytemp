@@ -88,7 +88,7 @@ const SignUpPageClient = () => {
       ]);
     } else if (signUpType === "individual") {
       setTitle("Join an existing company");
-      setDescription("Is your company already using Perygon? Please fill in the form to join your collegues. Please use your work email.");
+      setDescription("Welcome! If your company is already on Perygon, enter your work email to join your colleagues.");
       setActions([
         { label: "Sign Up as a Company", href: "/sign-up?signUpType=company", icon: <Business /> },
         { label: "Back To Login", href: "/login", icon: <ArrowBack />},
@@ -96,7 +96,7 @@ const SignUpPageClient = () => {
     }
     else if (signUpType === "company") {
       setTitle("Sign up your company");
-      setDescription("Please fill in the form below to sign up as a company. Please use your work email.");
+      setDescription("Let’s get started! Enter your work email to set up your account and register your company.");
       setActions([
         { label: "Join an exisiting company", href: "/sign-up?signUpType=individual", icon: <PersonAdd /> },
         { label: "Back To Login", href: "/login", icon: <ArrowBack /> },

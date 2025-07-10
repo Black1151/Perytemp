@@ -31,11 +31,10 @@ export default function HospitalityItemsMasonry({
 }: HospitalityItemsMasonryProps) {
   return (
     <SimpleGrid
-      w="100%"
+      columns={[1, 2, 2, 3, 3, 4]}
       gap={4}
-      height="500px"
-      templateColumns={`repeat(auto-fill, minmax(300px, 1fr))`}
-      maxW="2000px"
+      w="100%"
+      maxW="1440px"
       mx="auto"
     >
       <AnimatedList>

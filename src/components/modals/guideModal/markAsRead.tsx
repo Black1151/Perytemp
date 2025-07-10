@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Checkbox as ChakraCheckbox } from '@chakra-ui/react';
+import { Checkbox as ChakraCheckbox, useTheme } from '@chakra-ui/react';
 
 interface MarkAsReadProps {
   /** ID of the business-level guide */
@@ -36,6 +36,7 @@ export default function MarkAsRead({
   onMark,
   onUnmark,
 }: MarkAsReadProps): JSX.Element {
+  const theme = useTheme();
   const [recordId, setRecordId] = useState<number | undefined>(initialRecordId);
   const [loading, setLoading] = useState<boolean>(false);
   const isRead = recordId !== undefined;
@@ -94,6 +95,7 @@ export default function MarkAsRead({
       isDisabled={loading}
       onChange={handleChange}
       fontSize={{ base: 'md', md: 'sm' }}
+      color={theme.colors.primaryTextColor}
     >
       Mark as read
     </ChakraCheckbox>

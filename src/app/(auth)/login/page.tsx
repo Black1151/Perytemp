@@ -7,6 +7,8 @@ import { cookies } from "next/headers";
 import apiClient from "@/lib/apiClient";
 import { redirect } from "next/navigation";
 import AppStoreIcons from "./AppStoreIcons";
+import { useEffect } from "react";
+import ClearLocalStorage from "@/components/utils/ClearLocalStorage";
 
 interface SearchParams {
   l?: string;
@@ -82,11 +84,12 @@ export default async function LoginPage({
       case appleAccountLinked !== "":
         return [-640, -740];
       default:
-        return [-445, -545];
+        return [-445, -585];
     }
   };
   return (
     <PerygonContainer>
+      <ClearLocalStorage />
       <Center flex={1} maxW={["100%"]} flexDirection={"column"}>
         <LoginCard
           height={getHeight()}

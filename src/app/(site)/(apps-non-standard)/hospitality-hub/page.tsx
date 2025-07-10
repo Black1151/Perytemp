@@ -15,7 +15,7 @@ export default async function Home() {
   });
   const userMetadataData = await res.json();
   const userMetadata = userMetadataData.resource;
-  if (!userMetadata?.subscribedTools?.includes("100")) {
+  if (!userMetadata?.subscribedTools?.includes("101")) {
     redirect("/");
   }
 

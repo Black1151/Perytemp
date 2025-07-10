@@ -9,6 +9,8 @@ export interface MenuItem {
   active?: boolean;
   locked?: boolean;
   badgeNumber?: number;
+  actionNeeded?: boolean;
+  actionNeededText?: string;
 }
 
 interface NavigationMobilePopoutMenuProps {

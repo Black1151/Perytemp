@@ -20,7 +20,7 @@ const Bottombar: React.FC<BottombarProps> = ({ loading = false, content }) => {
       bg="elementBG"
       maxH={"100px"}
       boxShadow="xl"
-      zIndex={99}
+      zIndex={170}
       px={2}
       display={["block", "block", "none"]}
       overflowX="scroll"

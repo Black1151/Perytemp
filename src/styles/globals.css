@@ -10,10 +10,12 @@ body {
   -webkit-color-scheme: light !important;
   background-color: #ffffff !important;
   color: #000000 !important;
+  scroll-behavior: smooth;
 }
 
 /* Even if user's system is in dark mode, force light colors */
 @media (prefers-color-scheme: dark) {
+
   :root,
   html,
   body {

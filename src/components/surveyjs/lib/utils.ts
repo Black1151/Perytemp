@@ -103,9 +103,10 @@ export const initializeSurvey = async (
   data: any,
   isNew: boolean
 ) => {
-  surveyJSModel.onOpenDropdownMenu.add((_, options) => {
-    options.menuType = "dropdown";
-  });
+  // Controls menu type based on device type, screen height, width ect.
+  // surveyJSModel.onOpenDropdownMenu.add((_, options) => {
+  //   options.menuType = "dropdown";
+  // });
 
   surveyJSModel.setVariable("pgv_formMode", isNew ? "new" : "edit");
   surveyJSModel.setVariable("pgv_currentUser", user);

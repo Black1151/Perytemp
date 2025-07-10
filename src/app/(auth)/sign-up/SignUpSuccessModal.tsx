@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ConfettiAlt from "@/components/animations/confetti/ConfettiAlt";
+import SurveyModal from "@/components/surveyjs/layout/default/SurveyModal";
 
 interface SignUpSuccessModalProps {
   isOpen: boolean;
@@ -25,29 +26,16 @@ export const SignUpSuccessModal = ({
 }: SignUpSuccessModalProps) => {
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent p={4}>
-          <VStack gap={2}>
-            <VStack
-              fontSize={80}
-              color="green.500"
-            >
-              <CheckCircleOutlineIcon color="success" fontSize="inherit" />
-            </VStack>
-            <ModalHeader>Registration Successful</ModalHeader>
-            <ModalBody>
-              Your account has been created successfully. Please check your
-              email for a activation link.
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="primary" onClick={onClose}>
-                Go to Login
-              </Button>
-            </ModalFooter>
-          </VStack>
-        </ModalContent>
-      </Modal>
+      <SurveyModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onConfirm={onClose}
+        type="success"
+        showButtons={{ close: false, confirm: true }}
+        title="Registration Successful"
+        bodyContent="Your account has been created successfully. Please check your email for an activation link."
+        confirmLabel="Go to Login"
+      />
       <ConfettiAlt show={isOpen} />
     </>
   );

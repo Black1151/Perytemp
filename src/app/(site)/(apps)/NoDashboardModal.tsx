@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // Next.js router for client-side navigation
 import SurveyModal from "@/components/surveyjs/layout/default/SurveyModal";
+import { Info as InfoIcon } from "@mui/icons-material";
 
 const NoDashboardsModal = () => {
   const [isModalOpen, setIsModalOpen] = useState(true); // Start with the modal open
@@ -20,16 +21,17 @@ const NoDashboardsModal = () => {
   return (
     <SurveyModal
       isOpen={isModalOpen}
-      onClose={handleModalConfirm}
+      onClose={handleModalClose}
       onConfirm={handleModalConfirm}
       showButtons={{
-        close: false,
+        close: true,
         confirm: true,
       }}
-      title="No Dashboards"
-      bodyContent="No dashboards are available. Click to return to home."
-      confirmLabel="Home"
-      cancelLabel="Close"
+      title="No Dashboard Available"
+      bodyContent="You don't have access to any dashboards at the moment."
+      confirmLabel="Close"
+      type="info"
+      icon={<InfoIcon fontSize="inherit"/>}
     />
   );
 };

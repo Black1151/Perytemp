@@ -45,7 +45,6 @@ export const baseTheme = extendTheme({
     tooltipHeaderBGColor: "primary",
     tooltipBodyTextColor: "primaryTextColor",
     // tooltipBodyBGColor: "white",
-
     hospitalityHubPremium: "rgb(238, 228, 88)",
 
     happinessScale: {

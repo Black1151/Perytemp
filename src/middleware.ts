@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import apiClient from "./lib/apiClient";
 
+/// TESTING: DELETE THSI COMMENT
+
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const fullPath = `${pathname}${search}`;
@@ -16,6 +18,7 @@ export async function middleware(request: NextRequest) {
   // • /api/* (backend routes) - not included yet
   // • /_next/* (Next.js internals)
   // • other public routes
+
   if (
     /\/[^\/]+\.[^\/]+$/.test(pathname) || // ends with a file extension
     pathname === "/login" ||
@@ -33,9 +36,10 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/checkout") ||
     pathname.startsWith("/error") ||
     pathname.startsWith("/password-recovery") ||
-    pathname.startsWith("/trial-expired")
+    pathname.startsWith("/trial-expired") ||
+    pathname.startsWith("/g-login") || 
+    pathname.startsWith("/password-reset")
   ) {
-    console.log(`[Middleware] Bypassing: ${pathname}`);
     return NextResponse.next();
   }
 
@@ -62,7 +66,6 @@ export async function middleware(request: NextRequest) {
     });
 
     if (!ok || status !== 200) {
-      console.log();
       const res = NextResponse.redirect(
         new URL("/login?MissingAuthToken=true", request.url)
       );
@@ -85,7 +88,6 @@ export async function middleware(request: NextRequest) {
     // -----------------------------
     // Section 3: ACCESS CONTROL (api fail results in access denied)
     // -----------------------------
-    console.log(`[Middleware] Checking access control for URL: ${fullPath}`);
     let allowed = false;
 
     // SECTION 3A: get user metadata
@@ -144,11 +146,6 @@ export async function middleware(request: NextRequest) {
       let acpJson: any = null;
       if (acpResponse.ok && acpResponse.status === 200) {
         acpJson = await acpResponse.json();
-        console.log(
-          `[Middleware] ACPlatform response: status=${acpResponse.status}, ok=${acpResponse.ok}, body=${JSON.stringify(
-            acpJson
-          )} path=${pathname}`
-        );
 
         const resourceObj = acpJson?.resource?.[0];
         const firstVal = resourceObj
@@ -168,14 +165,8 @@ export async function middleware(request: NextRequest) {
           new Date(userACMetadata.customerIsFreeUntilDate) < new Date()
         ) {
           if (userACMetadata.role === "CA" || userACMetadata.role === "CL") {
-            console.log(
-              "[Middleware] → Expired free user (CA) or (CL). Access denied, redirecting to /tool-store"
-            );
             return NextResponse.redirect(new URL("/tool-store", request.url));
           } else {
-            console.log(
-              "[Middleware] → Expired free user. Access denied, redirecting to /tool-store"
-            );
             return NextResponse.redirect(
               new URL("/trial-expired", request.url)
             );
@@ -212,11 +203,6 @@ export async function middleware(request: NextRequest) {
         let acdJson: any = null;
         if (acdResponse.ok && acdResponse.status === 200) {
           acdJson = await acdResponse.json();
-          console.log(
-            `[Middleware] ACDashboard response: status=${acdResponse.status}, ok=${acdResponse.ok}, body=${JSON.stringify(
-              acdJson
-            )} path=${pathname}`
-          );
 
           const resourceObj = acdJson?.resource?.[0];
           const firstVal = resourceObj
@@ -242,16 +228,11 @@ export async function middleware(request: NextRequest) {
 
     // Section 3D: Final decision
     if (!allowed) {
-      console.log(
-        "[Middleware] → Access denied, redirecting to /access-denied"
-      );
       const redirectUrl = new URL("/access-denied", request.url);
       redirectUrl.searchParams.set("path", fullPath);
       redirectUrl.searchParams.set("user", userUUID);
       return NextResponse.redirect(redirectUrl);
     }
-
-    console.log("[Middleware] → Access granted");
 
     // --------------------------------
     // Section 4: CONTINUE THE REQUEST
@@ -259,7 +240,6 @@ export async function middleware(request: NextRequest) {
     const res = NextResponse.next();
     // Prevent caching of protected pages
     res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
-    console.log("[Middleware] → Request allowed, passing through");
     return res;
   } catch (error: any) {
     // ----------------------------------
@@ -268,7 +248,6 @@ export async function middleware(request: NextRequest) {
     console.error(
       `[Middleware] Error during auth & access control check: ${error}`
     );
-    console.log("[Middleware] → Redirecting to /login due to error");
     const res = NextResponse.redirect(new URL("/login", request.url));
     res.cookies.delete("auth_token");
     res.cookies.delete("user_uuid");

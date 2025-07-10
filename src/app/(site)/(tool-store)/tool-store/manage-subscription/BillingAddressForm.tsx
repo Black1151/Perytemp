@@ -111,12 +111,12 @@ const BillingAddressForm = forwardRef<BillingAddressFormHandle>((_props, ref) =>
         country: countryCode = "",
       } = res;
       setAddress({
-        address1,
-        address2,
+        address1: address1 || "",
+        address2: address2 || "",
         city: rawCity !== "-" ? rawCity : "",
         county: rawCounty !== "-" ? rawCounty : "",
-        postcode,
-        country: countryCode || "",
+        postcode: postcode || "",
+        country: countryCode || "337",
       });
     } catch (err: any) {
       toast({ title: "Error fetching address", description: err.message, status: "error" });
@@ -163,7 +163,7 @@ const BillingAddressForm = forwardRef<BillingAddressFormHandle>((_props, ref) =>
   };
 
   return (
-    <Box bg={theme.colors.white} borderRadius="lg" boxShadow="sm" p={6} mt={3}>
+    <Box bg={theme.colors.elementBG} borderRadius="lg" boxShadow="sm" p={6} mt={3} color={theme.colors.primaryTextColor}>
       {!isMobile && (
         <HStack justify="space-between" mb={4}>
           <Text fontSize={[14, 16, 18]} fontWeight="semibold">
@@ -183,7 +183,7 @@ const BillingAddressForm = forwardRef<BillingAddressFormHandle>((_props, ref) =>
               required
               autoComplete="address-line1"
               disabled={loading}
-              style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #CBD5E0", fontSize: "16px" }}
+              style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #CBD5E0", fontSize: "16px", background: "transparent" }}
             />
             <input
               name="address2"
@@ -192,7 +192,7 @@ const BillingAddressForm = forwardRef<BillingAddressFormHandle>((_props, ref) =>
               onChange={handleChange("address2")}
               autoComplete="address-line2"
               disabled={loading}
-              style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #CBD5E0", fontSize: "16px" }}
+              style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #CBD5E0", fontSize: "16px", background: "transparent" }}
             />
             <input
               name="city"
@@ -202,7 +202,7 @@ const BillingAddressForm = forwardRef<BillingAddressFormHandle>((_props, ref) =>
               required
               autoComplete="address-level2"
               disabled={loading}
-              style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #CBD5E0", fontSize: "16px" }}
+              style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #CBD5E0", fontSize: "16px", background: "transparent" }}
             />
             <input
               name="county"
@@ -211,7 +211,7 @@ const BillingAddressForm = forwardRef<BillingAddressFormHandle>((_props, ref) =>
               onChange={handleChange("county")}
               autoComplete="address-level1"
               disabled={loading}
-              style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #CBD5E0", fontSize: "16px" }}
+              style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #CBD5E0", fontSize: "16px", background: "transparent" }}
             />
             <input
               name="postcode"
@@ -221,7 +221,7 @@ const BillingAddressForm = forwardRef<BillingAddressFormHandle>((_props, ref) =>
               required
               autoComplete="postal-code"
               disabled={loading}
-              style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #CBD5E0", fontSize: "16px", textTransform: "uppercase" }}
+              style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #CBD5E0", fontSize: "16px", textTransform: "uppercase" , background: "transparent" }}
             />
             <FormControl isRequired>
               <Select

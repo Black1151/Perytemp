@@ -162,7 +162,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   };
 
   const fullBarMenu = (
-    <Flex flexDirection="column" pb={[24, 6]} gap={3} bg="elementBG" zIndex={150}>
+    <Flex flexDirection="column" pb={[24, 6]} gap={3} bg="elementBG" zIndex={160}>
       {/* Date Filter (only if enabled) */}
       {filterOptions.showDateFilter && (
         <Box px={2}>

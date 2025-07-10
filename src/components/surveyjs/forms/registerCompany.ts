@@ -1,7 +1,7 @@
 import { subscriptionLimits } from "@/utils/constants/subscriptionLimits";
- 
+
 const maxEmails = (subscriptionLimits.free.maxUsers ?? 0) - 2; // -2 as one less than amount of commas and -1 for the user themselves
- 
+
 export const registerCustomerJson = {
   checkErrorsMode: "onValueChanged",
   pages: [
@@ -47,6 +47,7 @@ export const registerCustomerJson = {
           inputType: "tel",
           startWithNewLine: false,
           minWidth: "256px",
+          isRequired: true,
           placeholder: "Enter company telephone number",
           validators: [
             {
@@ -63,8 +64,7 @@ export const registerCustomerJson = {
           titleLocation: "top",
           minWidth: "192px",
           isRequired: true,
-          placeholder:
-            "Select your primary business sector",
+          placeholder: "Select your primary business sector",
           allowClear: true,
           choicesByUrl: {
             url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/surveyjs/selectItems?type=sector`,
@@ -110,6 +110,23 @@ export const registerCustomerJson = {
           requiredErrorText: "Please select your business type",
         },
         {
+          type: "dropdown",
+          name: "sicCode",
+          title: "SIC Code",
+          titleLocation: "top",
+          isRequired: true,
+          allowClear: true,
+          startWithNewLine: false,
+          visibleIf: "{businessTypeId} = 3",
+          placeholder: "Select company SIC code",
+          choicesByUrl: {
+            url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/surveyjs/selectItems?type=sic_code`,
+            path: "sic_code",
+            valueName: "value",
+            titleName: "label",
+          },
+        },
+        {
           type: "text",
           name: "companyNumber",
           title: "Company Number",
@@ -125,25 +142,6 @@ export const registerCustomerJson = {
               type: "regex",
               regex: "^\\d{9}$",
               text: "Please enter a valid company number (9 characters)",
-            },
-          ],
-        },
-        {
-          type: "text",
-          name: "sicCode",
-          title: "SIC Code",
-          titleLocation: "top",
-          minLength: 5,
-          maxLength: 5,
-          defaultValue: "10101",
-          startWithNewLine: false,
-          visibleIf: "{businessTypeId} = 3",
-          placeholder: "Not required right now if you are unsure",
-          validators: [
-            {
-              type: "regex",
-              regex: "^\\d{5}$",
-              text: "Please enter a valid SIC code (5 characters)",
             },
           ],
         },
@@ -189,7 +187,7 @@ export const registerCustomerJson = {
         },
       ],
     },
- 
+
     /* ─────────────────────────────  2 ▸ COMPANY SITES  ───────────────────────────── */
     {
       name: "customer-sites",
@@ -203,11 +201,11 @@ export const registerCustomerJson = {
           title: `Enter your company locations below. (First being the primary location of your organisation) You can add up to ${subscriptionLimits.free.maxSites} sites. `,
           panelCount: 1,
           maxPanelCount: `${subscriptionLimits.free.maxSites}`,
- 
+
           // ←–– Enforce unique siteName across all panels
           keyName: "siteName",
           keyDuplicationError: "Each site name must be unique",
- 
+
           templateElements: [
             /* ───────── always shown ───────── */
             {
@@ -247,21 +245,21 @@ export const registerCustomerJson = {
             },
             {
               type: "text",
-              name: "postcode",
-              title: "Postcode",
-              minWidth: "256px",
-              isRequired: true,
-              placeholder: "Postcode",
-              requiredErrorText: "Please enter the postcode of this site",
-            },
-            {
-              type: "text",
               name: "address3",
               title: "Town / City",
               minWidth: "256px",
               isRequired: true,
               placeholder: "City",
               requiredErrorText: "Please enter the name of your city",
+            },
+            {
+              type: "text",
+              name: "postcode",
+              title: "Postcode",
+              minWidth: "256px",
+              isRequired: true,
+              placeholder: "Postcode",
+              requiredErrorText: "Please enter the postcode of this site",
             },
             {
               type: "dropdown",
@@ -285,7 +283,7 @@ export const registerCustomerJson = {
         },
       ],
     },
- 
+
     /* ─────────────────────────────  3 ▸ COMPANY DEPARTMENTS  ─────────────────────── */
     {
       name: "company-departments",
@@ -300,11 +298,11 @@ export const registerCustomerJson = {
           maxPanelCount: `${subscriptionLimits.free.maxTeams - 1}`,
           renderMode: "tab",
           templateTabTitle: "Dept {panelIndex}: {panel.departmentName}",
- 
+
           // ←–– Enforce unique departmentName across panels
           keyName: "departmentName",
           keyDuplicationError: "Each department name must be unique",
- 
+
           templateElements: [
             {
               type: "text",
@@ -331,7 +329,7 @@ export const registerCustomerJson = {
         },
       ],
     },
- 
+
     /* ─────────────────────────────  4 ▸ COMPANY STAFF  ───────────────────────────── */
     {
       name: "company-staff-section",
@@ -369,10 +367,10 @@ export const registerCustomerJson = {
           visibleIf: "{useBulkEntry} = false and {inviteStaff} = true",
           minPanelCount: 0,
           isRequired: true,
- 
+
           keyName: "staffEmail",
           keyDuplicationError: "Each email address must be unique",
- 
+
           templateElements: [
             {
               type: "text",
@@ -384,7 +382,8 @@ export const registerCustomerJson = {
               validators: [
                 { type: "email", text: "Please enter a valid email address" },
               ],
-              requiredErrorText: "Please enter the email address of this staff member",
+              requiredErrorText:
+                "Please enter the email address of this staff member",
             },
           ],
         },
@@ -420,7 +419,7 @@ export const registerCustomerJson = {
         },
       ],
     },
- 
+
     // Tool selection -- no longer used in the form, but kept here for reference
     /* ─────────────────────────────  5 ▸ TOOL SELECTION  ──────────────────────────── */
     // {
@@ -438,7 +437,7 @@ export const registerCustomerJson = {
     //       name: "toolPanels",
     //       title: "Select the tools you'd like to use",
     //       width: "100%",
- 
+
     //       setValueIf: "{x}=true",
     //       isrequired: true,
     //       setValueExpression:

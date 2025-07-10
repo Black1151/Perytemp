@@ -18,11 +18,14 @@ import AddButtonDesktop from "@/components/Buttons/AddButtonDesktop";
 import { MenuItem } from "@/components/Sidebars/NavigationSidebar/NavigationMobilePopoutMenu";
 import ContextualMenu from "@/components/Sidebars/ContextualMenu";
 import { useUser } from "@/providers/UserProvider";
+import QuickToolSetupModal from "@/components/modals/scheduleModal.tsx/scheduleModal";
+
+import { QuickScheduleList } from "@/types/schedules";
 
 interface DashboardHeaderProps {
   headingText: string;
   canStartWorkflow: boolean;
-  startBtnText?: string
+  startBtnText?: string;
   toolUrl: string;
   contextualMenuItems?: MenuItem[];
 }
@@ -40,13 +43,11 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     !!toolId && !!workflowId && canStartWorkflow
   );
 
-  console.log("contexual menu items:", contextualMenuItems)
-
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
   const { fetchClient } = useFetchClient();
   const router = useRouter();
-  const user = useUser()
+  const user = useUser();
 
   const handleStartClick = useCallback(async () => {
     if (!toolId || !workflowId) return;
@@ -74,9 +75,14 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     setAbleToStart(!!toolId && !!workflowId && canStartWorkflow);
   }, [toolId, workflowId, canStartWorkflow]);
 
-  let shouldShowToolGuides = true
+  let shouldShowToolGuides = true;
   if (user?.user && user.user.role === "PA") {
-    shouldShowToolGuides = false
+    shouldShowToolGuides = false;
+  }
+
+  let shouldShowQuickSetup = false;
+  if (user?.user && user.user.role === "CA") {
+    shouldShowQuickSetup = true;
   }
 
   const theme = useTheme();
@@ -109,20 +115,19 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
       <HStack ml="auto" spacing={2}>
         {ableToStart && isMobile && (
-          <AddButtonMobile onAddButtonClick={handleStartClick} label={startBtnText||"Start"} />
+          <AddButtonMobile
+            onAddButtonClick={handleStartClick}
+            label={startBtnText || "Start"}
+          />
         )}
-
         {ableToStart && !isMobile && (
           <AddButtonDesktop
-            label={startBtnText||"Start"}
+            label={startBtnText || "Start"}
             onAddButtonClick={handleStartClick}
           />
         )}
-
         {contextualMenuItems && shouldShowToolGuides && (
-          <ContextualMenu
-            menuItems={contextualMenuItems}
-          />
+          <ContextualMenu menuItems={contextualMenuItems} />
         )}
       </HStack>
     </Flex>

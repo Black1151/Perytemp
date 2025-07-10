@@ -53,7 +53,11 @@ interface DataGridComponentProps<T> {
   flex?: string;
   title?: string;
   handleRowClick?: (rowData: T) => void;
-  groupDisplayType?: "singleColumn" | "multipleColumns" | "groupRows";
+  groupDisplayType?:
+    | "singleColumn"
+    | "multipleColumns"
+    | "groupRows"
+    | "custom";
 }
 
 interface PaginationInfo {
@@ -145,6 +149,7 @@ function DataGridComponentLight<T>({
         alignItems: "center",
         fontFamily: "Metropolis",
       },
+      headerClass: "dg-align-left",
       ...customDefaultColDef,
     }),
     [isMobile, customDefaultColDef]
@@ -295,6 +300,7 @@ function DataGridComponentLight<T>({
                   onClick={resetFilter}
                   gap={[0, 0, 2]}
                   lineHeight={0}
+                  color="white"
                 >
                   <Clear />
                   <Text>{resetFiltersButtonText}</Text>

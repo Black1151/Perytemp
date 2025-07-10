@@ -9,23 +9,27 @@ export async function PUT(req: NextRequest) {
   const cookieStore = cookies();
   const authToken = cookieStore.get("auth_token")?.value;
 
-  console.log("[BASKET PUT VOUCHER] Incoming request to add voucher to basket");
-
-  let body;
+  let value;
   try {
-    body = await req.json();
-    console.log("[BASKET PUT VOUCHER] Request body:", body);
+    value = await req.json();
+    // Ensure we're working with a clean string value
+    if (typeof value === 'string') {
+      // Remove any surrounding quotes
+      value = value.replace(/^["']|["']$/g, '');
+    } else {
+      return NextResponse.json({ error: "Invalid voucher code format" }, { status: 400 });
+    }
   } catch (error) {
-    console.error("[BASKET PUT VOUCHER] Failed to parse JSON body:", error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
   const backendUrl = `${process.env.BE_URL}/basket`;
-
+  
+  console.log(backendUrl)
   try {
     const response = await fetch(backendUrl, {
       method: "PUT",
-      body: body,
+      body: JSON.stringify({ discountCode: value }),
       headers: {
         "Content-Type": "application/json",
         Authorization: authToken ? `Bearer ${authToken}` : "",
@@ -33,7 +37,7 @@ export async function PUT(req: NextRequest) {
     });
 
     const data = await response.json();
-    console.log("[BASKET PUT VOUCHER] Backend response:", data);
+    console.log(data)
 
     if (!response.ok) {
       console.error("[BASKET PUT VOUCHER] Backend error:", data);

@@ -18,7 +18,7 @@ import { ColDef } from "ag-grid-community";
 import DataGridComponentLight from "@/components/agGrids/DataGrid/DataGridComponentLight";
 import { SectionHeader } from "@/components/sectionHeader/SectionHeader";
 import { useFetchClient } from "@/hooks/useFetchClient";
-import { Info } from "@mui/icons-material";
+import { Info as InfoIcon } from "@mui/icons-material";
 import SurveyModal from "@/components/surveyjs/layout/default/SurveyModal";
 import HappinessScoreRenderer from "@/components/agGrids/CellRenderers/HappinessScoreRenderer";
 import HappinessDifferenceRenderer from "@/components/agGrids/CellRenderers/HappinessDifferenceRenderer";
@@ -413,7 +413,7 @@ const CompanyStats: React.FC = () => {
           <Tooltip label="Click to learn how to filter the dashboard" hasArrow>
             <IconButton
               aria-label="Filter Help"
-              icon={<Info />}
+              icon={<InfoIcon />}
               variant="ghost"
               onClick={showFilterHelp}
               color={"white"}
@@ -456,7 +456,7 @@ const CompanyStats: React.FC = () => {
                 >
                   <IconButton
                     aria-label="Punch Card Help"
-                    icon={<Info />}
+                    icon={<InfoIcon />}
                     variant="ghost"
                     onClick={showPunchCardHelp}
                     color={"white"}

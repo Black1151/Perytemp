@@ -14,7 +14,7 @@ const PublicFooter = () => {
       </Link>
       <Link
         href={
-          "https://sedulo.co.uk/wp-content/uploads/2024/07/Sedulo-Privacy-Notice.pdf"
+          "https://perygon.co.uk/privacy-policy"
         }
         color="white"
         _hover={{ textDecoration: "underline", cursor: "pointer" }}

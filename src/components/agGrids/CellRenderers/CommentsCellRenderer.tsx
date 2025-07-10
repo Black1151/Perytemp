@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Avatar, Box, Tooltip } from "@chakra-ui/react";
 import SurveyModal from "@/components/surveyjs/layout/default/SurveyModal";
+import { Comment as CommentIcon } from "@mui/icons-material";
 
 interface CommentsCellRendererProps {
   node: {
@@ -66,8 +67,7 @@ const CommentsCellRenderer: React.FC<CommentsCellRendererProps> = ({
           <Box display="flex" alignItems="flex-start" gap={4}>
             <Avatar
               name={node.data.fullName}
-              borderRadius="full"
-              boxSize="50px"
+              size="md"
               src={node.data.userImageUrl}
             />
             <Box>
@@ -77,6 +77,8 @@ const CommentsCellRenderer: React.FC<CommentsCellRendererProps> = ({
           </Box>
         }
         confirmLabel="Close"
+        type="info"
+        icon={<CommentIcon fontSize="inherit"/>}
       />
     </Box>
   );

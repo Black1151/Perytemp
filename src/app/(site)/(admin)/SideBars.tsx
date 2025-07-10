@@ -27,6 +27,7 @@ import {
   BlurOn,
   Help,
   ContentCopy,
+  Celebration,
 } from "@mui/icons-material";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -39,6 +40,7 @@ import NavigationBottombar from "@/components/Bottombar/NavigationBottombar/Navi
 import GuideModal from "@/components/modals/guideModal/guideModal";
 import ContextualMenu from "@/components/Sidebars/ContextualMenu";
 import AssignGroupModal from "./user-groups/AssignGroupModal";
+import { getMuiIconByName } from "@/utils/muiIconMapper";
 
 export default function SideBars() {
   const router = useRouter();
@@ -57,503 +59,45 @@ export default function SideBars() {
   const { recordId, recordParentId, recordCustomerId } = recordIds || {};
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
 
-  const generateLeftSidebarItemsDrawer = (
-    userRole: string | undefined,
-    isFree: boolean
-  ) => {
-    const items = [];
-
-    if (userRole === "CA" && !isFree) {
-      items.push(
-        {
-          label: "My Company",
-          icon: <Domain sx={{ height: "100%", width: "100%" }} />,
-          url: "/my-company",
-          category: "Company",
-        },
-        {
-          label: "Company Users",
-          icon: <Person sx={{ height: "100%", width: "100%" }} />,
-          url: "/users?userType=internal",
-          category: "Company",
-        },
-        {
-          label: "Company Sites",
-          icon: <LocationOn sx={{ height: "100%", width: "100%" }} />,
-          url: "/sites?siteType=internal",
-          category: "Company",
-        },
-        {
-          label: "Teams",
-          icon: <People sx={{ height: "100%", width: "100%" }} />,
-          url: "/teams",
-          category: "Company",
-        },
-        {
-          label: "User Groups",
-          icon: <Groups sx={{ height: "100%", width: "100%" }} />,
-          url: "/user-groups",
-          category: "Company",
-        },
-        {
-          label: "Tags",
-          icon: <Sell sx={{ height: "100%", width: "100%" }} />,
-          url: "/tags",
-          category: "Company",
-        },
-        {
-          label: "Email Schedules",
-          icon: <ScheduleSend sx={{ height: "100%", width: "100%" }} />,
-          url: "/email-schedule",
-          category: "Company",
-        },
-        {
-          label: "Our Clients",
-          icon: <Domain sx={{ height: "100%", width: "100%" }} />,
-          url: "/customers?customerType=external",
-          category: "Clients",
-        },
-        {
-          label: "Clients Users",
-          icon: <Person sx={{ height: "100%", width: "100%" }} />,
-          url: "/users?userType=external",
-          category: "Clients",
-        },
-        {
-          label: "Clients Sites",
-          icon: <LocationOn sx={{ height: "100%", width: "100%" }} />,
-          url: "/sites?siteType=external",
-          category: "Clients",
-        },
-        {
-          label: "Help Centre",
-          icon: <Help sx={{ height: "100%", width: "100%" }} />,
-          url: "/help-centre",
-          category: "Help",
-        }
-      );
-    } else if (userRole === "PA") {
-      items.push(
-        {
-          label: "Customers",
-          icon: <Domain sx={{ height: "100%", width: "100%" }} />,
-          url: "/customers",
-          category: "Platform",
-        },
-        {
-          label: "Users",
-          icon: <Person sx={{ height: "100%", width: "100%" }} />,
-          url: "/users",
-          category: "Platform",
-        },
-        {
-          label: "Sites",
-          icon: <LocationOn sx={{ height: "100%", width: "100%" }} />,
-          url: "/sites",
-          category: "Platform",
-        },
-        {
-          label: "User Groups",
-          icon: <Groups sx={{ height: "100%", width: "100%" }} />,
-          url: "/user-groups",
-          category: "Platform",
-        },
-        {
-          label: "Tags",
-          icon: <Sell sx={{ height: "100%", width: "100%" }} />,
-          url: "/tags",
-          category: "Platform",
-        },
-        {
-          label: "Option Lists",
-          icon: <FormatListNumbered sx={{ height: "100%", width: "100%" }} />,
-          url: "/option-lists",
-          category: "Platform",
-        },
-        {
-          label: "Select Items",
-          icon: <Checklist sx={{ height: "100%", width: "100%" }} />,
-          url: "/select-items",
-          category: "Platform",
-        },
-        {
-          label: "Tool Subscriptions",
-          icon: <ShoppingCartCheckout sx={{ height: "100%", width: "100%" }} />,
-          url: "/tool-subscriptions",
-          category: "Workflows",
-        },
-        {
-          label: "Tool",
-          icon: <Construction sx={{ height: "100%", width: "100%" }} />,
-          url: "/tools",
-          category: "Workflows",
-        },
-        {
-          label: "Workflow",
-          icon: <AccountTree sx={{ height: "100%", width: "100%" }} />,
-          url: "/workflows",
-          category: "Workflows",
-        },
-        {
-          label: "Business Process",
-          icon: <Schema sx={{ height: "100%", width: "100%" }} />,
-          url: "/business-processes",
-          category: "Workflows",
-        },
-        {
-          label: "Forms",
-          icon: <FormatAlignCenter sx={{ height: "100%", width: "100%" }} />,
-          url: "/forms",
-          category: "Workflows",
-        },
-        {
-          label: "Dashboards",
-          icon: <Dashboard sx={{ height: "100%", width: "100%" }} />,
-          url: "/dashboards",
-          category: "Dashboards",
-        },
-        {
-          label: "Dashboard Workflows",
-          icon: <DashboardCustomize sx={{ height: "100%", width: "100%" }} />,
-          url: "/dashboard-workflows",
-          category: "Dashboards",
-        },
-        {
-          label: "Email Templates",
-          icon: <Email sx={{ height: "100%", width: "100%" }} />,
-          url: "/email-template",
-          category: "Emails",
-        },
-        {
-          label: "Email Schedules",
-          icon: <ScheduleSend sx={{ height: "100%", width: "100%" }} />,
-          url: "/email-schedule",
-          category: "Emails",
-        },
-        {
-          label: "Email Links",
-          icon: <MailLock sx={{ height: "100%", width: "100%" }} />,
-          url: "/email-secure-link",
-          category: "Emails",
-        },
-        {
-          label: "Form Builder",
-          icon: <AddReaction sx={{ height: "100%", width: "100%" }} />,
-          url: "/survey-test",
-          category: "Test",
-        },
-        {
-          label: "Drag Grids Test",
-          icon: <Grid4x4 sx={{ height: "100%", width: "100%" }} />,
-          url: "/grid-test",
-          category: "Test",
-        }
-      );
-    } else if (isFree && userRole === "CA") {
-      items.push(
-        {
-          label: "My Company",
-          icon: <Domain sx={{ height: "100%", width: "100%" }} />,
-          url: "/my-company",
-          category: "Company",
-        },
-        {
-          label: "Company Users",
-          icon: <Person sx={{ height: "100%", width: "100%" }} />,
-          url: "/users?userType=internal",
-          category: "Company",
-        },
-        {
-          label: "Company Sites",
-          icon: <LocationOn sx={{ height: "100%", width: "100%" }} />,
-          url: "/sites?siteType=internal",
-          category: "Company",
-        },
-        {
-          label: "Teams",
-          icon: <People sx={{ height: "100%", width: "100%" }} />,
-          url: "/teams",
-          category: "Company",
-        },
-        {
-          label: "User Groups",
-          icon: <Groups sx={{ height: "100%", width: "100%" }} />,
-          url: "/user-groups",
-          category: "Company",
-          locked: true,
-        },
-        {
-          label: "Tags",
-          icon: <Sell sx={{ height: "100%", width: "100%" }} />,
-          url: "/tags",
-          category: "Company",
-          locked: true,
-        },
-        {
-          label: "Email Schedules",
-          icon: <ScheduleSend sx={{ height: "100%", width: "100%" }} />,
-          url: "/email-schedule",
-          category: "Company",
-          locked: true,
-        },
-        {
-          label: "Our Clients",
-          icon: <Domain sx={{ height: "100%", width: "100%" }} />,
-          url: "/customers?customerType=external",
-          category: "Clients",
-          locked: true,
-        },
-        {
-          label: "Clients Users",
-          icon: <Person sx={{ height: "100%", width: "100%" }} />,
-          url: "/users?userType=external",
-          category: "Clients",
-          locked: true,
-        },
-        {
-          label: "Clients Sites",
-          icon: <LocationOn sx={{ height: "100%", width: "100%" }} />,
-          url: "/sites?siteType=external",
-          category: "Clients",
-          locked: true,
-        },
-        {
-          label: "Help Centre",
-          icon: <Help sx={{ height: "100%", width: "100%" }} />,
-          url: "/help-centre",
-          category: "Help",
-        }
-      );
-    } else if (isFree && userRole === "CU") {
-      items.push(
-        {
-          label: "Our Staff",
-          icon: <Person sx={{ height: "100%", width: "100%" }} />,
-          url: "/users",
-          category: "My Company",
-        },
-        {
-          label: "Our Sites",
-          icon: <LocationOn sx={{ height: "100%", width: "100%" }} />,
-          url: "/sites",
-          category: "My Company",
-        },
-        {
-          label: "Teams",
-          icon: <People sx={{ height: "100%", width: "100%" }} />,
-          url: "/teams",
-          category: "My Company",
-        },
-        {
-          label: "Our Clients",
-          icon: <Domain sx={{ height: "100%", width: "100%" }} />,
-          url: "/customers?customerType=external",
-          category: "Clients",
-          locked: true,
-        },
-        {
-          label: "Help Centre",
-          icon: <Help sx={{ height: "100%", width: "100%" }} />,
-          url: "/help-centre",
-          category: "Help",
-        }
-      );
-    } else if (!isFree && userRole === "CU") {
-      items.push(
-        {
-          label: "Our Staff",
-          icon: <Person sx={{ height: "100%", width: "100%" }} />,
-          url: "/users",
-          category: "My Company",
-        },
-        {
-          label: "Our Sites",
-          icon: <LocationOn sx={{ height: "100%", width: "100%" }} />,
-          url: "/sites",
-          category: "My Company",
-        },
-        {
-          label: "Teams",
-          icon: <People sx={{ height: "100%", width: "100%" }} />,
-          url: "/teams",
-          category: "My Company",
-        },
-        {
-          label: "Our Clients",
-          icon: <Domain sx={{ height: "100%", width: "100%" }} />,
-          url: "/customers?customerType=external",
-          category: "Clients",
-        },
-        {
-          label: "Help Centre",
-          icon: <Help sx={{ height: "100%", width: "100%" }} />,
-          url: "/help-centre",
-          category: "Help",
-        }
-      );
-    } else if (isFree && userRole === "CS") {
-      items.push(
-        {
-          label: "Our Staff",
-          icon: <Person sx={{ height: "100%", width: "100%" }} />,
-          url: "/users",
-          category: "My Company",
-        },
-        {
-          label: "Our Sites",
-          icon: <LocationOn sx={{ height: "100%", width: "100%" }} />,
-          url: "/sites",
-          category: "My Company",
-        },
-        {
-          label: "Teams",
-          icon: <People sx={{ height: "100%", width: "100%" }} />,
-          url: "/teams",
-          category: "My Company",
-        },
-        {
-          label: "Our Clients",
-          icon: <Domain sx={{ height: "100%", width: "100%" }} />,
-          url: "/customers?customerType=external",
-          category: "Clients",
-          locked: true,
-        },
-        {
-          label: "Help Centre",
-          icon: <Help sx={{ height: "100%", width: "100%" }} />,
-          url: "/help-centre",
-          category: "Help",
-        }
-      );
-    } else if (!isFree && userRole === "CS") {
-      items.push(
-        {
-          label: "Our Staff",
-          icon: <Person sx={{ height: "100%", width: "100%" }} />,
-          url: "/users",
-          category: "My Company",
-        },
-        {
-          label: "Our Sites",
-          icon: <LocationOn sx={{ height: "100%", width: "100%" }} />,
-          url: "/sites",
-          category: "My Company",
-        },
-        {
-          label: "Teams",
-          icon: <People sx={{ height: "100%", width: "100%" }} />,
-          url: "/teams",
-          category: "My Company",
-        },
-        {
-          label: "Our Clients",
-          icon: <Domain sx={{ height: "100%", width: "100%" }} />,
-          url: "/customers?customerType=external",
-          category: "Clients",
-        },
-        {
-          label: "Help Centre",
-          icon: <Help sx={{ height: "100%", width: "100%" }} />,
-          url: "/help-centre",
-          category: "Help",
-        }
-      );
-    } else if (isFree && userRole === "CL") {
-      items.push(
-        {
-          label: "Our Staff",
-          icon: <Person sx={{ height: "100%", width: "100%" }} />,
-          url: "/users",
-          category: "My Company",
-        },
-        {
-          label: "Sites",
-          icon: <LocationOn sx={{ height: "100%", width: "100%" }} />,
-          url: "/sites",
-          category: "My Company",
-        },
-        {
-          label: "Teams",
-          icon: <People sx={{ height: "100%", width: "100%" }} />,
-          url: "/teams",
-          category: "My Company",
-        },
-        {
-          label: "Our Clients",
-          icon: <Domain sx={{ height: "100%", width: "100%" }} />,
-          url: "/customers?customerType=external",
-          category: "Clients",
-          locked: true,
-        },
-        {
-          label: "Help Centre",
-          icon: <Help sx={{ height: "100%", width: "100%" }} />,
-          url: "/help-centre",
-          category: "Help",
-        }
-      );
-    } else if (!isFree && userRole === "CL") {
-      items.push(
-        {
-          label: "Our Staff",
-          icon: <Person sx={{ height: "100%", width: "100%" }} />,
-          url: "/users",
-          category: "My Company",
-        },
-        {
-          label: "Sites",
-          icon: <LocationOn sx={{ height: "100%", width: "100%" }} />,
-          url: "/sites",
-          category: "My Company",
-        },
-        {
-          label: "Teams",
-          icon: <People sx={{ height: "100%", width: "100%" }} />,
-          url: "/teams",
-          category: "My Company",
-        },
-        {
-          label: "Our Clients",
-          icon: <Domain sx={{ height: "100%", width: "100%" }} />,
-          url: "/customers?customerType=external",
-          category: "Clients",
-        },
-        {
-          label: "Help Centre",
-          icon: <Help sx={{ height: "100%", width: "100%" }} />,
-          url: "/help-centre",
-          category: "Help",
-        }
-      );
-    }
-
-    return items.map(({ url, ...item }) => ({
-      ...item,
-      onClick: () => router.push(url),
-      active:
-        url ===
-        pathname +
-          (searchParams.toString() ? `?${searchParams.toString()}` : ""),
-    }));
-  };
-
   useEffect(() => {
-    console.log("pathname:", pathname);
-    const newItems = generateLeftSidebarItemsDrawer(
-      user?.role,
-      user?.customerIsFree ?? true
-    );
-
-    const hasAnyActive = newItems.some((item) => item.active);
-
-    if (leftMenuItems.length === 0) {
-      setLeftMenuItems(newItems);
-    }
-
-    if (hasAnyActive) {
-      setLeftMenuItems(newItems);
-    }
-  }, [user?.role, pathname]);
+    const fetchSidebarItems = async () => {
+      if (!user) return;
+      const userMetadata = {
+        role: user.role,
+        customerId: user.customerId,
+        teamManagerCount: user.teamManagerCount,
+        groupNames: user.groupNames,
+        customerIsFree: user.customerIsFree,
+        customerIsFreeUntilDate: user.customerIsFreeUntilDate,
+        subscribedTools: user.subscribedTools,
+      };
+      try {
+        const res = await fetch("/api/allowedNavigation/admin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userMetadata }),
+        });
+        const data = await res.json();
+        const items = (data.resource?.fnGetAllowedAdminNavigationUser || []).map((item: any) => {
+          const IconComponent = getMuiIconByName(item.largeIconImageUrl);
+          return {
+            label: item.name,
+            icon: IconComponent ? <IconComponent sx={{ height: "100%", width: "100%" }} /> : <Help sx={{ height: "100%", width: "100%" }} />,
+            onClick: () => router.push(item.adminUrl),
+            category: item.category,
+            locked: item.isLocked || false,
+            active:
+              item.adminUrl ===
+              pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ""),
+          };
+        });
+        setLeftMenuItems(items);
+      } catch (err) {
+        setLeftMenuItems([]);
+      }
+    };
+    fetchSidebarItems();
+  }, [user, pathname]);
 
   const generateRightSidebarItemsDrawer = useMemo(() => {
     let entityType = null;
@@ -570,7 +114,6 @@ export default function SideBars() {
     const hideGuidePaths = ["/help-centre", "/activity", "/client-activity"];
 
     if (hideGuidePaths.includes(pathname)) {
-      console.log("HIDING ADMIN GUIDES")
       setShouldShowAdminGuides(false);
       setShouldPopupAdminGuides(false);
     }
@@ -612,7 +155,7 @@ export default function SideBars() {
     if (shouldShowManageTags) {
       items.push({
         label: "Add / Remove Tags",
-        icon: <Sell sx={{ height: "100%", width: "100%" }} />,
+        icon: <Sell />,
         onClick: () =>
           // @ts-ignore
           modalRef.current?.openModal(),
@@ -623,7 +166,7 @@ export default function SideBars() {
     if (shouldShowAssignToCustomer) {
       items.push({
         label: "Assign to Customer",
-        icon: <ContentCopy sx={{ height: "100%", width: "100%" }} />,
+        icon: <ContentCopy />,
         onClick: () => setIsAssignModalOpen(true),
         category: "External",
       });
@@ -632,7 +175,7 @@ export default function SideBars() {
     if (shouldShowAdminGuides) {
       items.push({
         label: "Admin Guides",
-        icon: <Help sx={{ height: "100%", width: "100%" }} />,
+        icon: <Help  />,
         onClick: () => {
           setAdminGuideModalOpen(true);
         },
@@ -673,7 +216,6 @@ export default function SideBars() {
         const readRes = await fetch(`/api/guideRead/?userId=${user.userId}`);
         if (!readRes.ok) throw new Error("Failed to fetch read records");
         const readJson = await readRes.json();
-        console.log("Raw /api/guideRead response:", readJson);
 
         // Normalize into an array
         const raw = readJson.resource;
@@ -689,7 +231,6 @@ export default function SideBars() {
         const readSet = new Set(readRecordsArray.map((r) => String(r.guideId)));
         // 3) Open if there’s any unread guide
         const hasUnread = allGuideIds.some((id) => !readSet.has(id));
-        console.log("hasUnread", hasUnread);
         if (hasUnread && shouldPopupAdminGuides) {
           setAdminGuideModalOpen(true);
           sessionStorage.setItem(sessionKey, "1");

@@ -23,7 +23,7 @@ import WorkflowSidebar, {
 } from "@/components/Sidebars/WorkflowSidebar/WorkflowSidebar";
 import WorkflowFormWrapper from "@/components/surveyjs/WorkflowFormWrapper";
 import WorkflowEngineDebugger from "@/app/(site)/(apps)/WorkflowEngineDebugger";
-import { Check, ViewTimeline } from "@mui/icons-material";
+import { Check, ViewTimeline, Error as ErrorIcon, Done as SuccessIcon } from "@mui/icons-material";
 
 //Types
 import { SubmissionResponse } from "@/types/form";
@@ -35,6 +35,7 @@ import { signOut } from "next-auth/react";
 const REDIRECT_PATHS: Record<string, string> = {
   happiness: "/happiness-score",
   enps: "/enps",
+  cnps: "/cnps",
   "client-satisfaction": "/client-satisfaction",
   default: "/",
   tester: "/tester",
@@ -339,27 +340,18 @@ const NewWorkflowLayout = ({
           onClose={() => router.push("/")}
           showButtons={{
             close: false,
-            confirm: true,
+            confirm: false,
           }}
+          type="warning"
           title={
-            <Flex
-              justify={"space-between"}
-              align={"center"}
-              flexDirection={"column"}
-              gap={2}
-            >
-              <Icon as={LockIcon} boxSize={8} color={"red.500"} />
-              <Text textAlign={"center"}>Unauthorised Access</Text>
-            </Flex>
+            <>Unauthorised Access</>
           }
           bodyContent={
             <Flex align="center" flexDirection={"column"} gap={3}>
               <Text>You are not authorized to view this Workflow.</Text>
-              <Text>You will be redirected after clicking the button.</Text>
+              <Text>Please contact support if you believe this is a mistake.</Text>
             </Flex>
           }
-          confirmLabel={"OK"}
-          cancelLabel="Cancel"
         />
       )}
 
@@ -456,7 +448,6 @@ const NewWorkflowLayout = ({
               flexDirection={"column"}
               gap={2}
             >
-              <Icon as={Check} boxSize={8} color={"green.500"} />
               <Text textAlign={"center"}>All Done!</Text>
             </Flex>
           )
@@ -464,18 +455,19 @@ const NewWorkflowLayout = ({
         bodyContent={
           user?.role === "EU" ? (
             <Flex align="center" flexDirection={"column"} gap={3}>
-              <Text>You’ve completed all required steps.</Text>
+              <Text>You've completed all required steps.</Text>
               <Text>You will now be logged out.</Text>
             </Flex>
           ) : (
             <Flex align="center" flexDirection={"column"} gap={3}>
-              <Text>You’ve completed all required steps.</Text>
+              <Text>You've completed all required steps.</Text>
               <Text>Finish will return you to your dashboards</Text>
             </Flex>
           )
         }
         confirmLabel={user?.role === "EU" ? "Logout" : "Finish"}
         cancelLabel="Cancel"
+        type="success"
       />
 
       <WorkflowSidebar

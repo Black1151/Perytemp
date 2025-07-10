@@ -18,7 +18,9 @@ import { transparentize } from "@chakra-ui/theme-tools";
 import { ToolCard } from "./ToolCard";
 import { ToolConfig } from "./useBasket";
 import {MoreToolsComingSoonCard} from "./MoreToolsComingSoonCard";
+import { AdditionalServicesCard } from "./AdditionalServicesCard";
 import { Header } from "./Header";
+import { ManageSubscriptionFab } from "./ManageSubscriptionFab";
 
 interface ToolSelectionPageResponse {
   resource: ToolConfig[];
@@ -35,6 +37,8 @@ const ToolStore: React.FC = () => {
 
   const skeletonBg1 = transparentize(theme.colors.darkGray[500], 0.2)(theme);
   const skeletonBg2 = transparentize(theme.colors.darkGray[500], 0.4)(theme);
+
+  const isAuthorized = user?.role === "CA" || user?.role === "CL";
 
   const loadTools = useCallback(async () => {
     if (!user) return;
@@ -87,9 +91,11 @@ const ToolStore: React.FC = () => {
           <>
             {allTools.map((tool) => <ToolCard key={tool.id} tool={tool} />)}
             <MoreToolsComingSoonCard />
+            {isAuthorized && <AdditionalServicesCard />}
           </>
         )
         }
+        {isAuthorized && <ManageSubscriptionFab />}
       </SimpleGrid>
     </VStack>
   );

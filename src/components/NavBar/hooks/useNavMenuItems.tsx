@@ -13,6 +13,8 @@ import {
   Storefront as StorefrontIcon,
   HelpCenter,
   Help,
+  BugReport,
+  Chat
 } from "@mui/icons-material";
 import { useUser } from "@/providers/UserProvider";
 
@@ -22,12 +24,16 @@ import { useUser } from "@/providers/UserProvider";
  * @param userRole        Current user role (EU, PA, CA, CL, CS, etc.)
  * @param handleLogout    Callback to sign the user out.
  * @param openResetModal  Opens the reset‑password dialog.
+ * @param openBugReportModal  Opens the bug report modal.
+ * @param openContactModal  Opens the contact support modal.
  * @returns MenuItemProps[]  Array fed directly to the NavBar component.
  */
 const useNavMenuItems = (
   userRole: string,
   handleLogout: () => void,
-  openResetModal: () => void
+  openResetModal: () => void,
+  openBugReportModal: () => void,
+  openContactModal: () => void
 ): MenuItemProps[] => {
   const router = useRouter();
   const { user } = useUser();
@@ -35,15 +41,9 @@ const useNavMenuItems = (
   /* ------------------------------------------------------------------------- */
   /* Role‑specific single‑item menus                                           */
   /* ------------------------------------------------------------------------- */
+
   if (userRole === "EU") {
-    return [
-      {
-        label: "Logout",
-        icon: <ExitToAppIcon />,
-        onClick: handleLogout,
-        orderGroup: 4,
-      },
-    ];
+    return [];
   }
 
   if (userRole === "PA") {
@@ -70,12 +70,6 @@ const useNavMenuItems = (
         icon: <SettingsIcon />,
         onClick: () => router.push("/users?userType=internal"),
         orderGroup: 1
-      },
-      {
-        label: "Tool Store",
-        icon: <StorefrontIcon />,
-        onClick: () => router.push("/tool-store"),
-        orderGroup: 3
       }
     );
   }
@@ -99,6 +93,12 @@ const useNavMenuItems = (
       icon: <HomeIcon />,
       onClick: () => router.push("/"),
       orderGroup: 1
+    },
+    {
+      label: "Tool Store",
+      icon: <StorefrontIcon />,
+      onClick: () => router.push("/tool-store"),
+      orderGroup: 3
     },
     {
       label: "My Profile",
@@ -147,8 +147,22 @@ const useNavMenuItems = (
   //Help Centre (always available)
   commonMenuItems.push({
     label: "Help Centre",
-    icon: <Help/>,
+    icon: <Help />,
     onClick: () => router.push("/help-centre"),
+    orderGroup: 4
+  });
+
+  commonMenuItems.push({
+    label: "Contact Support",
+    icon: <Chat />,
+    onClick: openContactModal,
+    orderGroup: 4
+  });
+
+  commonMenuItems.push({
+    label: "Report a Bug",
+    icon: <BugReport />,
+    onClick: openBugReportModal,
     orderGroup: 4
   });
 

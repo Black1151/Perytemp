@@ -11,7 +11,6 @@ import {
   Text,
   Spinner,
   useBreakpointValue,
-  useColorModeValue,
   Button,
   HStack,
   Image,
@@ -23,7 +22,9 @@ import {
   DrawerBody,
   useDisclosure,
   useTheme,
+  chakra,
 } from "@chakra-ui/react";
+import { motion, Transition } from "framer-motion";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
   Article,
@@ -35,6 +36,8 @@ import {
 import { useFetchClient } from "@/hooks/useFetchClient";
 import MarkAsRead from "./markAsRead";
 import { useUser } from "@/providers/UserProvider";
+import ZoomableImg from "@/components/ZoomableImg";
+import { transparentize } from "@chakra-ui/theme-tools";
 
 type GuideModalProps = {
   isOpen: boolean;
@@ -49,9 +52,16 @@ type Guide = {
   type: "tool" | "admin" | "platform";
   role: string[];
   urlPath: string;
+  guideImagePath: string;
   sortOrder: number;
   toolId?: number | string;
 };
+
+const MotionOverlay = chakra(motion.div);
+const MotionContent = chakra(motion.div);
+
+const overlayTransition: Transition = { duration: 0.2, ease: 'easeOut' };
+const contentTransition: Transition = { type: 'spring', stiffness: 300, damping: 30 };
 
 export default function GuideModal({
   isOpen,
@@ -78,6 +88,14 @@ export default function GuideModal({
   const theme = useTheme();
   const { user } = useUser();
 
+  const bg = theme.colors.elementBG;
+  const transparentBg = transparentize(theme.colors.elementBG, 0.65)(theme);
+  const borderColor = transparentize(theme.colors.primaryTextColor, 0.15)(theme);
+  const textColor = theme.colors.primaryTextColor;
+  const secondaryTextColor = theme.colors.primaryTextColor;
+  const successColor = theme.colors.green[500];
+  const errorColor = theme.colors.red[500];
+
   // Reset PDF-spinner when guide changes
   useEffect(() => {
     if (selectedGuide) setPdfLoading(true);
@@ -99,33 +117,34 @@ export default function GuideModal({
       setError(null);
       try {
         let resGuides;
-        if (guideType === 'tool' && toolId != null) {
+        if (guideType === "tool" && toolId != null) {
           resGuides = await fetchClient<{ resource: any[] }>(
             `/api/guide/findBy?type=tool&toolId=${toolId}`
           );
-        } else if (guideType === 'admin') {
+        } else if (guideType === "admin") {
           resGuides = await fetchClient<{ resource: any[] }>(
-            '/api/guide/findBy?type=admin'
+            "/api/guide/findBy?type=admin"
           );
         } else {
           resGuides = await fetchClient<{ resource: any[] }>(
-            '/api/guide/findBy?type=platform'
+            "/api/guide/findBy?type=platform"
           );
         }
         const raw = resGuides?.resource || [];
         const sorted: Guide[] = raw
-          .filter(g => g.isActive)
-          .filter(g =>
-            guideType === 'tool' && toolId != null
+          .filter((g) => g.isActive)
+          .filter((g) =>
+            guideType === "tool" && toolId != null
               ? String(g.toolId) === String(toolId)
               : g.type === guideType
           )
-          .map(g => ({
+          .map((g) => ({
             guideId: g.guideId ?? g.id,
             title: g.guideTitle,
             type: g.type,
             role: g.userRole ? [g.userRole] : [],
             urlPath: g.guideFilePath,
+            guideImagePath: g.guideImagePath ?? "",
             sortOrder: g.sortOrder,
             toolId: g.toolId,
           }))
@@ -133,16 +152,18 @@ export default function GuideModal({
         setGuideList(sorted);
         setSelectedGuide(sorted[0] ?? null);
 
-        const resRead = await fetchClient<{ resource: Array<{ id: number; guideId: string | number }> }>(
-          `/api/guideRead/?userId=${user?.userId}`
-        );
+        const resRead = await fetchClient<{
+          resource: Array<{ id: number; guideId: string | number }>;
+        }>(`/api/guideRead/?userId=${user?.userId}`);
         const records = resRead?.resource || [];
 
         const boolMap: Record<string, boolean> = {};
         const recIdMap: Record<string, number> = {};
 
-        sorted.forEach(g => {
-          const rec = records.find(r => String(r.guideId) === String(g.guideId));
+        sorted.forEach((g) => {
+          const rec = records.find(
+            (r) => String(r.guideId) === String(g.guideId)
+          );
           boolMap[g.urlPath] = !!rec;
           if (rec) recIdMap[g.urlPath] = rec.id;
         });
@@ -150,8 +171,8 @@ export default function GuideModal({
         setReadGuides(boolMap);
         setRecordIdMap(recIdMap);
       } catch (e: any) {
-        console.error('Error loading guides or reads:', e);
-        setError(e.message || 'Failed to load guides');
+        console.error("Error loading guides or reads:", e);
+        setError(e.message || "Failed to load guides");
       } finally {
         setLoading(false);
       }
@@ -160,8 +181,6 @@ export default function GuideModal({
     loadGuidesAndReads();
   }, [isOpen, toolId, guideType]);
 
-  const bg = useColorModeValue("white", "gray.800");
-  const pdfBg = useColorModeValue("white", "gray.50");
   const sideW = useBreakpointValue({ base: "full", md: "30%" });
   const mainW = useBreakpointValue({ base: "full", md: "70%" });
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -180,34 +199,50 @@ export default function GuideModal({
   }, [currentIndex, guideList]);
 
   const SidebarList = (
-    <VStack align="stretch" spacing={2}>
-      {guideList.map((g) => (
-        <Button
-          key={g.urlPath}
-          justifyContent="space-between"
-          variant={selectedGuide?.urlPath === g.urlPath ? "solid" : "ghost"}
-          onClick={() => {
-            setSelectedGuide(g);
-            if (isMobile) closeDrawer();
-          }}
-          px={{ base: 2, md: 2 }}
-          py={{ base: 6, md: 2 }}
-          fontSize={{ base: "md", md: "sm" }}
-          _hover={{ bg: "gray.100" }}
-        >
-          <HStack spacing={2} justify="left" flex={1} overflow="hidden">
-            {isMobile ? (
-              <Article fontSize="medium" />
-            ) : (
-              <Article fontSize="small" />
+    <VStack align="stretch" spacing={4} sx={{
+      '&::-webkit-scrollbar': {
+        display: 'none'
+      },
+      '-ms-overflow-style': 'none',
+      'scrollbar-width': 'none'
+    }}>
+      {guideList.length === 0 && (
+        <Text color={secondaryTextColor} textAlign="center" mt={10}>
+          No guides available.
+        </Text>
+      )}
+      {guideList.map((g) => {
+        const isSelected = selectedGuide?.urlPath === g.urlPath;
+        return (
+          <Box
+            key={g.urlPath}
+            position="relative"
+            border="1px solid"
+            borderColor={isSelected ? "blue.400" : borderColor}
+            borderRadius="md"
+            p={3}
+            mb={2}
+            _hover={{ bg: transparentize(bg, 0.8)(theme), cursor: "pointer" }}
+            onClick={() => {
+              setSelectedGuide(g);
+              if (isMobile) closeDrawer();
+            }}
+          >
+            <HStack spacing={2} flex={1} overflow="hidden">
+              <Article fontSize={"medium"} />
+              <Text isTruncated color={textColor}>{g.title}</Text>
+            </HStack>
+            {recordIdMap[g.urlPath] && (
+              <Box position="absolute" top="2px" right="2px">
+                <CheckCircleIcon
+                  fontSize="small"
+                  style={{ color: theme.colors.green[500] }}
+                />
+              </Box>
             )}
-            <Text>{g.title}</Text>
-          </HStack>
-          {recordIdMap[g.urlPath] && (
-            <CheckCircleIcon style={{ color: "#07ad4c" }} />
-          )}
-        </Button>
-      ))}
+          </Box>
+        );
+      })}
     </VStack>
   );
 
@@ -221,14 +256,26 @@ export default function GuideModal({
           size="xs"
         >
           <DrawerOverlay />
-          <DrawerContent>
-            <DrawerCloseButton />
-            <DrawerBody px={4}>
+          <DrawerContent bg={bg}>
+            <DrawerCloseButton color={textColor} />
+            <DrawerBody px={4} sx={{
+              '&::-webkit-scrollbar': {
+                display: 'none'
+              },
+              '-ms-overflow-style': 'none',
+              'scrollbar-width': 'none'
+            }}>
               <VStack align="top" spacing={0} my={3}>
-                <Text fontSize="xl" fontWeight="bold">
+                <Text
+                  fontSize={"3xl"}
+                  fontWeight="medium"
+                  fontFamily={"bonfire"}
+                  mb={-1}
+                  color={textColor}
+                >
                   Guide List
                 </Text>
-                <Text fontSize="sm" color="gray.500" mb={4}>
+                <Text fontSize="sm" color={secondaryTextColor} mb={4}>
                   ({Object.values(readGuides).filter(Boolean).length} of{" "}
                   {guideList.length} guides completed)
                 </Text>
@@ -239,31 +286,51 @@ export default function GuideModal({
         </Drawer>
       )}
 
-      <Modal isOpen={isOpen} onClose={onClose} size="6xl" isCentered>
-        <ModalOverlay />
+      <Modal isOpen={isOpen} onClose={onClose} size="6xl" isCentered motionPreset="none">
+        <ModalOverlay
+          as={MotionOverlay}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={overlayTransition as any}
+          backdropFilter="blur(4px)"
+          bg={transparentize(theme.colors.black, 0.4)(theme)}
+        />
         <ModalContent
-          maxH="90vh"
+          as={MotionContent}
+          initial={{ scale: 0, rotate: 12.5, opacity: 0 }}
+          animate={{ scale: 1, rotate: 0, opacity: 1 }}
+          exit={{ scale: 0, rotate: 0, opacity: 0 }}
+          transition={contentTransition as any}
+          maxH={{ base: "95dvh", md: "95vh" }}
           maxW="90vw"
-          minH="80vh"
           minW="80vw"
-          borderRadius={"md"}
-          overflow={"none"}
+          h={{ base: "95dvh", md: "900px" }}
+          borderRadius="md"
+          overflow="hidden"
+          display="flex"
+          flexDirection="column"
+          bg="transparent"
+          boxShadow={theme.shadows.xl}
         >
-          <ModalCloseButton />
+          <ModalCloseButton 
+            color={textColor}
+            _hover={{ bg: transparentize(bg, 0.8)(theme) }}
+          />
           <ModalBody
             p={0}
             display="flex"
             flexDirection="column"
             bg={bg}
-            borderRadius={"md"}
-            overflow={"none"}
+            flex="1"
+            overflow="hidden"
           >
             <HStack
               px={4}
               py={3}
               bg={bg}
               borderBottom="1px solid"
-              borderColor="gray.200"
+              borderColor={borderColor}
               justify="left"
               borderRadius={"md"}
               overflow={"none"}
@@ -275,6 +342,7 @@ export default function GuideModal({
                   onClick={openDrawer}
                   size="md"
                   variant="outline"
+                  color={textColor}
                 />
               )}
               {iconImageUrl ? (
@@ -290,7 +358,13 @@ export default function GuideModal({
                   <Help fontSize="large" />
                 </Box>
               )}
-              <Text fontSize="xl" fontWeight="bold">
+              <Text
+                fontSize={["2xl", "2xl", "3xl"]}
+                fontWeight="medium"
+                fontFamily={"bonfire"}
+                mb={-2}
+                color={textColor}
+              >
                 {guideType === "tool"
                   ? "Tool Guide"
                   : guideType === "admin"
@@ -299,7 +373,7 @@ export default function GuideModal({
               </Text>
               <Text
                 fontSize="sm"
-                color="gray.500"
+                color={secondaryTextColor}
                 display={{ base: "none", md: "block" }}
               >
                 ({Object.values(readGuides).filter(Boolean).length} of{" "}
@@ -316,10 +390,10 @@ export default function GuideModal({
                 justify="center"
                 pt={4}
               >
-                <Text fontFamily="bonfire" fontSize={36}>
+                <Text fontFamily="bonfire" fontSize={36} color={textColor}>
                   Oops! No Guides Yet...
                 </Text>
-                <Text>Please contact support if you need assistance</Text>
+                <Text color={secondaryTextColor}>Please contact support if you need assistance</Text>
               </VStack>
             ) : (
               <Flex flex="1" overflow="hidden">
@@ -327,9 +401,17 @@ export default function GuideModal({
                   <Box
                     w={sideW}
                     borderRight="1px solid"
-                    borderColor="gray.200"
+                    borderColor={borderColor}
                     overflowY="auto"
                     p={4}
+                    bg={bg}
+                    sx={{
+                      '&::-webkit-scrollbar': {
+                        display: 'none'
+                      },
+                      '-ms-overflow-style': 'none',
+                      'scrollbar-width': 'none'
+                    }}
                   >
                     {SidebarList}
                   </Box>
@@ -347,35 +429,47 @@ export default function GuideModal({
                       <Box
                         flex="1"
                         overflowY="auto"
-                        // position="relative"
-                        bg={pdfBg}
+                        bg={transparentBg}
+                        position="relative"
                       >
-                        {pdfLoading && (
-                          <Flex
-                            position="absolute"
-                            inset="0"
-                            align="center"
-                            justify="center"
-                            bg={pdfBg}
-                            zIndex={1}
+                        {isMobile ? (
+                          <Box
+                            width="100%"
+                            height={"full"}
+                            bg={transparentBg}
                           >
-                            <Spinner size="lg" />
-                          </Flex>
+                            <ZoomableImg src={selectedGuide.guideImagePath} />
+                          </Box>
+                        ) : (
+                          <>
+                            {pdfLoading && (
+                              <Flex
+                                position="absolute"
+                                inset="0"
+                                align="center"
+                                justify="center"
+                                bg={transparentBg}
+                                zIndex={1}
+                              >
+                                <Spinner size="lg" />
+                              </Flex>
+                            )}
+                            <iframe
+                              src={`${selectedGuide.urlPath}#toolbar=0&navpanes=0&scrollbar=0&zoom=100`}
+                              width="100%"
+                              height="100%"
+                              onLoad={() => setPdfLoading(false)}
+                              aria-label={`Guide PDF: ${selectedGuide.title}`}
+                            />
+                          </>
                         )}
-                        <iframe
-                          src={`${selectedGuide.urlPath}#toolbar=0&navpanes=0&scrollbar=0&zoom=100`}
-                          width="100%"
-                          height="100%"
-                          onLoad={() => setPdfLoading(false)}
-                          aria-label={`Guide PDF: ${selectedGuide.title}`}
-                        />
                       </Box>
                       <Flex
                         px={{ base: 4, md: 6 }}
                         py={{ base: 3, md: 4 }}
                         bg={bg}
                         borderTop="1px solid"
-                        borderColor="gray.200"
+                        borderColor={borderColor}
                         position="sticky"
                         bottom={0}
                         align="center"
@@ -384,7 +478,7 @@ export default function GuideModal({
                         borderRadius={"md"}
                         overflow={"none"}
                       >
-                        <HStack justify={"start"} color="white">
+                        <HStack justify={"start"} color={textColor}>
                           <Button
                             onClick={handlePrev}
                             isDisabled={currentIndex <= 0}
@@ -392,6 +486,7 @@ export default function GuideModal({
                             py={{ base: 4, md: 3 }}
                             borderRadius={"full"}
                             variant={"outline"}
+                            color={textColor}
                           >
                             <ArrowBack />
                           </Button>
@@ -402,6 +497,7 @@ export default function GuideModal({
                             py={{ base: 4, md: 3 }}
                             borderRadius={"full"}
                             variant={"outline"}
+                            color={textColor}
                           >
                             <ArrowForward />
                           </Button>

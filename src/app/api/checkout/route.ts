@@ -4,20 +4,10 @@ import { cookies } from "next/headers";
 export async function POST(req: NextRequest) {
   const cookieStore = cookies();
   const authToken = cookieStore.get("auth_token")?.value;
-
-  console.log(
-    "[BASKET POST FINAL CHECKOUT] Incoming request to checkout basket - post payment"
-  );
-
   const backendUrl = `${process.env.BE_URL}/basket/checkout/`;
-
-  console.log("[BASKET POST FINAL CHECKOUT] Backend URL:", backendUrl);
 
   try {
     const body = await req.json();
-
-    console.log("[BASKET POST FINAL CHECKOUT] Request body:", body);
-
     const response = await fetch(`${backendUrl}${body.id}`, {
       method: "POST",
       headers: {
@@ -27,7 +17,6 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await response.json();
-    console.log("[BASKET POST FINAL CHECKOUT] Backend response:", data);
 
     if (!response.ok) {
       console.error("[BASKET POST FINAL CHECKOUT] Backend error:", data);

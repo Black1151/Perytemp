@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { HStack, Box, chakra } from "@chakra-ui/react";
+import { HStack, Box, useTheme, Theme } from "@chakra-ui/react";
+import { darken, lighten, rgba } from "polished";
 
 // Use the original motion.div for animation to avoid prop type conflicts
 const MotionDivRaw = motion.div;
@@ -12,9 +13,10 @@ interface AnimatedTillNumberProps {
   duration?: number;
   fontSize?: string | number;
   fontWeight?: string | number;
-  color?: string;
+  color?: string | null;
   textDecoration?: string;
   isCurrency?: boolean;
+  isDiscount?: boolean
 }
 
 export const AnimatedTillNumber: React.FC<AnimatedTillNumberProps> = ({
@@ -22,9 +24,10 @@ export const AnimatedTillNumber: React.FC<AnimatedTillNumberProps> = ({
   duration = 0.05,
   fontSize = "2xl",
   fontWeight = "bold",
-  color = "black",
+  color = null,
   textDecoration = "none",
   isCurrency = true,
+  isDiscount = false
 }) => {
   const prevValue = usePrevious(value) ?? value;
 
@@ -40,6 +43,8 @@ export const AnimatedTillNumber: React.FC<AnimatedTillNumberProps> = ({
   const formattedNew = isCurrency ? newNum.toFixed(2) : String(value);
   const formattedOld = isCurrency ? oldNum.toFixed(2) : String(prevValue);
 
+  const theme = useTheme();
+
   // Pad the shorter one so they're equal length
   const maxLen = Math.max(formattedNew.length, formattedOld.length);
   const newStr = formattedNew.padStart(maxLen, " ");
@@ -50,8 +55,10 @@ export const AnimatedTillNumber: React.FC<AnimatedTillNumberProps> = ({
     stiffness: 1000,
     damping: 100,
     mass: 0.5,
-    duration
+    duration,
   };
+
+  const finalColor = theme.colors.primaryTextMode
 
   return (
     <HStack
@@ -63,7 +70,7 @@ export const AnimatedTillNumber: React.FC<AnimatedTillNumberProps> = ({
         fontVariantNumeric: "tabular-nums",
         WebkitFontVariantNumeric: "tabular-nums",
       }}
-      color={color}
+      color={isDiscount?("green.500"):(finalColor)}
     >
       {newStr.split("").map((char, idx) => {
         // If it's the decimal point, render it statically
@@ -74,7 +81,6 @@ export const AnimatedTillNumber: React.FC<AnimatedTillNumberProps> = ({
               px="0.1ch"
               textAlign="center"
               lineHeight="1"
-              color={color}
             >
               .
             </Box>
@@ -95,7 +101,7 @@ export const AnimatedTillNumber: React.FC<AnimatedTillNumberProps> = ({
             px="0.1ch"
             textAlign="center"
             lineHeight="1"
-            color={color}
+            color={finalColor}
           >
             <AnimatePresence initial={false}>
               {hasChanged && (
@@ -110,7 +116,7 @@ export const AnimatedTillNumber: React.FC<AnimatedTillNumberProps> = ({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: color,
+                    color: finalColor,
                     textDecoration: textDecoration,
                   }}
                   initial={{ y: 0 }}
@@ -134,7 +140,7 @@ export const AnimatedTillNumber: React.FC<AnimatedTillNumberProps> = ({
                   alignItems: "center",
                   justifyContent: "center",
                   willChange: "transform",
-                  color: color,
+                  color: finalColor,
                   textDecoration: textDecoration,
                 }}
                 initial={{

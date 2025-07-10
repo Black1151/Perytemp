@@ -117,10 +117,6 @@ const ToolInfoCard: React.FC<ToolInfoCardProps> = ({
                   w="100%"
                   noOfLines={2}
                   fontSize={[16, 18, 20, 20]}
-                  cursor="pointer"
-                  onClick={() =>
-                    window.open(`/tool-store/${info.uniqueId}`, "_blank")
-                  }
                 >
                   {info.displayName}
                 </Text>
@@ -134,7 +130,7 @@ const ToolInfoCard: React.FC<ToolInfoCardProps> = ({
                   isCurrency={false}
                 />
                 <Text fontWeight="normal" noOfLines={2}>
-                  Licenses
+                  Licences
                 </Text>
               </HStack>
             </VStack>

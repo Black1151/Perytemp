@@ -8,6 +8,17 @@ import {
   Spinner,
   Center,
   Select,
+  HStack,
+  Flex,
+  Divider,
+  Badge,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  IconButton,
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import {
@@ -16,6 +27,24 @@ import {
 } from "@/components/animations/AnimatedList";
 import { useState, useEffect } from "react";
 import { Site } from "@/types/types";
+import {
+  ArrowBack,
+  LocationOn,
+  LocationOff,
+  Map as MapIcon,
+} from "@mui/icons-material";
+import MasonryItemCard from "./MasonryItemCard";
+import ItemDetailModal from "./ItemDetailModal/ItemDetailModal";
+import HospitalityHubHeader from "./HospitalityHubHeader";
+import { HospitalityItem } from "@/types/hospitalityHub";
+import useHospitalityItems from "../../hooks/useHospitalityItems";
+import useHospitalityCategories from "../../hooks/useHospitalityCategories";
+import { HospitalityCategory } from "@/types/hospitalityHub";
+import HospitalityHubCategoriesGrid from "./HospitalityHubCategoriesGrid";
+import GoogleMapsLoader from "./GoogleMapsLoader";
+import { GoogleMap, Marker } from "@react-google-maps/api";
+import { useDisclosure } from "@chakra-ui/react";
+import { useUser } from "@/providers/UserProvider";
 
 const preloadImage = (url: string) =>
   new Promise<void>((resolve) => {
@@ -35,7 +64,7 @@ const shimmer = keyframes`
   }
   10% {
     opacity: 1;
-  }
+  }MasonryItemCard
   90% {
     opacity: 1;
   }
@@ -44,13 +73,6 @@ const shimmer = keyframes`
     opacity: 0;
   }
 `;
-import MasonryItemCard from "./MasonryItemCard";
-import ItemDetailModal from "./ItemDetailModal";
-import { HospitalityItem } from "@/types/hospitalityHub";
-import useHospitalityItems from "../../hooks/useHospitalityItems";
-import useHospitalityCategories from "../../hooks/useHospitalityCategories";
-
-import { HospitalityCategory } from "@/types/hospitalityHub";
 
 interface HospitalityHubMasonryProps {
   initialCategories?: HospitalityCategory[];
@@ -62,35 +84,67 @@ export function HospitalityHubMasonry({
   const [selected, setSelected] = useState<string | null>(null);
   const { categories, loading: categoriesLoading } =
     useHospitalityCategories(initialCategories);
-  const { items, loading } = useHospitalityItems(selected);
+  const [sites, setSites] = useState<Site[]>([]);
+  const [selectedSiteId, setSelectedSiteId] = useState<number | "">("");
+  const [location, setLocation] = useState("");
+  const [radius, setRadius] = useState(8000);
+  const [locationLatLng, setLocationLatLng] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [radiusUnit, setRadiusUnit] = useState<"km" | "mi">("km");
+
+  const { items, loading, lastApiResult } = useHospitalityItems(
+    selected,
+    locationLatLng,
+    radius
+  );
   const selectedCategoryData = categories.find((cat) => cat.id === selected);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<HospitalityItem | null>(
-    null,
+    null
   );
   const [selectedItemSiteNames, setSelectedItemSiteNames] = useState<string[]>(
-    [],
+    []
   );
-  const [sites, setSites] = useState<Site[]>([]);
-  const [selectedSiteId, setSelectedSiteId] = useState<number | "">("");
 
+  const {
+    isOpen: isMapOpen,
+    onOpen: openMap,
+    onClose: closeMap,
+  } = useDisclosure();
+  const { user } = useUser();
+
+  // Geocode location string to lat/lng when location changes
   useEffect(() => {
-    const fetchSites = async () => {
-      try {
-        const res = await fetch("/api/site/allBy?selectColumns=id,siteName");
-        const data = await res.json();
-        if (res.ok) {
-          setSites(data.resource || []);
-        }
-      } catch (err) {
-        console.error(err);
+    if (!location) {
+      setLocationLatLng(null);
+      return;
+    }
+    // Only geocode if location is not empty
+    const geocode = async () => {
+      if (
+        typeof window !== "undefined" &&
+        window.google &&
+        window.google.maps
+      ) {
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ address: location }, (results, status) => {
+          if (status === "OK" && results && results[0]) {
+            setLocationLatLng({
+              lat: results[0].geometry.location.lat(),
+              lng: results[0].geometry.location.lng(),
+            });
+          } else {
+            setLocationLatLng(null);
+          }
+        });
       }
     };
-
-    fetchSites();
-  }, []);
+    geocode();
+  }, [location]);
 
   const handleItemClick = async (itemId: string) => {
     if (!selected) return;
@@ -116,17 +170,36 @@ export function HospitalityHubMasonry({
         urls.push(...additional);
         await preloadImages(urls);
 
+        // Log engagement: offerOpened
+        if (user?.userId && user?.customerId) {
+          try {
+            await fetch("/api/hospitality-hub/engagement", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId: user.userId,
+                customerId: user.customerId,
+                hospitalityItemId: itemId,
+                engagementType: "offerOpened",
+              }),
+            });
+          } catch (err) {
+            // Optionally log error, but do not block UI
+            console.error("Failed to log engagement", err);
+          }
+        }
+
         // Fetch site names before opening modal
         if (item.siteIds && item.siteIds.length > 0) {
           const query = item.siteIds.map((id: number) => `id=${id}`).join("&");
           try {
             const siteRes = await fetch(
-              `/api/site/allBy?selectColumns=id,siteName&${query}`,
+              `/api/site/allBy?selectColumns=id,siteName&${query}`
             );
             const siteData = await siteRes.json();
             if (siteRes.ok) {
               setSelectedItemSiteNames(
-                (siteData.resource || []).map((s: any) => s.siteName),
+                (siteData.resource || []).map((s: any) => s.siteName)
               );
             } else {
               setSelectedItemSiteNames([]);
@@ -148,8 +221,6 @@ export function HospitalityHubMasonry({
       setLoadingItemId(null);
     }
   };
-
-  // Items are fetched via useHospitalityItems when a category is selected
 
   if (selected) {
     if (loading) {
@@ -176,180 +247,240 @@ export function HospitalityHubMasonry({
       return ids.includes(Number(selectedSiteId));
     });
 
+    // Split items if searching by location
+    let itemsWithLocation: typeof displayedItems = [];
+    let itemsWithoutLocation: typeof displayedItems = [];
+    if (locationLatLng) {
+      itemsWithLocation = displayedItems.filter(
+        (item) => typeof item.distance_from_m === "number"
+      );
+      itemsWithoutLocation = displayedItems.filter(
+        (item) => typeof item.distance_from_m !== "number"
+      );
+    }
+
+    // Prepare marker positions for all items with location (shown in grid)
+    const mapMarkers = (itemsWithLocation || [])
+      .map((item: HospitalityItem) => {
+        if (
+          typeof item.latitude === "number" &&
+          typeof item.longitude === "number"
+        ) {
+          return {
+            id: item.id,
+            lat: item.latitude,
+            lng: item.longitude,
+            name: item.name,
+          };
+        }
+        return null;
+      })
+      .filter(
+        (m: any): m is { id: string; lat: number; lng: number; name: string } =>
+          !!m
+      );
+
     return (
-      <Center mt={20} mb={10}>
-        <Box
-          position="fixed"
-          top={71}
-          left={10}
-          cursor="pointer"
-          onClick={() => {
-            setSelected(null);
-          }}
-          p={2}
-          zIndex={1}
-          _hover={{ transform: "scale(1.05)" }}
-          transition="transform 0.2s"
-          mb={10}
-        >
-          <Text
-            bgColor="rgba(0, 0, 0, 0.57)"
-            fontWeight="bold"
-            fontSize="2xl"
-            color="hospitalityHubPremium"
-            p={3}
-            borderRadius="lg"
-            fontFamily="Metropolis"
-          >
-            &larr; Back
-          </Text>
-        </Box>
-        <Select
-          position="fixed"
-          top={150}
-          left={10}
-          w="200px"
-          zIndex={1}
-          bg="gray.700"
-          color="hospitalityHubPremium"
-          borderColor="hospitalityHubPremium"
-          borderWidth="1px"
-          value={selectedSiteId}
-          onChange={(e) =>
-            setSelectedSiteId(e.target.value ? Number(e.target.value) : "")
-          }
-        >
-          <option style={{ backgroundColor: "black" }} value="">
-            All Sites
-          </option>
-          {sites.map((site) => (
-            <option
-              key={site.id}
-              value={site.id}
-              style={{ backgroundColor: "black" }}
-            >
-              {site.siteName}
-            </option>
-          ))}
-        </Select>
-        {displayedItems.length === 0 ? (
-          <Center flex={1} w="100%">
-            <Text
-              fontFamily="bonfire"
-              fontSize="5xl"
-              textAlign="center"
-              color="hospitalityHubPremium"
-            >
-              No results to show...
-            </Text>
-          </Center>
-        ) : (
+      <>
+        <HStack w="100%" align={"start"} mt={14} px={[4, 4, 4]} py={2}>
           <Box w="100%" maxW="2000px" mx="auto">
-            {selectedCategoryData && (
-              <Text
-                fontFamily="bonfire"
-                fontSize="5xl"
-                textAlign="left"
-                color="hospitalityHubPremium"
-                mb={4}
-              >
-                {selectedCategoryData.name}
-              </Text>
+            <HospitalityHubHeader
+              selectedCategoryData={selectedCategoryData}
+              onBack={() => setSelected(null)}
+              sites={sites}
+              selectedSiteId={selectedSiteId}
+              onSiteChange={setSelectedSiteId}
+              location={location}
+              radius={radius}
+              onLocationChange={setLocation}
+              onRadiusChange={setRadius}
+            />
+            {locationLatLng ? (
+              <>
+                <Box mb={8}>
+                  <Text
+                    fontSize="lg"
+                    fontWeight="bold"
+                    color="white"
+                    mb={3}
+                    display="flex"
+                    alignItems="center"
+                    gap={2}
+                  >
+                    <Badge
+                      color="hospitalityHubPremium"
+                      bg="transparent"
+                      fontSize={["0.75em", "0.85em", "1em"]}
+                      px={[2, 3]}
+                      py={[0.5, 1]}
+                      borderRadius="md"
+                      border="1px solid rgba(238, 228, 88, 0.5)"
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
+                      maxW="90vw"
+                    >
+                      <LocationOn style={{ marginRight: 4, fontSize: "1em" }} />
+                      <Box
+                        as="span"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        whiteSpace="nowrap"
+                        minW={0}
+                        maxW="100%"
+                        flex="1"
+                        display="block"
+                      >
+                        {`Items within ${radiusUnit === "mi" ? (radius / 1609.34).toFixed(1) : (radius / 1000).toFixed(1)} ${radiusUnit === "mi" ? "miles" : "km"} of ${location}`}
+                      </Box>
+                    </Badge>
+                  </Text>
+                  {itemsWithLocation.length === 0 ? (
+                    <Center flex={1} w="100%" minH={"10vh"}>
+                      <Text fontSize="md" textAlign="center" color="white">
+                        No items with location found...
+                      </Text>
+                    </Center>
+                  ) : (
+                    <SimpleGrid
+                      columns={[1, null, 2, 3, 4]}
+                      gap={8}
+                      w="100%"
+                      p={0}
+                    >
+                      <AnimatedList>
+                        {itemsWithLocation.map((item, index) => (
+                          <AnimatedListItem key={item.id} index={index}>
+                            <MasonryItemCard
+                              item={item}
+                              onClick={() => handleItemClick(item.id)}
+                              loading={loadingItemId === item.id}
+                            />
+                          </AnimatedListItem>
+                        ))}
+                      </AnimatedList>
+                    </SimpleGrid>
+                  )}
+                </Box>
+                <Divider my={4} borderColor="rgba(238, 228, 88, 0.5)" />
+                <Box mb={8}>
+                  <Text
+                    fontSize="lg"
+                    fontWeight="bold"
+                    color="white"
+                    mb={3}
+                    display="flex"
+                    alignItems="center"
+                    gap={2}
+                  >
+                    <Badge
+                      color="hospitalityHubPremium"
+                      bg="transparent"
+                      fontSize={["0.75em", "0.85em", "1em"]}
+                      px={[2, 3]}
+                      py={[0.5, 1]}
+                      borderRadius="md"
+                      border="1px solid rgba(238, 228, 88, 0.5)"
+                      display="flex"
+                      alignItems="center"
+                      gap={1}
+                      maxW="100%"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                      whiteSpace="nowrap"
+                    >
+                      <LocationOff
+                        style={{ marginRight: 4, fontSize: "1em" }}
+                      />
+                      Other Offers
+                    </Badge>
+                  </Text>
+                  {itemsWithoutLocation.length === 0 ? (
+                    <Center flex={1} w="100%" minH={"10vh"}>
+                      <Text fontSize="md" textAlign="center" color="white">
+                        No items without location found...
+                      </Text>
+                    </Center>
+                  ) : (
+                    <SimpleGrid
+                      columns={[1, null, 2, 3, 4]}
+                      gap={8}
+                      w="100%"
+                      p={0}
+                    >
+                      <AnimatedList>
+                        {itemsWithoutLocation.map((item, index) => (
+                          <AnimatedListItem key={item.id} index={index}>
+                            <MasonryItemCard
+                              item={item}
+                              onClick={() => handleItemClick(item.id)}
+                              loading={loadingItemId === item.id}
+                            />
+                          </AnimatedListItem>
+                        ))}
+                      </AnimatedList>
+                    </SimpleGrid>
+                  )}
+                </Box>
+              </>
+            ) : displayedItems.length === 0 ? (
+              <Center flex={1} w="100%" minH={"30vh"}>
+                <Text fontSize="xl" textAlign="center" color="white">
+                  No results...
+                </Text>
+              </Center>
+            ) : (
+              <SimpleGrid columns={[1, null, 2, 3, 4]} gap={6} w="100%" p={0}>
+                <AnimatedList>
+                  {displayedItems.map((item, index) => (
+                    <AnimatedListItem key={item.id} index={index}>
+                      <MasonryItemCard
+                        item={item}
+                        onClick={() => handleItemClick(item.id)}
+                        loading={loadingItemId === item.id}
+                      />
+                    </AnimatedListItem>
+                  ))}
+                </AnimatedList>
+              </SimpleGrid>
             )}
-            <SimpleGrid columns={[1, null, 2, 3]} gap={6} w="100%">
-              <AnimatedList>
-                {displayedItems.map((item, index) => (
-                  <AnimatedListItem key={item.id} index={index}>
-                    <MasonryItemCard
-                      item={item}
-                      onClick={() => handleItemClick(item.id)}
-                      loading={loadingItemId === item.id}
-                    />
-                  </AnimatedListItem>
-                ))}
-              </AnimatedList>
-            </SimpleGrid>
           </Box>
-        )}
-        <ItemDetailModal
-          isOpen={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-            setSelectedItem(null);
-            setSelectedItemSiteNames([]);
-          }}
-          item={selectedItem}
-          loading={modalLoading}
-          siteNames={selectedItemSiteNames}
-        />
-      </Center>
+          <ItemDetailModal
+            isOpen={modalOpen}
+            onClose={() => {
+              setModalOpen(false);
+              setSelectedItem(null);
+              setSelectedItemSiteNames([]);
+            }}
+            item={selectedItem}
+            loading={modalLoading}
+            siteNames={selectedItemSiteNames}
+          />
+        </HStack>
+      </>
     );
   }
 
   if (categoriesLoading) {
     return <Spinner />;
   }
-
   return (
-    <SimpleGrid columns={[2, 3, 4]} gap={4} w="100%" maxW="1440px" mx="auto">
-      <AnimatedList>
-        {categories.map((category, index) => (
-          <AnimatedListItem key={category.id} index={index}>
-            <Box
-              onClick={() => setSelected(category.id)}
-              cursor="pointer"
-              position="relative"
-              h="600px"
-              borderRadius="lg"
-              overflow="hidden"
-              role="group"
-              transition="transform 0.3s, box-shadow 0.3s"
-              border="3px solid rgb(238, 228, 88)"
-              _hover={{ transform: "scale(1.05)", boxShadow: "4xl" }}
-            >
-              <Image
-                src={category.coverImageUrl || (category as any).image}
-                alt={category.name}
-                objectFit="cover"
-                w="100%"
-                h="100%"
-              />
-              {/* Shimmer overlay */}
-              <Box
-                position="absolute"
-                top={0}
-                left={0}
-                w="150%"
-                h="100%"
-                pointerEvents="none"
-                bgGradient="linear(120deg, transparent 0%, rgba(255,215,0,0.3) 45%, rgba(255,255,224,0.9) 50%, rgba(255,215,0,0.3) 55%, transparent 100%)"
-                transform="translateX(-100%) skewX(-20deg)"
-                opacity={0}
-                _groupHover={{ animation: `${shimmer} 0.8s` }}
-              />
-              <Box
-                position="absolute"
-                bottom={0}
-                left={0}
-                w="100%"
-                p={4}
-                pointerEvents="none"
-                bgGradient="linear(to-t, rgba(0,0,0,0.8), rgba(0,0,0,0))"
-                display="flex"
-                justifyContent="center"
-              >
-                <Text
-                  fontWeight="bold"
-                  color="hospitalityHubPremium"
-                  textAlign="center"
-                >
-                  {category.name}
-                </Text>
-              </Box>
-            </Box>
-          </AnimatedListItem>
-        ))}
-      </AnimatedList>
-    </SimpleGrid>
+    <Box mt={14}>
+      {/* <HospitalityHubHeader
+        onBack={() => setSelected(null)}
+        sites={sites}
+        selectedSiteId={selectedSiteId}
+        onSiteChange={setSelectedSiteId}
+        location={location}
+        radius={radius}
+        onLocationChange={setLocation}
+        onRadiusChange={setRadius}
+      /> */}
+      <HospitalityHubCategoriesGrid
+        categories={categories}
+        onSelectCategory={setSelected}
+        visibleSkinnies={10}
+      />
+    </Box>
   );
 }

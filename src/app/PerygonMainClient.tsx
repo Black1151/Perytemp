@@ -3,20 +3,11 @@
 import { useEffect, useLayoutEffect } from "react";
 import CarouselDisplay from "@/components/carousel/CarouselDisplay";
 import { CarouselItemProps } from "@/components/carousel/CarouselItem";
-import {
-  Flex,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  Text,
-  Button,
-  HStack,
-} from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/providers/UserProvider";
-import { Warning } from "@mui/icons-material";
+import { Logout, Storefront, Warning } from "@mui/icons-material";
+import { SpringModal } from "@/components/modals/springModal/SpringModal";
 
 interface PerygonMainClientProps {
   carouselItems: CarouselItemProps[];
@@ -78,111 +69,76 @@ export const PerygonMainClient: React.FC<PerygonMainClientProps> = ({
         <CarouselDisplay carouselItems={carouselItems} />
       )}
 
-      <Modal
+      <SpringModal
         isOpen={!!showNoToolsModal}
         onClose={() => {}}
-        closeOnOverlayClick={false}
-        closeOnEsc={false}
-      >
-        <ModalOverlay />
-        <ModalContent alignContent={"center"}>
-          <ModalBody
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-            textAlign="center"
-            p={4}
-          >
-            <Warning fontSize="large" style={{ marginBottom: 12 }} />
-            <Text fontSize="2xl" fontWeight="semibold" mb={2}>
-              No Tools Subscribed
-            </Text>
-            <Text mb={4}>
-              Your have no tools. Please visit our tool store to continue.
-            </Text>
-            <HStack spacing={2} width="100%" justifyContent="center">
-              <Button
-                onClick={() => router.push("/tool-store")}
-                loadingText="Going to tool store..."
-              >
-                Tool Store
-              </Button>
-              <Button onClick={logoutUser} loadingText="Logging out...">
-                Logout
-              </Button>
-            </HStack>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+        showClose={false}
+        frontIcon={<Warning fontSize="inherit" />}
+        bgIcon={<Warning fontSize="inherit" />}
+        header="No Tools Subscribed"
+        body={
+          <Text mb={4}>
+            Your have no tools. Please visit our tool store to continue.
+          </Text>
+        }
+        bg="orange.500"
+        color="white"
+        primaryLabel="Tool Store"
+        primaryIcon={<Storefront />}
+        onPrimaryClick={() => router.push("/tool-store")}
+        secondaryLabel="Logout"
+        onSecondaryClick={logoutUser}
+        secondaryIcon={<Logout />}
+      />
 
-      <Modal
+      <SpringModal
         isOpen={!!showTrialEndedModal}
         onClose={() => {}}
-        closeOnOverlayClick={false}
-        closeOnEsc={false}
-      >
-        <ModalOverlay />
-        <ModalContent alignContent={"center"}>
-          <ModalBody
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-            textAlign="center"
-            p={4}
-          >
-            <Warning fontSize="large" style={{ marginBottom: 12 }} />
-            <Text fontSize="xl" fontWeight="semibold" mb={2}>
-              Your Trial Ended On{" "}
-              {user?.customerIsFreeUntilDate
-                ? new Date(user.customerIsFreeUntilDate)
-                    .toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })
-                    .replace(
-                      /^(\d{1,2})/,
-                      (d) =>
-                        d +
-                        (["1", "21", "31"].includes(d)
-                          ? "st"
-                          : ["2", "22"].includes(d)
-                            ? "nd"
-                            : ["3", "23"].includes(d)
-                              ? "rd"
-                              : "th")
-                    )
-                : ""}
-            </Text>
-            {user?.role == "CA" || "CL" ? (
-              <Text mb={4}>
-                Your free trial has ended. Please visit our tool store to
-                continue.
-              </Text>
-            ) : (
-              <Text mb={4}>
-                Your companies free trial has ended. Please contact your IT
-                admin.
-              </Text>
-            )}
-            <HStack spacing={2} width="100%" justifyContent="center">
-               {(user?.role == "CA" || "CL") && (
-              <Button
-                onClick={() => router.push("/tool-store")}
-                loadingText="Going to tool store..."
-              >
-                Tool Store
-              </Button>
-              )}
-              <Button onClick={logoutUser} loadingText="Logging out...">
-                Logout
-              </Button>
-            </HStack>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+        showClose={false}
+        frontIcon={<Warning fontSize="inherit" />}
+        bgIcon={<Warning fontSize="inherit" />}
+        header={`Your Trial Ended On ${
+          user?.customerIsFreeUntilDate
+            ? new Date(user.customerIsFreeUntilDate)
+                .toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })
+                .replace(
+                  /^(\d{1,2})/,
+                  (d) =>
+                    d +
+                    (["1", "21", "31"].includes(d)
+                      ? "st"
+                      : ["2", "22"].includes(d)
+                        ? "nd"
+                        : ["3", "23"].includes(d)
+                          ? "rd"
+                          : "th")
+                )
+            : ""
+        }`}
+        body={
+          <Text mb={4}>
+            {user?.role == "CA" || "CL"
+              ? "Your free trial has ended. Please visit our tool store to continue."
+              : "Your companies free trial has ended. Please contact your IT admin."}
+          </Text>
+        }
+        bg="orange.500"
+        color="white"
+        primaryLabel={user?.role == "CA" || "CL" ? "Tool Store" : undefined}
+        primaryIcon={<Storefront />}
+        onPrimaryClick={
+          user?.role == "CA" || "CL"
+            ? () => router.push("/tool-store")
+            : undefined
+        }
+        secondaryLabel="Logout"
+        onSecondaryClick={logoutUser}
+        secondaryIcon={<Logout />}
+      />
     </Flex>
   );
 };

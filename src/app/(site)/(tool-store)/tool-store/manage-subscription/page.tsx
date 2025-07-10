@@ -32,7 +32,6 @@ import BasketItemCard from "./BasketItemCard";
 import ToolSelectedIndicators from "./ToolSelectedIndicators";
 import LicenseAmountIndicator from "./LicenseAmountIndicator";
 import { subscriptionLimits } from "@/utils/constants/subscriptionLimits";
-import { PerygonModal } from "@/components/modals/PerygonModal";
 import ToolInfoCard from "./ToolInfoCard";
 import LicensePicker from "../LicensePicker";
 import BillingAddressForm, {
@@ -41,6 +40,7 @@ import BillingAddressForm, {
 import { useRouter } from "next/navigation";
 import { Header } from "../Header";
 import { useUser } from "@/providers/UserProvider";
+import VolumeDiscountProgress from "./VolumeDiscountProgress";
 
 export default function BasketPage() {
   const {
@@ -49,6 +49,7 @@ export default function BasketPage() {
     getBasket,
     removeItemFromBasket,
     addVoucher,
+    removeVoucher,
     error,
   } = useBasket();
   const router = useRouter();
@@ -59,7 +60,10 @@ export default function BasketPage() {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const billingRef = useRef<BillingAddressFormHandle>(null);
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
+  const [checkoutOverlay, setCheckoutOverlay] = useState(false);
   const user = useUser();
+  const [stripeCounter, setStripeCounter] = useState(0);
+  const [showStripe, setShowStripe] = useState(false);
 
   // Drawers for mobile
   const voucherDrawer = useDisclosure();
@@ -74,8 +78,8 @@ export default function BasketPage() {
     if (!basket) return [];
     return Array.isArray(basket.content)
       ? basket.content.filter(
-          (item): item is BasketItem => "basketUniqueId" in item
-        )
+        (item): item is BasketItem => "basketUniqueId" in item
+      )
       : [];
   }, [basket]);
 
@@ -84,27 +88,37 @@ export default function BasketPage() {
     if (!basket) return [];
     return Array.isArray(basket.ownedSubscriptionInfo)
       ? basket.ownedSubscriptionInfo.filter(
-          (item): item is SubscriptionInfo => "name" in item
-        )
+        (item): item is SubscriptionInfo => "name" in item
+      )
       : [];
   }, [basket]);
 
   useEffect(() => {
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load basket. Please reload the page.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
     if (basket) {
       setLoading(false);
     } else {
       getBasket();
     }
   }, [basket, error]);
+
+  // Handle key press for down arrow
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowDown') {
+        setStripeCounter(prev => {
+          const newCount = prev + 1;
+          if (newCount >= 5) {
+            setShowStripe(true);
+            alert("DEV MODE ENABLED\n\n⚠️ WARNING: This is a test environment.\nDO NOT use real card details.");
+          }
+          return newCount;
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
 
   if (basket?.licensedUsers === undefined) {
     return null;
@@ -161,6 +175,7 @@ export default function BasketPage() {
 
   const handleCheckout = async () => {
     setCheckoutLoading(true);
+    setCheckoutOverlay(true);
 
     const addr = billingRef.current?.getAddress();
     if (!addr) {
@@ -172,6 +187,7 @@ export default function BasketPage() {
         isClosable: true,
       });
       setCheckoutLoading(false);
+      setCheckoutOverlay(false);
       return;
     }
 
@@ -200,7 +216,7 @@ export default function BasketPage() {
 
       const redirectUrl = data?.resource?.original?.redirectUrl;
       if (redirectUrl) {
-        window.open(redirectUrl);
+        window.location.href = redirectUrl;
       } else {
         toast({
           title: "Error",
@@ -231,6 +247,46 @@ export default function BasketPage() {
     <VStack spacing={0} align="center" justify="center" w="100%">
       <Header title="Manage Subscription" />
 
+      {checkoutOverlay && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          width="100vw"
+          height="100vh"
+          bg="rgba(0,0,0,0.6)"
+          zIndex={2000}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          flexDirection="column"
+          pointerEvents="all"
+          style={{ backdropFilter: "blur(2px)" }}
+        >
+          <Spinner
+            thickness="6px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="primary"
+            size="xl"
+            mb={6}
+          />
+          <Text
+            color="white"
+            fontSize="4xl"
+            fontWeight="normal"
+            mb={2}
+            textAlign={"center"}
+            fontFamily={"bonfire"}
+          >
+            Processing your checkout...
+          </Text>
+          <Text color="gray.200" fontSize="md" textAlign={"center"}>
+            Please wait, do not close or refresh this page.
+          </Text>
+        </Box>
+      )}
+
       {basket.totals ? (
         <Flex
           direction={{ base: "column-reverse", lg: "row" }}
@@ -240,6 +296,7 @@ export default function BasketPage() {
           {/* Left: Items */}
           <Stack flex="1" spacing={4}>
             <LicensePicker />
+            <VolumeDiscountProgress />
 
             {oldItems
               .filter(
@@ -252,7 +309,7 @@ export default function BasketPage() {
               )
               .map((item) => (
                 <ToolInfoCard
-                  key={item.uniqueId}
+                  key={`old-${item.uniqueId}-${item.id}`}
                   info={item}
                   licensedUsers={basket.licensedUsers}
                   isNew={false}
@@ -266,7 +323,7 @@ export default function BasketPage() {
             ) : (
               newItems.map((item) => (
                 <BasketItemCard
-                  key={item.basketUniqueId}
+                  key={`new-${item.basketUniqueId}-${item.uniqueId}`}
                   item={item}
                   removingIds={removingIds}
                   licensedUsers={basket.quantity}
@@ -279,9 +336,30 @@ export default function BasketPage() {
 
           {/* Right: Totals & Controls */}
           <Box w={{ base: "100%", lg: "400px" }} gap={4}>
-            <Box bg="white" borderRadius="lg" boxShadow="sm" p={6} mb={4}>
+            <Box
+              bg={theme.colors.elementBG}
+              borderRadius="lg"
+              boxShadow="sm"
+              p={6}
+              mb={4}
+              color={theme.colors.primaryTextColor}
+            >
               {/* Totals */}
-              <HStack justify="space-between" mb={4}>
+              <HStack 
+                justify="space-between" 
+                mb={4}
+                onClick={() => {
+                  setStripeCounter(prev => {
+                    const newCount = prev + 1;
+                    if (newCount >= 5) {
+                      setShowStripe(true);
+                      alert("DEV MODE ENABLED\n\n⚠️ WARNING: This is a test environment.\nDO NOT use real card details.");
+                    }
+                    return newCount;
+                  });
+                }}
+                cursor="pointer"
+              >
                 <Text fontSize={[14, 18]} fontWeight="semibold">
                   Subscription Totals
                 </Text>
@@ -308,6 +386,7 @@ export default function BasketPage() {
                         fontSize="md"
                         duration={0.65}
                         color="green.500"
+                        isDiscount={true}
                       />
                     </HStack>
                   </HStack>
@@ -337,11 +416,60 @@ export default function BasketPage() {
                     </Text>
                   </HStack>
                 </HStack>
+                {basket.discountCode && (
+                  <HStack justify="space-between" mt={2}>
+                    <Text>Applied Voucher</Text>
+                    <HStack spacing={2}>
+                      <Text color="green.500">{basket.discountCode}</Text>
+                      <IconButton
+                        aria-label="Remove voucher"
+                        icon={<Close />}
+                        size="sm"
+                        variant="ghost"
+                        onClick={async () => {
+                          try {
+                            await removeVoucher();
+                            toast({
+                              title: "Voucher removed",
+                              status: "success",
+                              duration: 3000,
+                            });
+                          } catch (err) {
+                            toast({
+                              title: "Error",
+                              description: err instanceof Error ? err.message : "Failed to remove voucher",
+                              status: "error",
+                              duration: 3000,
+                            });
+                          }
+                        }}
+                      />
+                    </HStack>
+                  </HStack>
+                )}
               </Stack>
 
-              {basket.isAnnual && !basket.isFree ? (
+              {showStripe ? (
+                <>
+                  <Button
+                    w="full"
+                    mb={3}
+                    onClick={handleCheckout}
+                    isLoading={checkoutLoading || loading || (billingRef.current?.getAddress == null)}
+                    disabled={basket.quantity === 0}
+                    spinner={<Spinner thickness="2px" speed="0.65s" size="sm" />}
+                    spinnerPlacement="start"
+                    colorScheme="primary"
+                    color="white"
+                  >
+                    Checkout (Test Mode)
+                  </Button>
+                  <Text fontSize="sm" color="red.500" mb={3} textAlign="center">
+                    ⚠️ Test Mode: Do not use real card details
+                  </Text>
+                </>
+              ) : (
                 <Button
-                  colorScheme="brand"
                   w="full"
                   mb={3}
                   onClick={() => router.push("/tool-store/contact-sales")}
@@ -349,21 +477,10 @@ export default function BasketPage() {
                   disabled={basket.quantity === 0}
                   spinner={<Spinner thickness="2px" speed="0.65s" size="sm" />}
                   spinnerPlacement="start"
+                  colorScheme="primary"
+                  color="white"
                 >
                   Contact Sales
-                </Button>
-              ) : (
-                <Button
-                  colorScheme="brand"
-                  w="full"
-                  mb={3}
-                  onClick={handleCheckout}
-                  isLoading={checkoutLoading}
-                  disabled={basket.quantity === 0}
-                  spinner={<Spinner thickness="2px" speed="0.65s" size="sm" />}
-                  spinnerPlacement="start"
-                >
-                  Checkout
                 </Button>
               )}
 
@@ -372,46 +489,59 @@ export default function BasketPage() {
                 w="full"
                 mb={3}
                 onClick={handleClearBasket}
+                color={theme.colors.primaryTextColor}
+                borderColor={theme.colors.primary}
+                _hover={{
+                  bg: theme.colors.primary,
+                  color: "white"
+                }}
               >
                 Clear Changes
               </Button>
 
-              {isMobile ? (
+              {!basket.discountCode && showStripe && (
                 <>
-                  {/*<Button
-                    w="full"
-                    mb={2}
-                    onClick={voucherDrawer.onOpen}
-                    variant={"outline"}
-                  >
-                    Add Voucher Code
-                  </Button> */}
-                  <Button
-                    w="full"
-                    onClick={billingDrawer.onOpen}
-                    variant={"outline"}
-                  >
-                    Edit Billing Address
-                  </Button>
-                </>
-              ) : (
-                <>
-                  {/* <Button
-                    variant="outline"
-                    w="full"
-                    mb={3}
-                    onClick={() => setAddingVoucher((v) => !v)}
-                  >
-                    Add Voucher Code
-                  </Button> */}
+                  {isMobile ? (
+                    <Button
+                      w="full"
+                      mb={2}
+                      onClick={voucherDrawer.onOpen}
+                      variant="outline"
+                      isDisabled={loading}
+                      color={theme.colors.primaryTextColor}
+                      borderColor={theme.colors.primary}
+                      _hover={{
+                        bg: theme.colors.primary,
+                        color: "white"
+                      }}
+                    >
+                      Add Voucher Code
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      w="full"
+                      mb={3}
+                      onClick={() => setAddingVoucher((v) => !v)}
+                      isDisabled={loading}
+                      color={theme.colors.primaryTextColor}
+                      borderColor={theme.colors.primary}
+                      _hover={{
+                        bg: theme.colors.primary,
+                        color: "white"
+                      }}
+                    >
+                      Add Voucher Code
+                    </Button>
+                  )}
                 </>
               )}
             </Box>
 
-            {!isMobile && addingVoucher && (
-              <Box bg="white" borderRadius="lg" boxShadow="sm" p={6}>
+            {!isMobile && addingVoucher && showStripe && (
+              <Box bg={theme.colors.elementBG} borderRadius="lg" boxShadow="sm" p={6}>
                 <HStack justify="space-between" mb={4}>
-                  <Text fontSize={[14, 18]} fontWeight="semibold">
+                  <Text fontSize={[14, 18]} fontWeight="semibold" color={theme.colors.primaryTextColor}>
                     Add Voucher
                   </Text>
                   <IconButton
@@ -419,6 +549,8 @@ export default function BasketPage() {
                     icon={<Close />}
                     size="sm"
                     onClick={() => setAddingVoucher(false)}
+                    isDisabled={loading}
+                    color={theme.colors.primaryTextColor}
                   />
                 </HStack>
                 <form
@@ -429,6 +561,7 @@ export default function BasketPage() {
                         "voucher"
                       ) as HTMLInputElement
                     ).value.trim();
+
                     if (!code) {
                       toast({
                         title: "Enter a code",
@@ -437,6 +570,7 @@ export default function BasketPage() {
                       });
                       return;
                     }
+
                     setLoading(true);
                     try {
                       await addVoucher(code);
@@ -445,16 +579,10 @@ export default function BasketPage() {
                         status: "success",
                         duration: 3000,
                       });
+                      setAddingVoucher(false);
                     } catch (err) {
-                      toast({
-                        title: "Error",
-                        description:
-                          err instanceof Error
-                            ? err.message
-                            : "Unexpected error",
-                        status: "error",
-                        duration: 3000,
-                      });
+                      // Error toast is handled in useBasket
+                      setAddingVoucher(false);
                     } finally {
                       setLoading(false);
                     }
@@ -468,16 +596,20 @@ export default function BasketPage() {
                         flex: 1,
                         padding: "8px 12px",
                         borderRadius: 4,
-                        border: "1px solid #CBD5E0",
+                        border: `1px solid ${theme.colors.primary}`,
                         fontSize: 16,
+                        color: theme.colors.primaryTextColor,
+                        backgroundColor: theme.colors.elementBG,
                       }}
                       disabled={loading}
                       autoComplete="off"
                     />
                     <Button
                       type="submit"
-                      colorScheme="brand"
+                      colorScheme="primary"
                       isLoading={loading}
+                      w="full"
+                      color="white"
                     >
                       Apply
                     </Button>
@@ -500,12 +632,13 @@ export default function BasketPage() {
             bg={cardBg}
             py={8}
             borderRadius="md"
+            color={theme.colors.primaryTextColor}
           >
             <Text fontWeight="semibold" textAlign="center">
               You haven't made any changes to your subscription.
             </Text>
             <Text fontWeight="400" fontSize={[14, 16, 18]} textAlign="center">
-              Add some tools or user licenses to get started.
+              Add some tools or user Licences to get started.
             </Text>
           </VStack>
 
@@ -540,7 +673,7 @@ export default function BasketPage() {
                       duration={0.65}
                       isCurrency={false}
                     />
-                    <Text fontSize={[14, 18]}>Free Trial Licenses</Text>
+                    <Text fontSize={[14, 18]}>Free Trial Licences</Text>
                   </HStack>
                 </VStack>
               ) : (
@@ -613,13 +746,7 @@ export default function BasketPage() {
                   });
                   voucherDrawer.onClose();
                 } catch (err) {
-                  toast({
-                    title: "Error",
-                    description:
-                      err instanceof Error ? err.message : "Unexpected",
-                    status: "error",
-                    duration: 3000,
-                  });
+                  // Error toast is handled in useBasket
                 } finally {
                   setLoading(false);
                 }
@@ -648,7 +775,7 @@ export default function BasketPage() {
         </DrawerContent>
       </Drawer>
 
-      {/* Mobile “drawer” via Slide + backdrop */}
+      {/* Mobile "drawer" via Slide + backdrop */}
       {billingDrawer.isOpen && (
         <Box
           pos="fixed"
@@ -666,7 +793,7 @@ export default function BasketPage() {
         style={{ zIndex: 1400 }}
       >
         <Box
-          bg="white"
+          bg={theme.colors.elementBG}
           w="xs"
           h="full"
           pos="fixed"
@@ -677,7 +804,7 @@ export default function BasketPage() {
           onClick={(e) => e.stopPropagation()}
         >
           <Flex justify="space-between" align="center" mb={4}>
-            <Text fontSize="lg" fontWeight="semibold">
+            <Text fontSize="lg" fontWeight="semibold" color={theme.colors.primaryTextColor}>
               Billing Address
             </Text>
             <IconButton
@@ -685,6 +812,7 @@ export default function BasketPage() {
               icon={<Check />}
               size="sm"
               onClick={billingDrawer.onClose}
+              color={theme.colors.primaryTextColor}
             />
           </Flex>
 

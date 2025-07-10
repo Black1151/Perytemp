@@ -1,8 +1,9 @@
 "use client";
-import { Box, Text, Image, Spinner } from "@chakra-ui/react";
+import { Box, Text, Image, Spinner, Badge } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { HospitalityItem } from "@/types/hospitalityHub";
 import PerygonCard from "@/components/layout/PerygonCard";
+import RoomIcon from "@mui/icons-material/Room";
 
 const shimmer = keyframes`
   0% {
@@ -44,8 +45,9 @@ export default function MasonryItemCard({
       onClick={onClick}
       overflow="hidden"
       transition="transform 0.3s, box-shadow 0.3s"
-      border="3px solid rgb(238, 228, 88)"
-      _hover={{ transform: "scale(1.05)", boxShadow: "4xl" }}
+      bg="transparent"
+      border="1px solid rgba(238, 228, 88, 0.5)"
+      _hover={{ transform: "scale(1.025)", boxShadow: "4xl" }}
       p={0}
     >
       {(item.coverImageUrl || item.logoImageUrl) && (
@@ -68,10 +70,33 @@ export default function MasonryItemCard({
           <Image
             src={item.logoImageUrl}
             alt={`${item.name} logo`}
-            boxSize="50px"
+            boxSize={["90px","110px","115px","120px"]}
             objectFit="contain"
+            rounded={"xl"}
           />
         </Box>
+      )}
+      {typeof item.distance_from_m === 'number' && (
+        <Badge
+          position="absolute"
+          top={2}
+          left={2}
+          zIndex={2}
+          colorScheme="yellow"
+          bg="hospitalityHubPremium"
+          color="black"
+          px={2}
+          py={1}
+          borderRadius="md"
+          fontWeight="semibold"
+          fontSize="0.85em"
+          display="flex"
+          alignItems="center"
+          boxShadow="md"
+        >
+          <RoomIcon style={{ fontSize: 16, marginRight: 4, color: 'black' }} />
+          {(item.distance_from_m / 1000).toFixed(1)} km away
+        </Badge>
       )}
       {/* Shimmer overlay */}
       <Box
@@ -99,28 +124,41 @@ export default function MasonryItemCard({
         pointerEvents="none"
         bgGradient="linear(to-t, rgba(0,0,0,0.9), rgba(0,0,0,0))"
       >
-        <Text
-          color="rgb(238, 228, 88)"
-          fontWeight="bold"
-          fontSize={["lg", "2xl", null, null, null, "4xl"]}
-          fontFamily="metropolis"
-          transition="transform 0.3s"
-          _groupHover={{ transform: "translateY(-10px)" }}
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          width="100%"
+          transition={{ base: "none", md: "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)" }}
+          willChange={{ base: undefined, md: "transform" }}
+          transform={{ base: "none", md: item.description ? "none" : undefined }}
+          _groupHover={{ md: { transform: item.description ? "translateY(-1.5em)" : "none" } }}
         >
-          {item.name}
-        </Text>
-        {item.description && (
           <Text
-            color="white"
-            fontSize="sm"
-            opacity={0}
-            transform="translateY(10px)"
-            transition="opacity 0.3s, transform 0.3s"
-            _groupHover={{ opacity: 1, transform: "translateY(0)" }}
+            color="rgb(238, 228, 88)"
+            fontWeight="bold"
+            fontSize={["xl", "2xl", null, null, null, "2xl"]}
+            fontFamily="metropolis"
           >
-            {item.description}
+            {item.name}
           </Text>
-        )}
+          {item.description && (
+            <Text
+              color="white"
+              fontSize="sm"
+              opacity={{ base: 1, md: 0 }}
+              maxHeight={{ base: "200px", md: 0 }}
+              overflow="hidden"
+              transition={{ base: "none", md: "opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), margin-top 0.45s cubic-bezier(0.4, 0, 0.2, 1)" }}
+              willChange={{ base: undefined, md: "opacity, max-height, margin-top" }}
+              marginTop={{ base: "0.5em", md: 0 }}
+              _groupHover={{ md: { opacity: 1, maxHeight: "200px", marginTop: "0.5em" } }}
+              mt={0}
+            >
+              {item.description}
+            </Text>
+          )}
+        </Box>
       </Box>
       {(disabled || loading) && (
         <Box

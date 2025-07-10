@@ -26,6 +26,7 @@ import { DefaultSession } from "next-auth";
 import CryptoJS from "crypto-js";
 import LinkOffIcon from "@mui/icons-material/LinkOff";
 import LinkOnIcon from "@mui/icons-material/Link";
+import { transparentize } from "@chakra-ui/theme-tools";
 
 declare module "next-auth" {
   interface Session {
@@ -437,7 +438,7 @@ export function LoginForm() {
               }
               focusBorderColor={theme.colors.primary}
             />
-            <Flex w="100%" justifyContent="flex-end">
+            <Flex w="100%" justifyContent="flex-end" h="min">
               {linkAppleAccountSub != "" && (
                 <Text
                   fontSize={["16px", "12px"]}
@@ -471,9 +472,9 @@ export function LoginForm() {
                 height={12}
                 color="white"
                 _hover={{
-                  color: theme.colors.primary,
-                  border: `1px solid ${theme.colors.primary}`,
-                  backgroundColor: "white",
+                  color: "white",
+                  border: `1px solid ${transparentize(theme.colors.primary, 0.8)(theme)}`,
+                  backgroundColor: transparentize(theme.colors.primary, 0.85)(theme),
                 }}
                 onClick={() => handleButtonClick("email")}
               >
@@ -490,9 +491,9 @@ export function LoginForm() {
                 height={12}
                 color="white"
                 _hover={{
-                  color: theme.colors.primary,
-                  border: `1px solid ${theme.colors.primary}`,
-                  backgroundColor: "white",
+                  color: "white",
+                  border: `1px solid ${transparentize(theme.colors.primary, 0.1)(theme)}`,
+                  backgroundColor: transparentize(theme.colors.primary, 0.85)(theme),
                 }}
                 onClick={() => handleButtonClick("email")}
               >
@@ -500,21 +501,29 @@ export function LoginForm() {
               </Button>
             )}
             {linkAppleAccountSub.length < 1 && (
-              <HStack>
-                <Text pt="10px" fontSize={["16px", "12px"]} color="gray">
+              <VStack w="100%" spacing={0}>
+                {/* <Text pt="10px" fontSize={["16px", "12px"]} color="gray" textAlign={"left"}>
                   Don&apos;t have an account?
-                </Text>
-                <Text
-                  pt="10px"
-                  fontSize={["16px", "12px"]}
-                  cursor="pointer"
+                </Text> */}
+                <Button
+                  mt={1}
+                  backgroundColor={"transparent"}
+                  type="submit"
+                  w="full"
+                  isLoading={loading}
+                  height={10}
                   color={theme.colors.primary}
-                  _hover={{ cursor: "pointer" }}
+                  border={`1px solid ${transparentize(theme.colors.primary, 0.8)(theme)}`}
+                  _hover={{
+                    color: theme.colors.primary,
+                    border: `1px solid ${transparentize(theme.colors.primary, 0.5)(theme)}`,
+                    backgroundColor: transparentize(theme.colors.primary, 0.05)(theme),
+                  }}
                   onClick={() => router.push("sign-up")}
                 >
                   Sign Up
-                </Text>
-              </HStack>
+                </Button>
+              </VStack>
             )}
             <LoginFormButtons
               loading={loading}
@@ -533,7 +542,7 @@ export function LoginForm() {
           direction={"column"}
         >
           <Text p="0" fontSize={["10px", "12px"]} color="gray">
-            Sedulo Accountants Limited © 2024 - 2025 (V1.4.0)
+            Sedulo Accountants Limited © 2024 - 2025 (V1.4.1)
           </Text>
           <Link href={"/privacy-policy"}>
             <Text p="0" fontSize={["10px", "12px"]} color="gray">

@@ -76,9 +76,9 @@ export function NewCompanyUserProfileCompletionForm({
     setValue,
   } = useForm<NewCustomerUserProfileCompletionFormInputs>();
 
-  const handleFormSubmit: SubmitHandler<NewCustomerUserProfileCompletionFormInputs> = async (
-    formData,
-  ) => {
+  const handleFormSubmit: SubmitHandler<
+    NewCustomerUserProfileCompletionFormInputs
+  > = async (formData) => {
     const updatedData = {
       ...formData,
       isProfileRegistered: true,
@@ -93,7 +93,7 @@ export function NewCompanyUserProfileCompletionForm({
           successMessage: "Profile updated successfully",
           errorMessage: "Try again",
           redirectOnError: false,
-        },
+        }
       );
 
       if (res?.userData?.resource?.isProfileRegistered) {
@@ -157,10 +157,19 @@ export function NewCompanyUserProfileCompletionForm({
 
           <InputField
             name="mobile"
-            placeholder="Mobile"
+            placeholder="Mobile *"
             type="text"
+            register={() =>
+              register("mobile", {
+                required: "Mobile is required",
+                pattern: {
+                  value: /^\+(?:[0-9][\s-]?){6,14}[0-9]$/,
+                  message:
+                    "Please enter a valid international phone number, starting with + and country code",
+                },
+              })
+            }
             error={formErrors.mobile}
-            register={() => register("mobile")}
             focusBorderColor={theme.colors.primary}
           />
 

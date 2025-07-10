@@ -1,12 +1,14 @@
 "use client";
 
-import { Spinner, VStack, useToast, Center, Text } from "@chakra-ui/react";
+import { Spinner, VStack, useToast, Center, Text, Button } from "@chakra-ui/react";
 import HospitalityItemsMasonry from "./HospitalityItemsMasonry";
 import { HospitalityCategory, HospitalityItem } from "@/types/hospitalityHub";
 import useHospitalityItems from "../../hooks/useHospitalityItems";
 import { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 import AddItemModal from "./AddItemModal";
 import DeleteItemModal from "./DeleteItemModal";
+import AddItemModalSplitPane from "./AddItemModalSplitPane";
+import PostAddIcon from "@mui/icons-material/PostAdd";
 
 interface CategoryTabContentProps {
   category: HospitalityCategory;
@@ -60,8 +62,7 @@ export const CategoryTabContent = forwardRef<
       ) : items.length === 0 ? (
         <Center flex={1}>
           <Text
-            fontFamily="bonfire"
-            fontSize="5xl"
+            fontSize="xl"
             textAlign="center"
             color="white"
           >
@@ -110,7 +111,7 @@ export const CategoryTabContent = forwardRef<
           }}
         />
       )}
-      <AddItemModal
+      <AddItemModalSplitPane
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onCreated={handleRefresh}

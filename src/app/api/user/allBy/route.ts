@@ -8,6 +8,8 @@ export async function GET(req: NextRequest) {
   // Extract searchParams from the incoming request
   const { searchParams } = req.nextUrl;
 
+  console.log(JSON.stringify(req))
+
   // Construct the backend URL dynamically with query parameters
   const backendUrl = `${process.env.BE_URL}/user/allBy`;
   const urlWithParams = new URL(backendUrl);

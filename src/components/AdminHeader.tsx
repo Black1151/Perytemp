@@ -26,7 +26,7 @@ const AdminHeading: React.FC<AdminHeadingProps> = ({
         fontFamily={"Bonfire"}
         fontWeight={100}
       >
-        {headingText}{" "}
+        {headingText}
       </Heading>
       {dataCount && (
         <Text as="sup" fontSize="xs">

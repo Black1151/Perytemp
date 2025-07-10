@@ -96,8 +96,7 @@ export const UserProvider: React.FC<{
   children: ReactNode;
 }> = ({ value, children }) => {
   const [user, setUser] = useState<UserContextProps | null>(value || null);
-  const [userAccessControl, setUserAccessControl] =
-    useState<UserAccessControlContextProps | null>(null);
+  const [userAccessControl, setUserAccessControl] = useState<UserAccessControlContextProps | null>(null)
   const [showDeveloperBoard, setShowDeveloperBoard] = useState<boolean>(false);
   const { fetchClient } = useFetchClient();
 
@@ -137,16 +136,9 @@ export const UserProvider: React.FC<{
     setShowDeveloperBoard(value);
   };
 
-  console.log(user, "UserContext user state");
-
   return (
     <UserContext.Provider
-      value={{
-        user,
-        userAccessControl,
-        showDeveloperBoard,
-        updateShowDeveloperBoard,
-      }}
+      value={{ user, userAccessControl, showDeveloperBoard, updateShowDeveloperBoard }}
     >
       {children}
     </UserContext.Provider>

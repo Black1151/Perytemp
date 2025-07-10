@@ -60,8 +60,6 @@ export async function getFilteredDashboards(
 
   const dashboardList: Dashboard[] = dashboardListData.resource;
 
-  console.log("XXX", dashboardList);
-
   const filteredDashboards = dashboardList.filter((dashboard) => {
     let customerRestrictionList = null;
 

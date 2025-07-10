@@ -22,7 +22,7 @@ import { ColDef } from "ag-grid-community";
 import HappinessScoreRenderer from "@/components/agGrids/CellRenderers/HappinessScoreRenderer";
 import CommentsCellRenderer from "@/components/agGrids/CellRenderers/CommentsCellRenderer";
 import { useUser } from "@/providers/UserProvider";
-import { Info } from "@mui/icons-material";
+import { Info as InfoIcon } from "@mui/icons-material";
 import SurveyModal from "@/components/surveyjs/layout/default/SurveyModal";
 import StaffHappinessDetailsRenderer from "@/components/agGrids/CellRenderers/HappinessScore/StaffHappinessDetailsRenderer";
 import { useWorkflow } from "@/providers/WorkflowProvider";
@@ -500,6 +500,7 @@ const UserDashboard: React.FC = () => {
           color: "primary",
         }}
         bodyContent={modalData.body}
+        type="info"
       />
 
       <FilterSidebar
@@ -586,7 +587,7 @@ const UserDashboard: React.FC = () => {
                   >
                     <IconButton
                       aria-label="Punch Card Help"
-                      icon={<Info />}
+                      icon={<InfoIcon fontSize="inherit"/>}
                       variant="ghost"
                       onClick={showPunchCardHelp}
                       color={"white"}

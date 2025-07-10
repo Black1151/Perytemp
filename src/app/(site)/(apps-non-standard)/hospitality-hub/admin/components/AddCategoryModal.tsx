@@ -2,13 +2,6 @@
 
 import { useUser } from "@/providers/UserProvider";
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
   Button,
   FormControl,
   FormLabel,
@@ -16,6 +9,9 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  useTheme,
+  Box,
+  VStack,
 } from "@chakra-ui/react";
 import ImageUploadWithCrop from "@/components/image/ImageUploadWithCrop";
 import { useForm, Controller } from "react-hook-form";
@@ -24,11 +20,13 @@ import { useToast } from "@chakra-ui/react";
 import { HospitalityCategory } from "@/types/hospitalityHub";
 import { BigUpTeamMember } from "../../../big-up/types";
 import TeamMemberAutocomplete from "../../../big-up/components/TeamMemberAutocomplete";
+import SinglePaneModal from "@/components/modals/SinglePaneModal";
+import { transparentize } from "@chakra-ui/theme-tools";
 
 interface AddCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (category: HospitalityCategory) => void;
   category?: HospitalityCategory | null;
 }
 
@@ -45,7 +43,7 @@ export default function AddCategoryModal({
   onCreated,
   category,
 }: AddCategoryModalProps) {
-  const { register, control, handleSubmit, reset, setValue } =
+  const { register, control, handleSubmit, reset, setValue, formState: { errors } } =
     useForm<FormValues>();
   const toast = useToast();
 
@@ -57,6 +55,8 @@ export default function AddCategoryModal({
 
   const customerId = user?.customerId;
   const userId = user?.userId;
+
+  const theme = useTheme();
 
   useEffect(() => {
     if (customerId !== undefined) setValue("customerId", customerId);
@@ -128,6 +128,17 @@ export default function AddCategoryModal({
     const method = category ? "PUT" : "POST";
     const formData = new FormData();
 
+    if (!category && !coverFile) {
+      toast({
+        title: "Image is required.",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+        position: "bottom-right",
+      });
+      return;
+    }
+
     if (ownerOption === "me" && userId !== undefined) {
       data.catOwnerUserId = userId;
     } else if (data.catOwnerUserId !== undefined) {
@@ -181,7 +192,7 @@ export default function AddCategoryModal({
         position: "bottom-right",
       });
 
-      onCreated();
+      onCreated(result.resource || result);
       reset();
       setCoverFile(null);
       onClose();
@@ -198,75 +209,123 @@ export default function AddCategoryModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>
-          {category ? "Update Category" : "Create Category"}
-        </ModalHeader>
-        <ModalCloseButton />
-        <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
-          <ModalBody>
-            <input type="hidden" {...register("customerId")} />
-            <input type="hidden" {...register("catOwnerUserId")} />
-            <FormControl mb={4} isRequired>
-              <FormLabel>Name</FormLabel>
-              <Input {...register("name", { required: true })} />
-            </FormControl>
-            <FormControl mb={4} isRequired>
-              <FormLabel>Description</FormLabel>
-              <Input {...register("description", { required: true })} />
-            </FormControl>
-            <FormControl mb={2}>
-              <FormLabel>Owner</FormLabel>
-              <RadioGroup
-                value={ownerOption}
-                onChange={(val) => {
-                  setOwnerOption(val as "me" | "other");
-                  if (val === "me" && userId !== undefined) {
-                    setValue("catOwnerUserId", userId);
-                  } else if (val === "other") {
-                    setValue("catOwnerUserId", undefined);
-                  }
-                }}
-              >
-                <Stack direction="row">
-                  <Radio value="me">Me!</Radio>
-                  <Radio value="other">Someone else</Radio>
-                </Stack>
-              </RadioGroup>
-            </FormControl>
-            {ownerOption === "other" && (
-              <FormControl mb={4} isRequired>
-                <FormLabel>Category Owner</FormLabel>
-                <Controller
-                  name="catOwnerUserId"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <TeamMemberAutocomplete
-                      value={field.value?.toString() || ""}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      teamMembers={teamMembers}
-                      placeholder="Search team member..."
-                    />
-                  )}
+    <SinglePaneModal
+      isOpen={isOpen}
+      onClose={onClose}
+      icon={null}
+      title={category ? "Update Category" : "Create Category"}
+      panel={
+        <Box
+          p={4}
+          border="1px solid"
+          borderColor={transparentize(theme.colors.primaryTextColor, 0.15)(theme)}
+          borderRadius="md"
+          bg={theme.colors.elementBG}
+        >
+          <form id="add-category-form" onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
+            <VStack align="stretch" spacing={4}>
+              <input type="hidden" {...register("customerId")} />
+              <input type="hidden" {...register("catOwnerUserId")} />
+              <FormControl isRequired>
+                <FormLabel>Name</FormLabel>
+                <Box color={theme.colors.secondaryTextColor} fontSize="sm" mb={2}>
+                  Enter a short, descriptive name for this category. (Required, 3-30 characters)
+                </Box>
+                <Input
+                  {...register("name", {
+                    required: "Name is required.",
+                    minLength: { value: 3, message: "Name must be at least 3 characters." },
+                    maxLength: { value: 30, message: "Name must be at most 30 characters." },
+                  })}
                 />
+                {errors.name && (
+                  <Box color="red.500" fontSize="sm">
+                    {errors.name.message}
+                  </Box>
+                )}
               </FormControl>
-            )}
-            <ImageUploadWithCrop
-              label="Image"
-              onFileSelected={(file) => setCoverFile(file)}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button type="submit" variant="primary">
-              {category ? "Update" : "Create"}
-            </Button>
-          </ModalFooter>
-        </form>
-      </ModalContent>
-    </Modal>
+              <FormControl isRequired>
+                <FormLabel>Description</FormLabel>
+                <Box color={theme.colors.secondaryTextColor} fontSize="sm" mb={2}>
+                  Provide a brief description of what this category is for. (Required, 80-500 characters)
+                </Box>
+                <Input
+                  {...register("description", {
+                    required: "Description is required.",
+                    minLength: { value: 80, message: "Description must be at least 80 characters." },
+                    maxLength: { value: 500, message: "Description must be at most 500 characters." },
+                  })}
+                />
+                {errors.description && (
+                  <Box color="red.500" fontSize="sm">
+                    {errors.description.message}
+                  </Box>
+                )}
+              </FormControl>
+              <FormControl>
+                <FormLabel>Owner</FormLabel>
+                <Box color={theme.colors.secondaryTextColor} fontSize="sm" mb={2}>
+                  The selected owner will receive notifications about this category. Choose "Me!" to assign yourself, or "Someone else" to select a different team member.
+                </Box>
+                <RadioGroup
+                  value={ownerOption}
+                  onChange={(val) => {
+                    setOwnerOption(val as "me" | "other");
+                    if (val === "me" && userId !== undefined) {
+                      setValue("catOwnerUserId", userId);
+                    } else if (val === "other") {
+                      setValue("catOwnerUserId", undefined);
+                    }
+                  }}
+                >
+                  <Stack direction="row">
+                    <Radio value="me">Me!</Radio>
+                    <Radio value="other">Someone else</Radio>
+                  </Stack>
+                </RadioGroup>
+              </FormControl>
+              {ownerOption === "other" && (
+                <FormControl isRequired>
+                  <FormLabel>Category Owner</FormLabel>
+                  <Box color={theme.colors.secondaryTextColor} fontSize="sm" mb={2}>
+                    Start typing to search and select the team member who should receive notifications for this category.
+                  </Box>
+                  <Controller
+                    name="catOwnerUserId"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <TeamMemberAutocomplete
+                        value={field.value?.toString() || ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        teamMembers={teamMembers}
+                        placeholder="Search team member..."
+                      />
+                    )}
+                  />
+                </FormControl>
+              )}
+              <FormLabel mb={-2} mt={2}>Image</FormLabel>
+              <Box color={theme.colors.secondaryTextColor} fontSize="sm" mb={2}>
+                Please upload a high-quality image for this category. This image will represent the category in listings and should be visually clear at different sizes. (Required)
+              </Box>
+              <ImageUploadWithCrop
+                label=""
+                onFileSelected={(file) => setCoverFile(file)}
+                isRequired={true}
+                existingUrl={category?.coverImageUrl}
+                onRemoveExisting={() => setCoverFile(null)}
+              />
+            </VStack>
+          </form>
+        </Box>
+      }
+      footer={
+        <Button type="submit" form="add-category-form" variant="primary">
+          {category ? "Update" : "Create"}
+        </Button>
+      }
+    />
   );
 }
